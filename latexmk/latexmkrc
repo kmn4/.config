@@ -1,0 +1,8 @@
+#!/usr/bin/env perl
+$latex = 'lualatex -halt-on-error -interaction=nonstopmode -file-line-error';
+$dvipdf = 'dvipdfmx %O -o %D %S';
+$bibtex = "pbibtex %O %B";
+$max_repeat = 5;
+$pdf_mode = 3;
+$pdf_previewer = 'okular';
+#$preview_continuous_mode = 1;
