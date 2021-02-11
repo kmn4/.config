@@ -5,4 +5,3 @@ $bibtex = "pbibtex %O %B";
 $max_repeat = 5;
 $pdf_mode = 3;
 $pdf_previewer = 'okular';
-#$preview_continuous_mode = 1;
