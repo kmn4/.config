@@ -126,6 +126,7 @@ followed by \"o\"."
 
 ;; Fish
 (with-eval-after-load 'fish-mode
+  (advice-add 'fish_indent :after #'recenter)
   (add-hook 'before-save-hook
             (lambda () (when (eq major-mode 'fish-mode) (fish_indent))))
   )
