@@ -124,6 +124,12 @@ followed by \"o\"."
                   before-save-hook)
        (add-hooks (lambda () (clean-aindent-mode -1)) go-mode-hook))
 
+;; Fish
+(with-eval-after-load 'fish-mode
+  (add-hook 'before-save-hook
+            (lambda () (when (eq major-mode 'fish-mode) (fish_indent))))
+  )
+
 ;; LSP
 (with-eval-after-load 'lsp-mode
   ;; lsp-ui-doc-show-with-mouse makes Emacs slow.
