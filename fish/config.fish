@@ -14,5 +14,5 @@ if not contains $BREWHOME/bin $PATH
 end
 
 # opam configuration
-# source /home/kamasaki/.opam/opam-init/init.fish > /dev/null 2> /dev/null; or true
+# source $HOME/.opam/opam-init/init.fish > /dev/null 2> /dev/null; or true
 # eval (opam env)

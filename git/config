@@ -15,7 +15,7 @@
     rb = rebase --committer-date-is-author-date
 [core]
 	editor = vim
-	excludesfile = /home/kamasaki/.gitignore
+	excludesfile = $HOME/.gitignore
 	autocrlf = input
 [filter "lfs"]
 	clean = git-lfs clean -- %f
