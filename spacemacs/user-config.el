@@ -143,9 +143,41 @@ followed by \"o\"."
     "hg" #'lsp-ui-doc-glance
     "hs" #'lsp-ui-doc-show
     "hq" #'lsp-ui-doc-hide)
+  ;; パンくずリストを有効化
   (setq lsp-headerline-breadcrumb-enable t
         lsp-headerline-breadcrumb-segments '(symbols)
-        lsp-headerline-breadcrumb-enable-symbol-numbers nil))
+        lsp-headerline-breadcrumb-enable-symbol-numbers nil)
+  ;; Spacemacs が各メジャーモードのフックに lsp を追加する
+  ;; lsp サーバの起動は遅いことがあり，少しの変更をするだけなら起動してほしくない
+  (defvar define-hook-command-history nil
+    "History for commands by `define-hook-command'.")
+  (defmacro define-hook-command (name hook-name docstring &rest action)
+    "Define interactive command NAME whose arglist is nil and body is ACTION.
+Use `ivy-read' to read a hook which is to be bound to HOOK-NAME."
+    `(defun ,name () ,docstring
+      (interactive)
+      (ivy-read "Choose hook: " obarray
+                :predicate (-andfn #'counsel--variable-p
+                                   (lambda (s) (s-ends-with? "-hook" (symbol-name s))))
+                :require-match t
+                :history 'define-hook-command-history
+                :keymap counsel-describe-map
+                :preselect (cadr define-hook-command-history)
+                :action (lambda (x)
+                          (let ((,hook-name (intern x)))
+                            ,@action))
+                ;; :caller 'counsel-describe-variable
+                ))
+    )
+  (define-hook-command remove-lsp-from-hook hook
+    "Remove `lsp' and `dap-mode' from HOOK."
+    (remove-hook hook #'lsp)
+    (remove-hook hook #'dap-mode))
+  (define-hook-command add-lsp-to-hook hook
+    "Add `lsp' and `dap-mode' to HOOK."
+    (add-hook hook #'dap-mode)
+    (add-hook hook #'lsp))
+)
 (with-eval-after-load 'imenu
   (setq imenu-auto-rescan t))
 
