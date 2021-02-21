@@ -42,7 +42,6 @@ This function should only modify configuration layer settings."
                       auto-completion-enable-sort-by-usage t
                       auto-completion-use-company-box t)
      (c-c++ :variables c-c++-enable-clang-format-on-save t)
-     chrome
      coq
      (elfeed :variables elfeed-enable-web-interface t)
      emacs-lisp
@@ -117,6 +116,7 @@ This function should only modify configuration layer settings."
      mozc
      mozc-popup
      multi-vterm
+     edit-server
      )
 
    ;; A list of packages that cannot be updated.

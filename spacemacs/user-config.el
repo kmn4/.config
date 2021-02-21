@@ -335,4 +335,7 @@ Use `ivy-read' to read a hook which is to be bound to HOOK-NAME."
 (spacemacs/toggle-debug-on-error-on)
 (setf confirm-kill-emacs 'yes-or-no-p)
 
+;; edit-server
+(require 'edit-server)
+(edit-server-start)
 )  ; dotspacemacs/user-config
