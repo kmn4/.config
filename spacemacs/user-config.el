@@ -189,7 +189,7 @@ Use `ivy-read' to read a hook which is to be bound to HOOK-NAME."
 (with-eval-after-load 'org
   (setq org-directory (+dropbox-root "org")
         org-default-notes-file (expand-file-name "notes.org" org-directory)
-        org-agenda-files `(,+dropbox-root))
+        org-agenda-files (list (+dropbox-root "org")))
   (add-hooks (lambda () (visual-line-mode +1)) org-mode-hook))
 
 ;; Scala
