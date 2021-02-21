@@ -131,6 +131,10 @@ followed by \"o\"."
             (lambda () (when (eq major-mode 'fish-mode) (fish_indent))))
   )
 
+;; bookmark
+;; counsel-bookmark に名前でソートさせたい
+(advice-add 'bookmark-all-names :filter-return (lambda (names) (sort names #'string<)))
+
 ;; LSP
 (with-eval-after-load 'lsp-mode
   ;; lsp-ui-doc-show-with-mouse makes Emacs slow.
