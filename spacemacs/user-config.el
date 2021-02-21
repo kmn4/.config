@@ -342,4 +342,15 @@ Use `ivy-read' to read a hook which is to be bound to HOOK-NAME."
 ;; edit-server
 (require 'edit-server)
 (edit-server-start)
+
+;; Mail (mu4e)
+(setq mu4e-enable-notifications t)
+(with-eval-after-load 'mu4e-alert
+  ;; Enable Desktop notifications
+  (mu4e-alert-set-default-style 'notifications)) ; For Linux.
+;; (mu4e-alert-set-default-style 'libnotify))  ; Alternative for Linux
+;; (mu4e-alert-set-default-style 'notifier))   ; For macOS (through the
+                                        ; terminal notifier app).
+;; (mu4e-alert-set-default-style 'growl))      ; Alternative for macOS.
+
 )  ; dotspacemacs/user-config

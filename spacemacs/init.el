@@ -69,6 +69,10 @@ This function should only modify configuration layer settings."
             latex-enable-auto-fill nil)
      (lsp :variables lsp-ui-sideline-enable t)
      markdown
+     (mu4e :variables
+           mu4e-installation-path "/usr/share/emacs/site-lisp/mu4e"
+           mu4e-enable-notifications t
+           mu4e-enable-mode-line t)
      multiple-cursors
      nginx
      ocaml
@@ -117,6 +121,7 @@ This function should only modify configuration layer settings."
      mozc-popup
      multi-vterm
      edit-server
+     mu4e-alert
      )
 
    ;; A list of packages that cannot be updated.
