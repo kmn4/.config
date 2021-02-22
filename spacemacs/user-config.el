@@ -348,9 +348,4 @@ Use `ivy-read' to read a hook which is to be bound to HOOK-NAME."
 (with-eval-after-load 'mu4e-alert
   ;; Enable Desktop notifications
   (mu4e-alert-set-default-style 'notifications)) ; For Linux.
-;; (mu4e-alert-set-default-style 'libnotify))  ; Alternative for Linux
-;; (mu4e-alert-set-default-style 'notifier))   ; For macOS (through the
-                                        ; terminal notifier app).
-;; (mu4e-alert-set-default-style 'growl))      ; Alternative for macOS.
-
 )  ; dotspacemacs/user-config

@@ -12,7 +12,3 @@ set -x BIBINPUTS $HOME/Dropbox/lab/bib
 if not contains $BREWHOME/bin $PATH
     set -xa PATH $BREWHOME/bin
 end
-
-# opam configuration
-# source $HOME/.opam/opam-init/init.fish > /dev/null 2> /dev/null; or true
-# eval (opam env)
