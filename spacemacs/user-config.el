@@ -357,7 +357,8 @@ Use `ivy-read' to read a hook which is to be bound to HOOK-NAME."
 (edit-server-start)
 
 ;; Mail (mu4e)
-(setq mu4e-enable-notifications t)
+(require 'mu4e)
+(setq mu4e-update-interval 60)
 (with-eval-after-load 'mu4e-alert
   ;; Enable Desktop notifications
   (mu4e-alert-set-default-style 'notifications)) ; For Linux.
