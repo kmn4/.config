@@ -190,7 +190,20 @@ Use `ivy-read' to read a hook which is to be bound to HOOK-NAME."
   (setq org-directory (+dropbox-root "org")
         org-default-notes-file (expand-file-name "notes.org" org-directory)
         org-agenda-files (list (+dropbox-root "org")))
-  (add-hooks (lambda () (visual-line-mode +1)) org-mode-hook))
+  (add-hooks (lambda () (visual-line-mode +1)) org-mode-hook)
+
+  (spacemacs|define-transient-state org-subtree
+    :title "Org Subtree Transient state"
+    :doc "
+[_j_/_k_] move subtree
+[_q_] quit"
+    :bindings
+    ("q" nil :exit t)
+    ("k" #'org-move-subtree-up)
+    ("j" #'org-move-subtree-down))
+
+  (spacemacs/set-leader-keys-for-major-mode 'org-mode
+    "s." #'spacemacs/org-subtree-transient-state/body))
 
 ;; Scala
 (with-eval-after-load 'scala-mode
