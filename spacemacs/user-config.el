@@ -318,7 +318,7 @@ Use `ivy-read' to read a hook which is to be bound to HOOK-NAME."
           "jf" #'counsel-find-junk
           "jg" #'counsel-junk-git-grep))
 
-;; LaTeX, PDF
+;; LaTeX
 (with-eval-after-load 'tex
   (setf (alist-get 'output-pdf TeX-view-program-selection) '("Okular"))   ; TODO
   (setq reftex-default-bibliography `(,(+dropbox-root "lab/bib/ref.bib")) ; TODO
@@ -334,6 +334,8 @@ Use `ivy-read' to read a hook which is to be bound to HOOK-NAME."
     (setq TeX-command-list (-remove (lambda (l) (string-equal (car l) "LatexMk")) TeX-command-list))
     (push '("LatexMk" "latexmk --synctex=1 %T" TeX-run-command nil t) TeX-command-list))
   )
+
+;; PDF
 (with-eval-after-load 'pdf-tools
   (require 'pdf-sync)
   (define-key pdf-view-mode-map (kbd "<C-mouse-1>") 'pdf-sync-backward-search-mouse))
