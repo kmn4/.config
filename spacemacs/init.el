@@ -116,12 +116,12 @@ This function should only modify configuration layer settings."
    ;; Also include the dependencies as they will not be resolved automatically.
    dotspacemacs-additional-packages
    '(
+     agda2-mode
      migemo
-     mozc
-     mozc-popup
      multi-vterm
      edit-server
      mu4e-alert
+     dired-du
      )
 
    ;; A list of packages that cannot be updated.

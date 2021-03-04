@@ -224,20 +224,9 @@ Use `ivy-read' to read a hook which is to be bound to HOOK-NAME."
   (push (substitute-env-vars "$XDG_DATA_HOME/info") Info-directory-list) ; TODO
   )
 
-;; Japanese support (IME and avy-migemo)
-(progn (when (eq system-type 'gnu/linux)
-         (set-language-environment "Japanese")
-         (prefer-coding-system 'utf-8)
-         (when (assoc "japanese-mozc" input-method-alist)
-           (setq default-input-method "japanese-mozc"
-                 evil-input-method "japanese-mozc"))
-         (setf mozc-candidate-style 'echo-area))
-       (bind-keys
-        :map global-map
-        ("C-<henkan>" .
-         (lambda () (interactive) (activate-input-method default-input-method)))
-        ("C-<muhenkan>" .
-         (lambda () (interactive) (deactivate-input-method))))
+;; Japanese support (migemo)
+(progn (set-language-environment "Japanese")
+       (prefer-coding-system 'utf-8)
        (progn
          (require 'migemo)
          (setq migemo-dictionary "/usr/share/cmigemo/utf-8/migemo-dict") ; TODO
@@ -247,6 +236,10 @@ Use `ivy-read' to read a hook which is to be bound to HOOK-NAME."
          (require 'avy-migemo-e.g.counsel)
          (require 'avy-migemo-e.g.swiper)
          (avy-migemo-mode +1)))
+
+;; Use Agda input method
+(require 'agda2-mode)
+(setq default-input-method "Agda")
 
 ;; TODO
 (defun add-all-to-list (list-var elements &optional append compare-fn)
