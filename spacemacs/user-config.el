@@ -78,7 +78,7 @@ followed by \"o\"."
          (define-key vterm-mode-map (kbd "C-h") 'vterm-send-backspace))
        (bind-keys :map global-map
                   ("C-h" . nil)
-                  ("C-h" . backward-delete-char-untabify)
+                  ("C-h" . delete-backward-char)
                   ("<f5>" . revert-buffer))
        (defun +open-org-default-note-file ()
          (interactive)
@@ -203,7 +203,9 @@ Use `ivy-read' to read a hook which is to be bound to HOOK-NAME."
     ("j" #'org-move-subtree-down))
 
   (spacemacs/set-leader-keys-for-major-mode 'org-mode
-    "s." #'spacemacs/org-subtree-transient-state/body))
+    "s." #'spacemacs/org-subtree-transient-state/body)
+
+  (setq org-babel-python-command (or (executable-find "python") "python3")))
 
 ;; Scala
 (with-eval-after-load 'scala-mode
@@ -236,6 +238,18 @@ Use `ivy-read' to read a hook which is to be bound to HOOK-NAME."
          (require 'avy-migemo-e.g.counsel)
          (require 'avy-migemo-e.g.swiper)
          (avy-migemo-mode +1)))
+;; textlint
+(with-eval-after-load 'flycheck
+  (flycheck-define-checker textlint
+    "A linter for Japanese writing."
+    :command ("textlint" "--format" "unix" source)
+    :error-patterns
+    ((warning line-start (file-name) ":" line ":" column ": "
+              (id (one-or-more (not (any " "))))
+              (message (one-or-more not-newline)
+                       (zero-or-more "\n" (any " ") (one-or-more not-newline)))
+              line-end))
+    :modes (text-mode org-mode markdown-mode gfm-mode)))
 
 ;; Use Agda input method
 (require 'agda2-mode)
@@ -258,11 +272,15 @@ Use `ivy-read' to read a hook which is to be bound to HOOK-NAME."
   (setf (alist-get 'width initial-frame-alist) width)
   (setf (alist-get 'height initial-frame-alist) height))
 (+set-frame-size 120 36)
+(defun push-to-frame-alists (elt)
+  "Push ELT to `default-frame-alist' and `initial-frame-alist'."
+  (push elt default-frame-alist)
+  (push elt initial-frame-alist))
+(push-to-frame-alists '(undecorated . t))
 
 ;; Company
 (with-eval-after-load 'company
-  (define-key company-mode-map (kbd "C-M-i") #'company-complete)
-  (setq company-minimum-prefix-length 2
+  (setq company-idle-delay nil          ; no idle completion
         company-selection-wrap-around t)
   (bind-keys :map company-mode-map
              ("S-SPC" . company-complete)
@@ -352,7 +370,6 @@ Use `ivy-read' to read a hook which is to be bound to HOOK-NAME."
 (edit-server-start)
 
 ;; Mail (mu4e)
-(require 'mu4e)
 (setq mu4e-update-interval 60)
 (with-eval-after-load 'mu4e-alert
   ;; Enable Desktop notifications
