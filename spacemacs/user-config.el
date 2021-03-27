@@ -4,6 +4,7 @@ This function is called at the very end of Spacemacs startup, after layer
 configuration.
 Put your configuration code here, except for variables that should be set
 before packages are loaded."
+() ;; 改行時のよけいなインデントを防止
 
 ;; variables
 (defcustom +dropbox-root (substitute-env-vars "$HOME/Dropbox")
@@ -216,6 +217,14 @@ Use `ivy-read' to read a hook which is to be bound to HOOK-NAME."
   (setq lsp-metals-treeview-show-when-views-received nil
         lsp-metals-show-implicit-arguments nil
         lsp-metals-show-inferred-type nil))
+
+;; Python
+(use-package python
+  :config
+  (use-package blacken :ensure t)
+  (use-package py-isort :ensure t)
+  (add-hook 'python-mode-hook #'blacken-mode)
+  (add-hook 'python-mode-hook #'py-isort-before-save))
 
 ;; Rust
 (with-eval-after-load 'rust-mode
