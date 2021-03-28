@@ -295,7 +295,9 @@ Use `ivy-read' to read a hook which is to be bound to HOOK-NAME."
              ("S-SPC" . company-complete)
              ("C-c y" . company-yasnippet))
   (bind-keys :map company-active-map
-             ("C-h" . delete-backward-char)))
+             ("C-h" . delete-backward-char)
+             ([return] . company-complete-selection)
+             ("RET" . company-complete-selection)))
 
 ;; Junk files TODO
 (progn   (require 'open-junk-file)

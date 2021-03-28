@@ -37,16 +37,12 @@ This function should only modify configuration layer settings."
    ;; List of configuration layers to load.
    dotspacemacs-configuration-layers
    '((auto-completion :variables
-                      auto-completion-return-key-behavior 'complete
                       auto-completion-tab-key-behavior 'cycle
-                      auto-completion-idle-delay 0.2
                       auto-completion-enable-help-tooltip t
                       auto-completion-enable-snippets-in-popup t
                       auto-completion-enable-sort-by-usage t
                       auto-completion-use-company-box t)
      (c-c++ :variables c-c++-enable-clang-format-on-save t)
-     coq
-     (elfeed :variables elfeed-enable-web-interface t)
      emacs-lisp
      emoji
      git
@@ -61,7 +57,8 @@ This function should only modify configuration layer settings."
      (javascript :variables
                  javascript-fmt-on-save t
                  javascript-fmt-tool 'prettier)
-     (json :variables json-fmt-on-save 'prettier
+     (json :variables
+           json-fmt-on-save 'prettier
            json-backend 'company-json
            json-fmt-on-save t)
      (latex :variables
