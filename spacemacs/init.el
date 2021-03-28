@@ -147,9 +147,9 @@ It should only modify the values of Spacemacs settings."
    dotspacemacs-verify-spacelpa-archives t
    dotspacemacs-elpa-subdirectory 'emacs-version ; like 'emacs/elpa/27.1/...'
 
-   dotspacemacs-editing-style 'hybrid
    ;;; Keys
    ;; see DOCUMENTATION.org/Concepts/Editing Styles
+   dotspacemacs-editing-style 'vim
    dotspacemacs-leader-key "SPC"
    dotspacemacs-emacs-command-key "SPC" ; M-x
    dotspacemacs-ex-command-key ":"
