@@ -4,15 +4,15 @@
 [push]
 	default = simple
 [alias]
-    a = add
-    cm = commit -m
-    gl = log --graph --date=relative --pretty=format:'%C(yellow)%h %Cblue%>(12)%ad %Cgreen%<(7)%aN%Cred%d %Creset%s'
-    fl = log --graph --decorate --pretty=fuller
+  a = add
+  cm = commit -m
+  gl = log --graph --date=relative --pretty=format:'%C(yellow)%h %Cblue%>(12)%ad %Cgreen%<(7)%aN%Cred%d %Creset%s'
+  fl = log --graph --decorate --pretty=fuller
 	st = status --short
-    co = checkout
-    b = branch
-    nffm = merge --no-ff
-    rb = rebase --committer-date-is-author-date
+  co = checkout
+  b = branch
+  nffm = merge --no-ff
+  rb = rebase --committer-date-is-author-date
 [core]
 	editor = vim
 	excludesfile = $HOME/.gitignore
