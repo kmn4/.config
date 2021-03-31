@@ -64,6 +64,27 @@ if it was opened when called."
              (dolist (hook ',hooks)
                (add-hook hook fn))))
 
+(defvar define-hook-command-history nil
+  "History for commands by `define-hook-command'.")
+(defmacro define-hook-command (name hook-name docstring &rest action)
+  "Define interactive command NAME whose arglist is nil and body is ACTION.
+Use `ivy-read' to read a hook which is to be bound to HOOK-NAME."
+  `(defun ,name () ,docstring
+          (interactive)
+          (ivy-read "Choose hook: " obarray
+                    :predicate (-andfn #'counsel--variable-p
+                                       (lambda (s) (s-ends-with? "-hook" (symbol-name s))))
+                    :require-match t
+                    :history 'define-hook-command-history
+                    :keymap counsel-describe-map
+                    :preselect (cadr define-hook-command-history)
+                    :action (lambda (x)
+                              (let ((,hook-name (intern x)))
+                                ,@action))
+                    ;; :caller 'counsel-describe-variable
+                    ))
+  )
+
 ;; Key Bindings
 (progn (defvar +spacemacs-user-map (make-sparse-keymap))
        (spacemacs/set-leader-keys "o" +spacemacs-user-map)
@@ -154,26 +175,6 @@ followed by \"o\"."
         lsp-headerline-breadcrumb-enable-symbol-numbers nil)
   ;; Spacemacs が各メジャーモードのフックに lsp を追加する
   ;; lsp サーバの起動は遅いことがあり，少しの変更をするだけなら起動してほしくない
-  (defvar define-hook-command-history nil
-    "History for commands by `define-hook-command'.")
-  (defmacro define-hook-command (name hook-name docstring &rest action)
-    "Define interactive command NAME whose arglist is nil and body is ACTION.
-Use `ivy-read' to read a hook which is to be bound to HOOK-NAME."
-    `(defun ,name () ,docstring
-      (interactive)
-      (ivy-read "Choose hook: " obarray
-                :predicate (-andfn #'counsel--variable-p
-                                   (lambda (s) (s-ends-with? "-hook" (symbol-name s))))
-                :require-match t
-                :history 'define-hook-command-history
-                :keymap counsel-describe-map
-                :preselect (cadr define-hook-command-history)
-                :action (lambda (x)
-                          (let ((,hook-name (intern x)))
-                            ,@action))
-                ;; :caller 'counsel-describe-variable
-                ))
-    )
   (define-hook-command remove-lsp-from-hook hook
     "Remove `lsp' and `dap-mode' from HOOK."
     (remove-hook hook #'lsp)
@@ -190,18 +191,9 @@ Use `ivy-read' to read a hook which is to be bound to HOOK-NAME."
 (with-eval-after-load 'org
   (setq org-directory (+dropbox-root "org")
         org-default-notes-file (expand-file-name "notes.org" org-directory)
-        org-agenda-files (list (+dropbox-root "org")))
+        org-agenda-files (list (+dropbox-root "org"))
+        org-agenda-span 'month)
   (add-hooks (lambda () (visual-line-mode +1)) org-mode-hook)
-
-  (spacemacs|define-transient-state org-subtree
-    :title "Org Subtree Transient state"
-    :doc "
-[_j_/_k_] move subtree
-[_q_] quit"
-    :bindings
-    ("q" nil :exit t)
-    ("k" #'org-move-subtree-up)
-    ("j" #'org-move-subtree-down))
 
   (spacemacs/set-leader-keys-for-major-mode 'org-mode
     "s." #'spacemacs/org-subtree-transient-state/body)
@@ -220,9 +212,15 @@ Use `ivy-read' to read a hook which is to be bound to HOOK-NAME."
 
 ;; Python
 (use-package python
+  :defer t
+  :init
+  (use-package blacken
+    :defer t
+    :ensure t)
+  (use-package py-isort
+    :defer t
+    :ensure t)
   :config
-  (use-package blacken :ensure t)
-  (use-package py-isort :ensure t)
   (add-hook 'python-mode-hook #'blacken-mode)
   (add-hook 'python-mode-hook #'py-isort-before-save))
 
@@ -238,15 +236,19 @@ Use `ivy-read' to read a hook which is to be bound to HOOK-NAME."
 ;; Japanese support (migemo)
 (progn (set-language-environment "Japanese")
        (prefer-coding-system 'utf-8)
-       (progn
-         (require 'migemo)
-         (setq migemo-dictionary "/usr/share/cmigemo/utf-8/migemo-dict") ; TODO
-         (push (concat dotspacemacs-private-directory "avy-migemo") load-path) ; TODO
-         (require 'avy-migemo)
-         ;; (require 'avy-migemo-e.g.ivy)
+       (use-package migemo
+         :defer t
+         :init
+         (setq migemo-dictionary (cond (unix? "/usr/share/cmigemo/utf-8/migemo-dict"))) ; TODO
+         )
+       (use-package avy-migemo
+         :after counsel
+         :config
+         (require 'avy-migemo-e.g.ivy)
          (require 'avy-migemo-e.g.counsel)
          (require 'avy-migemo-e.g.swiper)
-         (avy-migemo-mode +1)))
+         (avy-migemo-mode +1))
+       )
 ;; textlint
 (with-eval-after-load 'flycheck
   (flycheck-define-checker textlint
@@ -261,8 +263,7 @@ Use `ivy-read' to read a hook which is to be bound to HOOK-NAME."
     :modes (text-mode org-mode markdown-mode gfm-mode)))
 
 ;; Use Agda input method
-(require 'agda2-mode)
-(setq default-input-method "Agda")
+(use-package agda-input :config (setq default-input-method "Agda"))
 
 ;; TODO
 (defun add-all-to-list (list-var elements &optional append compare-fn)
@@ -299,53 +300,33 @@ Use `ivy-read' to read a hook which is to be bound to HOOK-NAME."
              ([return] . company-complete-selection)
              ("RET" . company-complete-selection)))
 
-;; Junk files TODO
-(progn   (require 'open-junk-file)
-         (require 'counsel-projectile)
-         (defvar +junk-root (+dropbox-root "junk/") "Root directory for junk files.")
-         (setq open-junk-file-format (s-lex-format "${+junk-root}/%Y/%m/%Y-%m-%d-%H%M%S."))
-         (defun counsel-find-junk ()
-           (interactive)
-           (let* ((project-files (mapcar (lambda (fname) (concat +junk-root fname))
-                                         (projectile-project-files +junk-root)))
-                  (files (projectile-select-files project-files)))
-             (ivy-read (projectile-prepend-project-name "Find file: ")
-                       (or files project-files)
-                       :matcher counsel-projectile-find-file-matcher
-                       :require-match t
-                       :sort counsel-projectile-sort-files
-                       :action counsel-projectile-find-file-action
-                       :caller 'counsel-find-junk)))
-         (defun counsel-git-grep-on-dir (dir)
-           "Grep for a string in the given repository DIR."
-           (interactive "P")
-           (let ((unwind-function
-                  (lambda ()
-                    (counsel-delete-process)
-                    (swiper--cleanup)))
-                 (default-directory dir))
-             (ivy-read "git grep: " #'counsel-git-grep-function
-                       :initial-input nil
-                       :dynamic-collection t
-                       :keymap counsel-git-grep-map
-                       :action #'counsel-git-grep-action
-                       :unwind unwind-function
-                       :history 'counsel-git-grep-history
-                       :caller 'counsel-git-grep)))
-         (defun counsel-junk-git-grep ()
-           (interactive)
-           (counsel-git-grep-on-dir +junk-root))
-         (+spacemacs/set-user-map
-          "jn" #'open-junk-file
-          "jf" #'counsel-find-junk
-          "jg" #'counsel-junk-git-grep))
+(use-package open-junk-file
+  :defer t
+  :commands (open-junk-file counsel-find-junk counsel-junk-grep)
+  :init
+  (+spacemacs/set-user-map
+   "jn" #'open-junk-file
+   "jf" #'counsel-find-junk
+   "jg" #'counsel-junk-grep)
+  :config
+  (require 'counsel-projectile)
+  (defvar +junk-root (+dropbox-root "junk/") "Root directory for junk files.")
+  (setq open-junk-file-format (s-lex-format "${+junk-root}/%Y/%m/%Y-%m-%d-%H%M%S."))
+  (defun counsel-find-junk ()
+    (interactive)
+    (let ((projectile-project-root +junk-root))
+      (counsel-projectile-find-file)))
+  (defun counsel-junk-grep ()
+    (interactive)
+    (let ((projectile-project-root +junk-root))
+      (counsel-projectile-grep))))
 
 ;; LaTeX
 (with-eval-after-load 'tex
-  (setf (alist-get 'output-pdf TeX-view-program-selection) '("Okular"))   ; TODO
+  (setf (alist-get 'output-pdf TeX-view-program-selection)
+        (cond (kde? '("Okular"))))
   (setq reftex-default-bibliography `(,(+dropbox-root "lab/bib/ref.bib")) ; TODO
         bibtex-files '(bibtex-file-path))
-  (bind-keys :map LaTeX-mode-map ("<C-return>" . pdf-sync-forward-search))
   (spacemacs/set-leader-keys-for-major-mode 'latex-mode
     "gl" #'reftex-goto-label)
   (setq reftex-label-alist
@@ -357,9 +338,10 @@ Use `ivy-read' to read a hook which is to be bound to HOOK-NAME."
     (push '("LatexMk" "latexmk --synctex=1 %T" TeX-run-command nil t) TeX-command-list))
   )
 
-;; PDF
-(with-eval-after-load 'pdf-tools
-  (require 'pdf-sync)
+(use-package pdf-sync
+  :defer t
+  :config
+  (define-key LaTeX-mode-map (kbd "<C-return>") 'pdf-sync-forward-search)
   (define-key pdf-view-mode-map (kbd "<C-mouse-1>") 'pdf-sync-backward-search-mouse))
 
 ;; Flycheck
@@ -377,8 +359,9 @@ Use `ivy-read' to read a hook which is to be bound to HOOK-NAME."
 (setf confirm-kill-emacs 'yes-or-no-p)
 
 ;; edit-server
-(require 'edit-server)
-(edit-server-start)
+(use-package edit-server
+  :init
+  (edit-server-start))
 
 ;; Mail (mu4e)
 (setq mu4e-update-interval 60)

@@ -4,9 +4,4 @@ This function is called immediately after `dotspacemacs/init', before layer
 configuration.
 It is mostly for variables that should be set before packages are loaded.
 If you are unsure, try setting them in `dotspacemacs/user-config' first."
-
-;; Load `costomize'
-(setq custom-file (concat dotspacemacs-directory "emacs-custom-settings.el"))
-(load custom-file)
-
 )

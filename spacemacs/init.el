@@ -9,6 +9,68 @@
 ;; - user-load
 ;; - user-init
 ;; - user-config
+;; Load `costomize'
+(setq custom-file (concat dotspacemacs-directory "emacs-custom-settings.el"))
+(load custom-file)
+
+;; 実行環境情報の定義
+(defgroup system nil "実行環境情報")
+(defcustom system-configured? nil
+  "Are `os' and `personal?' already configured?"
+  :type 'boolean
+  :group 'system)
+
+(defcustom os (pcase system-type
+                ('gnu/linux 'linux)
+                ('darwin 'macos)
+                ('windows-nt 'windows))
+  "Operating system.
+Possible values are: `linux', `macos' and `windows'."
+  :type 'symbol
+  :options '(linux macos windows))
+
+(defcustom distro nil
+  "Current Linux distribution.
+Possible values are: `ubuntu' and `kubuntu'"
+  :type 'symbol
+  :options '(ubuntu kubuntu))
+
+(defcustom personal? nil
+  "Is this computer is personal (non-nil), or shared (nil)?"
+  :type 'boolean)
+
+;; 実行環境情報をインタラクティブに初期化
+(when (not system-configured?)
+  (unless os
+    (let* ((read-answer-short nil)
+           (ans (read-answer "Select operating system: "
+                             '(("linux" ?l "GNU/Linux")
+                               ("win" ?w "Windows 10")
+                               ("mac" ?m "macOS")))))
+      (customize-save-variable 'os (pcase ans
+                                     ("linux" 'linux)
+                                     ("win" 'windows)
+                                     ("mac" 'macos)))))
+  (when (eq os 'linux)
+    (let* ((read-answer-short nil)
+           (ans (read-answer "What distro are you using? "
+                             '(("ubuntu" ?u "Ubuntu")
+                               ("kubuntu" ?k "Kubuntu")))))
+      (customize-save-variable 'distro (pcase ans
+                                         ("ubuntu" 'ubuntu)
+                                         ("kubuntu" 'kubuntu)))))
+  (customize-save-variable
+   'personal?
+   (yes-or-no-p "Are you running Emacs on your personal machine? "))
+  (customize-save-variable 'system-configured? t))
+
+;; 環境の判定
+(defconst linux? (eq os 'linux))
+(defconst ubuntu? (memq distro '(ubuntu kubuntu)))
+(defconst kde? (memq distro '(kubuntu)))
+(defconst win? (eq os 'windows))
+(defconst macos? (eq os 'macos))
+(defconst unix? (or linux? macos?))
 (defun dotspacemacs/layers ()
   "Layer configuration:
 This function should only modify configuration layer settings."
@@ -32,7 +94,7 @@ This function should only modify configuration layer settings."
 
    ;; List of additional paths where to look for configuration layers.
    ;; Paths must have a trailing slash (i.e. `~/.mycontribs/')
-   dotspacemacs-configuration-layer-path nil
+   dotspacemacs-configuration-layer-path (list (concat dotspacemacs-directory "layers/"))
 
    ;; List of configuration layers to load.
    dotspacemacs-configuration-layers
@@ -70,7 +132,7 @@ This function should only modify configuration layer settings."
      (lsp :variables lsp-ui-sideline-enable t)
      markdown
      (mu4e :variables
-           mu4e-installation-path "/usr/share/emacs/site-lisp/mu4e"
+           mu4e-installation-path (cond (ubuntu? "/usr/share/emacs/site-lisp/mu4e"))
            mu4e-enable-notifications t
            mu4e-enable-mode-line t)
      multiple-cursors
@@ -84,8 +146,8 @@ This function should only modify configuration layer settings."
      rust
      scala
      (shell :variables
-            multi-term-program "/bin/bash"
-            shell-default-shell 'vterm
+            multi-term-program (cond (unix? "/bin/bash"))
+            shell-default-shell (cond (unix? 'vterm))
             shell-default-height 30
             shell-default-position 'bottom)
      shell-scripts
