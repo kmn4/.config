@@ -1,0 +1,3 @@
+[submodule "site-lisp/avy-migemo"]
+	path = site-lisp/avy-migemo
+	url = https://github.com/tam17aki/avy-migemo.git
