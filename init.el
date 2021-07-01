@@ -1,3 +1,5 @@
+(setq user-emacs-directory (expand-file-name (file-name-directory load-file-name)))
+
 (let ((default-directory (concat user-emacs-directory "site-lisp")))
   (push default-directory load-path)
   (normal-top-level-add-subdirs-to-load-path))
@@ -6,7 +8,7 @@
 (load custom-file)
 
 (setq package-archives '(("melpa" . "https://melpa.org/packages/")
-		 ("gnu" . "https://elpa.gnu.org/packages/")))
+                         ("gnu" . "https://elpa.gnu.org/packages/")))
 (package-refresh-contents t)
 (package-initialize)
 
@@ -23,9 +25,6 @@
           `(let ((fn ,fn))
              (dolist (hook ',hooks)
                (add-hook hook fn))))
-
-(define-key global-map (kbd "C-h") 'backward-delete-char-untabify)
-(define-key global-map (kbd "<f5>") 'revert-buffer)
 
 (defun display-line-numbers-mode-on ()
   (interactive) (display-line-numbers-mode +1))
@@ -82,6 +81,9 @@
 (package-install 'git-gutter+)
 (global-git-gutter+-mode +1)
 
+(when (memq system-type '(gnu/linux darwin))
+  (package-install 'fish-mode))
+
 (set-language-environment "Japanese")
 (prefer-coding-system 'utf-8)
 ;; Ubuntu  -- apt install cmigemo
@@ -123,5 +125,46 @@
   )
 
 
+(defun count-chars-buffer (count?)
+  (save-excursion
+    (goto-char (point-min))
+    (let ((chars 0))
+      (while (char-after)
+        (forward-char 1)
+        (when-let* ((c (char-after))
+                    (_ (funcall count? c)))
+          (setq chars (1+ chars))))
+      chars)))
+(defun count-chars ()
+  (interactive)
+  (save-restriction
+    (narrow-to-region (region-beginning) (region-end))
+    (let ((chars
+           (count-chars-buffer (lambda (c) (null (or (eq c ?\n) (eq c ? ) (eq c ?　)))))))
+      (message (int-to-string chars)))
+    ))
+
+(defconst leader-map (make-sparse-keymap) "My keymap.")
+(defun set-leader-map (key def &rest bindings)
+  "Add KEY and DEF to my keymap."
+  (while key
+    (define-key leader-map (kbd key) def)
+    (setq key (pop bindings) def (pop bindings))))
+
+(global-set-key (kbd "<henkan>") leader-map)
+(define-key global-map (kbd "C-h") 'backward-delete-char-untabify)
+(define-key global-map (kbd "<f5>") 'revert-buffer)
+(set-leader-map
+ "fr" #'counsel-recentf
+ "sg" #'counsel-git-grep
+ "pf" #'project-find-file
+ "jf" #'find-function
+ "jl" #'find-library
+ "l" #'lsp)
+
 (require 'server)
-(unless server-process (server-start))
+(unless (server-running-p) (server-start))
+
+;; Local Variables:
+;; indent-tabs-mode: nil
+;; End:
