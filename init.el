@@ -17,6 +17,8 @@
 (require 'dash)
 (require 's)
 
+(defconst unix? (memq system-type '(gnu/linux darwin)))
+
 (defcustom +dropbox-root (substitute-env-vars "$HOME/Dropbox")
   "Dropbox sync root directory.")
 (defun +dropbox-root (path) (s-lex-format "${+dropbox-root}/${path}"))
@@ -81,8 +83,7 @@
 (package-install 'git-gutter+)
 (global-git-gutter+-mode +1)
 
-(when (memq system-type '(gnu/linux darwin))
-  (package-install 'fish-mode))
+(when unix? (package-install 'fish-mode))
 
 (set-language-environment "Japanese")
 (prefer-coding-system 'utf-8)
@@ -114,6 +115,7 @@
 (with-eval-after-load 'tex
   (require 'reftex)
   (require 'bibtex)
+  (setq LaTeX-electric-left-right-brace t)
   (setq TeX-command-list (-remove (lambda (l) (string-equal (car l) "LaTeX")) TeX-command-list))
   (push '("LaTeX" "latexmk --synctex=1 %T" TeX-run-command nil t) TeX-command-list)
   (setq reftex-default-bibliography `(,(+dropbox-root "lab/bib/ref.bib")) ; TODO
@@ -124,6 +126,11 @@
           ("theorem" ?h "thm:" "~\\ref{%s}" t   ("theorem" "th.") -3)))
   )
 
+(with-eval-after-load 'org
+  (define-key org-mode-map (kbd "M-p") #'org-move-subtree-up)
+  (define-key org-mode-map (kbd "M-n") #'org-move-subtree-down)
+  (setq org-agenda-files (list (+dropbox-root "org"))
+        org-agenda-span 'month))
 
 (defun count-chars-buffer (count?)
   (save-excursion
@@ -160,7 +167,9 @@
  "pf" #'project-find-file
  "jf" #'find-function
  "jl" #'find-library
- "l" #'lsp)
+ "l" #'lsp
+ "oa" #'org-agenda
+ "gb" #'magit-blame)
 
 (require 'server)
 (unless (server-running-p) (server-start))
