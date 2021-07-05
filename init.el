@@ -7,6 +7,11 @@
 (setq custom-file (concat user-emacs-directory "emacs-custom-settings.el"))
 (load custom-file)
 
+(defun visit-init-file ()
+  "Visit init.el."
+  (interactive)
+  (find-file user-init-file))
+
 (setq package-archives '(("melpa" . "https://melpa.org/packages/")
                          ("gnu" . "https://elpa.gnu.org/packages/")))
 (package-refresh-contents t)
@@ -151,6 +156,8 @@
       (message (int-to-string chars)))
     ))
 
+(advice-add 'bookmark-all-names :filter-return (lambda (names) (sort names #'string<)))
+
 (defconst leader-map (make-sparse-keymap) "My keymap.")
 (defun set-leader-map (key def &rest bindings)
   "Add KEY and DEF to my keymap."
@@ -163,6 +170,7 @@
 (define-key global-map (kbd "<f5>") 'revert-buffer)
 (set-leader-map
  "fr" #'counsel-recentf
+ "fi" #'visit-init-file
  "sg" #'counsel-git-grep
  "pf" #'project-find-file
  "jf" #'find-function
