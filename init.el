@@ -28,6 +28,8 @@
   "Dropbox sync root directory.")
 (defun +dropbox-root (path) (s-lex-format "${+dropbox-root}/${path}"))
 
+(setq confirm-kill-emacs #'yes-or-no-p)
+
 (defmacro add-hooks (fn &rest hooks) "Add FN to each of HOOKS."
           `(let ((fn ,fn))
              (dolist (hook ',hooks)
@@ -57,6 +59,11 @@
   (setq Info-directory-list (-union Info-directory-list Info-default-directory-list))
   (push (substitute-env-vars "$XDG_DATA_HOME/info") Info-directory-list) ; TODO
   )
+
+(add-hooks (lambda () (electric-pair-local-mode +1))
+           prog-mode-hook)
+(add-hooks (lambda () (show-paren-mode +1))
+           prog-mode-hook)
 
 (recentf-mode +1)
 
@@ -88,6 +95,9 @@
 (package-install 'git-gutter+)
 (global-git-gutter+-mode +1)
 
+(package-install 'yasnippet)
+(yas-global-mode)
+
 (when unix? (package-install 'fish-mode))
 
 (set-language-environment "Japanese")
@@ -113,6 +123,8 @@
 
 (package-install 'auctex)
 (package-install 'magic-latex-buffer)
+(setq magic-latex-enable-block-align nil
+      magic-latex-enable-inline-image nil)
 (add-hook 'LaTeX-mode-hook
 	  (lambda ()
 	    (magic-latex-buffer +1)
@@ -168,6 +180,7 @@
 (global-set-key (kbd "<henkan>") leader-map)
 (define-key global-map (kbd "C-h") 'backward-delete-char-untabify)
 (define-key global-map (kbd "<f5>") 'revert-buffer)
+(define-key global-map (kbd "C-x C-c") #'save-buffers-kill-emacs)
 (set-leader-map
  "fr" #'counsel-recentf
  "fi" #'visit-init-file
