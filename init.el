@@ -64,6 +64,8 @@
            prog-mode-hook)
 (add-hooks (lambda () (show-paren-mode +1))
            prog-mode-hook)
+(add-hooks (lambda () (hs-minor-mode +1))
+           prog-mode-hook)
 
 (recentf-mode +1)
 
@@ -94,6 +96,17 @@
 (package-install 'magit)
 (package-install 'git-gutter+)
 (global-git-gutter+-mode +1)
+(defmacro in-all-buffers-where (pred &rest body)
+  "Do BODY in all buffers where PRED evaluates to t."
+  `(dolist (buf (buffer-list))
+     (with-current-buffer buf
+       (when (funcall ,pred) ,@body))))
+
+(defun git-gutter+-refresh-all-buffers ()
+  (interactive)
+  (in-all-buffers-where (-const git-gutter+-mode) (git-gutter+-refresh)))
+
+(package-install 'rg)
 
 (package-install 'yasnippet)
 (yas-global-mode)
@@ -184,6 +197,7 @@
 (set-leader-map
  "fr" #'counsel-recentf
  "fi" #'visit-init-file
+ "gr" #'git-gutter+-refresh-all-buffers
  "sg" #'counsel-git-grep
  "pf" #'project-find-file
  "jf" #'find-function
