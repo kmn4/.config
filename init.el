@@ -127,6 +127,9 @@
 (require 'avy-migemo-e.g.swiper)
 (avy-migemo-mode +1)
 
+(package-install 'agda2-mode)
+(setq default-input-method "Agda")
+
 (package-install 'lsp-mode)
 (package-install 'lsp-ui)
 
