@@ -5,6 +5,8 @@
   (normal-top-level-add-subdirs-to-load-path))
 
 (setq custom-file (concat user-emacs-directory "emacs-custom-settings.el"))
+(unless (file-exists-p custom-file)
+  (with-temp-buffer (write-file custom-file)))
 (load custom-file)
 
 (defun visit-init-file ()
@@ -14,13 +16,17 @@
 
 (setq package-archives '(("melpa" . "https://melpa.org/packages/")
                          ("gnu" . "https://elpa.gnu.org/packages/")))
-(package-refresh-contents t)
+(unless package-selected-packages
+  (package-refresh-contents))
 (package-initialize)
 
 (package-install 'dash)
 (package-install 's)
 (require 'dash)
 (require 's)
+
+(package-install 'exec-path-from-shell)
+(exec-path-from-shell-initialize)
 
 (defconst unix? (memq system-type '(gnu/linux darwin)))
 
