@@ -27,6 +27,7 @@
 
 (package-install 'exec-path-from-shell)
 (exec-path-from-shell-initialize)
+(setenv "LANG" "ja_JP.utf-8")
 
 (defconst unix? (memq system-type '(gnu/linux darwin)))
 
@@ -199,7 +200,10 @@
     (define-key leader-map (kbd key) def)
     (setq key (pop bindings) def (pop bindings))))
 
-(global-set-key (kbd "<henkan>") leader-map)
+(global-set-key (if (eq system-type 'darwin)
+                    (kbd "M-SPC")
+                  (kbd "<henkan>"))
+                leader-map)
 (define-key global-map (kbd "C-h") 'backward-delete-char-untabify)
 (define-key global-map (kbd "<f5>") 'revert-buffer)
 (define-key global-map (kbd "C-x C-c") #'save-buffers-kill-emacs)
