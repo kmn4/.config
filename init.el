@@ -169,7 +169,11 @@
   (define-key org-mode-map (kbd "M-p") #'org-move-subtree-up)
   (define-key org-mode-map (kbd "M-n") #'org-move-subtree-down)
   (setq org-agenda-files (list (+dropbox-root "org"))
-        org-agenda-span 'month))
+        org-agenda-span 'month)
+  (setq org-export-use-babel nil
+        org-export-with-broken-links t))
+
+(package-install 'dockerfile-mode)
 
 (defun count-chars-buffer (count?)
   (save-excursion
