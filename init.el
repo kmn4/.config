@@ -74,6 +74,7 @@
 (add-hooks (lambda () (hs-minor-mode +1))
            prog-mode-hook)
 
+(setq recentf-max-saved-items 1000)
 (recentf-mode +1)
 
 (tool-bar-mode -1)
@@ -135,6 +136,7 @@
 (avy-migemo-mode +1)
 
 (package-install 'agda2-mode)
+(require 'agda2-mode)
 (setq default-input-method "Agda")
 
 (package-install 'lsp-mode)
