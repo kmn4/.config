@@ -16,7 +16,7 @@
 
 (setq package-archives '(("melpa" . "https://melpa.org/packages/")
                          ("gnu" . "https://elpa.gnu.org/packages/")))
-(unless package-selected-packages
+(unless (boundp 'package-selected-packages)
   (package-refresh-contents))
 (package-initialize)
 
