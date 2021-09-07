@@ -218,6 +218,7 @@
  "fi" #'visit-init-file
  "gr" #'git-gutter+-refresh-all-buffers
  "sg" #'counsel-git-grep
+ "sr" #'counsel-rg-migemo
  "pf" #'project-find-file
  "jf" #'find-function
  "jl" #'find-library
