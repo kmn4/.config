@@ -18,10 +18,12 @@ from_home_dir=(
 
 mkdir -p $HOME/.config
 
+thisdir=$(readlink -f $(dirname $0))
+
 for item in "${from_config_dir[@]}"; do
-    ln -s $HOME/config/${item} $HOME/.config/${item}
+    ln -s $thisdir/${item} $HOME/.config/${item}
 done
 
 for item in "${from_home_dir[@]}"; do
-    ln -s $HOME/config/${item} $HOME/${item}
+    ln -s $thisdir/${item} $HOME/${item}
 done
