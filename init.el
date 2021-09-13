@@ -206,10 +206,11 @@
     (define-key leader-map (kbd key) def)
     (setq key (pop bindings) def (pop bindings))))
 
-(global-set-key (if (eq system-type 'darwin)
-                    (kbd "M-SPC")
-                  (kbd "<henkan>"))
-                leader-map)
+(defvar leader-key
+  (cond ((eq system-type 'gnu/linux) "<henkan>")
+        ((eq system-type 'darwin) "M-SPC")
+        ((eq (framep (selected-frame)) 'w32) "<convert>")))
+(global-set-key (kbd leader-key) leader-map)
 (define-key global-map (kbd "C-h") 'backward-delete-char-untabify)
 (define-key global-map (kbd "<f5>") 'revert-buffer)
 (define-key global-map (kbd "C-x C-c") #'save-buffers-kill-emacs)
