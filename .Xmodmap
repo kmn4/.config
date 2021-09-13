@@ -1,0 +1,9 @@
+keycode  97 = underscore backslash underscore backslash
+
+clear lock
+clear control
+clear mod1
+keycode 66 = Control_L
+keycode 101 = Meta_L
+add control = Control_L Control_R
+add mod1 = Alt_L Alt_R Meta_L
