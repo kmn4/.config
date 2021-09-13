@@ -137,7 +137,10 @@
 
 (package-install 'agda2-mode)
 (require 'agda2-mode)
-(setq default-input-method "Agda")
+(setq default-input-method
+      (cond
+       ((package-installed-p 'mozc) "japanese-mozc")
+       (t "Agda")))
 
 (package-install 'lsp-mode)
 (package-install 'lsp-ui)
@@ -150,10 +153,9 @@
 (package-install 'magic-latex-buffer)
 (setq magic-latex-enable-block-align nil
       magic-latex-enable-inline-image nil)
-(add-hook 'LaTeX-mode-hook
-	  (lambda ()
-	    (magic-latex-buffer +1)
-	    (reftex-mode +1)))
+(add-hook 'LaTeX-mode-hook (lambda () (when (graphical?) (magic-latex-buffer +1))))
+(defun graphical? () (null (eq (framep (selected-frame)) t)))
+(add-hook 'LaTeX-mode-hook (lambda () (reftex-mode +1)))
 (with-eval-after-load 'tex
   (require 'reftex)
   (require 'bibtex)
@@ -198,6 +200,8 @@
     ))
 
 (advice-add 'bookmark-all-names :filter-return (lambda (names) (sort names #'string<)))
+
+(setq ring-bell-function 'ignore)
 
 (defconst leader-map (make-sparse-keymap) "My keymap.")
 (defun set-leader-map (key def &rest bindings)
