@@ -16,8 +16,7 @@
 
 (setq package-archives '(("melpa" . "https://melpa.org/packages/")
                          ("gnu" . "https://elpa.gnu.org/packages/")))
-(unless (boundp 'package-selected-packages)
-  (package-refresh-contents))
+(package-refresh-contents (boundp 'package-selected-packages))
 (package-initialize)
 
 (package-install 'dash)
@@ -25,8 +24,9 @@
 (require 'dash)
 (require 's)
 
-(package-install 'exec-path-from-shell)
-(exec-path-from-shell-initialize)
+(unless (eq system-type 'windows-nt)
+  (package-install 'exec-path-from-shell)
+  (exec-path-from-shell-initialize))
 (setenv "LANG" "ja_JP.utf-8")
 
 (defconst unix? (memq system-type '(gnu/linux darwin)))
@@ -213,7 +213,7 @@
 (defvar leader-key
   (cond ((eq system-type 'gnu/linux) "<henkan>")
         ((eq system-type 'darwin) "M-SPC")
-        ((eq (framep (selected-frame)) 'w32) "<convert>")))
+        ((eq system-type 'windows-nt) "<convert>")))
 (global-set-key (kbd leader-key) leader-map)
 (define-key global-map (kbd "C-h") 'backward-delete-char-untabify)
 (define-key global-map (kbd "<f5>") 'revert-buffer)
