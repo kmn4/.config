@@ -222,6 +222,9 @@
  "fr" #'counsel-recentf
  "fi" #'visit-init-file
  "gr" #'git-gutter+-refresh-all-buffers
+ "gn" #'git-gutter+-next-hunk
+ "gp" #'git-gutter+-previous-hunk
+ "gs" #'git-gutter+-show-hunk-inline-at-point
  "sg" #'counsel-git-grep
  "sr" #'counsel-rg-migemo
  "pf" #'project-find-file
