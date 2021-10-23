@@ -142,12 +142,39 @@
 (require 'avy-migemo-e.g.swiper)
 (avy-migemo-mode +1)
 
+;; 入力メソッドの設定。
 (package-install 'agda2-mode)
 (require 'agda2-mode)
-(setq default-input-method
-      (cond
-       ((package-installed-p 'mozc) "japanese-mozc")
-       (t "Agda")))
+(unless wsl? (setq default-input-method "Agda"))
+;; WSL で Emacs を使っているとき、入力メソッドの切換は次のような状態遷移系にする。
+;; states     : NoIM, Agda, Mozc
+;; inputs     : C-\, <C-henkan>, <C-muhenkan>
+;; transitions:
+;; |      | C-\   | <C-henkan> | <c-muhenkan> |
+;; |------+-------+------------+--------------|
+;; | NoIM | Agda  | Mozc       | NoIM         |
+;; | Agda | NoIME | Mozc       | NoIM         |
+;; | Mozc | Agda  | Mozc       | NoIM         |
+(when wsl?
+  (package-install 'mozc)
+  (defun im-mozc-on () (interactive) (set-input-method "japanese-mozc"))
+  (defun im-agda-on () (interactive) (set-input-method "Agda"))
+  (defun im-off () (interactive) (set-input-method nil))
+  (defun im-off? () (null current-input-method))
+  (defun im-mozc? () (equal current-input-method "japanese-mozc"))
+  (defun im-agda? () (equal current-input-method "Agda"))
+  (defun im-C-backslash ()
+    (interactive)
+    (cond ((im-agda?) (im-off))
+          (t (im-agda-on))))
+  (defun im-C-henkan () (interactive) (im-mozc-on))
+  (defun im-C-muhenkan () (interactive) (im-off))
+  (global-set-key (kbd "C-\\") #'im-C-backslash)
+  (define-key mozc-mode-map (kbd "C-\\") #'im-C-backslash)
+  (global-set-key (kbd "<C-henkan>") #'im-C-henkan)
+  (global-set-key (kbd "<C-muhenkan>") #'im-C-muhenkan)
+  )
+
 ;; ターミナルエミュレータの起動
 (defcustom terminal-emulator "gnome-terminal" "Terminal enulator.")
 (defun open-shell-here ()
