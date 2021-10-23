@@ -199,6 +199,11 @@
       (message (int-to-string chars)))
     ))
 
+(defun revisit-with-sudo ()
+  "Revisit the file of selected buffer with root priviledge."
+  (interactive)
+  (find-file (s-concat "/sudo::" buffer-file-name)))
+
 (advice-add 'bookmark-all-names :filter-return (lambda (names) (sort names #'string<)))
 
 (setq ring-bell-function 'ignore)
@@ -221,6 +226,7 @@
 (set-leader-map
  "fr" #'counsel-recentf
  "fi" #'visit-init-file
+ "fs" #'revisit-with-sudo
  "gr" #'git-gutter+-refresh-all-buffers
  "sg" #'counsel-git-grep
  "sr" #'counsel-rg-migemo
