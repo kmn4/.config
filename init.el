@@ -29,7 +29,14 @@
   (exec-path-from-shell-initialize))
 (setenv "LANG" "ja_JP.utf-8")
 
+(defun shell-command-output (command)
+  "COMMAND を実行し、その標準出力を文字列として返す。"
+  (with-temp-buffer
+    (shell-command command (current-buffer))
+    (buffer-string)))
 (defconst unix? (memq system-type '(gnu/linux darwin)))
+(defconst macos? (eq system-type 'darwin))
+(defconst wsl? (and unix? (s-contains-p "WSL2" (shell-command-output "uname -a"))))
 
 (defcustom +dropbox-root (substitute-env-vars "$HOME/Dropbox")
   "Dropbox sync root directory.")
