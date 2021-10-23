@@ -246,22 +246,30 @@ PATH がディレクトリを指すなら、PATH 自身。
 (define-key global-map (kbd "<f5>") 'revert-buffer)
 (define-key global-map (kbd "C-x C-c") #'save-buffers-kill-emacs)
 (set-leader-map
+ ;; shell
  "!" #'open-shell-here
+ ;; visiting [f]ile
  "fr" #'counsel-recentf
  "fi" #'visit-init-file
  "fs" #'revisit-with-sudo
+ ;; [g]it
+ "gb" #'magit-blame
  "gr" #'git-gutter+-refresh-all-buffers
  "gn" #'git-gutter+-next-hunk
  "gp" #'git-gutter+-previous-hunk
  "gs" #'git-gutter+-show-hunk-inline-at-point
+ ;; [s]earch
  "sg" #'counsel-git-grep
  "sr" #'counsel-rg-migemo
+ ;; [p]roject-aware commands
  "pf" #'project-find-file
+ ;; [j]ump
  "jf" #'find-function
  "jl" #'find-library
+ ;; [l]sp
  "l" #'lsp
- "oa" #'org-agenda
- "gb" #'magit-blame)
+ ;; [o]rg mode
+ "oa" #'org-agenda)
 
 (require 'server)
 (unless (server-running-p) (server-start))
