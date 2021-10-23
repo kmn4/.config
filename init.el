@@ -141,6 +141,28 @@
       (cond
        ((package-installed-p 'mozc) "japanese-mozc")
        (t "Agda")))
+;; ターミナルエミュレータの起動
+(defcustom terminal-emulator "gnome-terminal" "Terminal enulator.")
+(defun open-shell-here ()
+  "visit 中のファイルが存在するディレクトリでターミナルを開く。"
+  (interactive)
+  (if-let ((dir (path-directory buffer-file-name)))
+      (open-shell dir)
+    (error "バッファがファイルに関連付けられていない？")))
+(defun open-shell (dir)
+  "DIR でシェルを開く。"
+  (just-run-shell-command (s-concat terminal-emulator " " dir)))
+(defun just-run-shell-command (command)
+  "出力のキャプチャや通信を一切せずに COMMAND を実行する。"
+  (call-process-shell-command command))
+(defun path-directory (path)
+  "PATH のディレクトリを返す。
+
+PATH がファイルを指すなら、それが存在しているディレクトリ。
+PATH がディレクトリを指すなら、PATH 自身。
+それ以外なら NIL."
+  (cond ((file-regular-p path) (file-name-directory path))
+        ((file-directory-p path) path)))
 
 (package-install 'lsp-mode)
 (package-install 'lsp-ui)
@@ -224,6 +246,7 @@
 (define-key global-map (kbd "<f5>") 'revert-buffer)
 (define-key global-map (kbd "C-x C-c") #'save-buffers-kill-emacs)
 (set-leader-map
+ "!" #'open-shell-here
  "fr" #'counsel-recentf
  "fi" #'visit-init-file
  "fs" #'revisit-with-sudo
