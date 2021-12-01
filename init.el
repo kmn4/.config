@@ -279,7 +279,8 @@ PATH がディレクトリを指すなら、PATH 自身。
 
 (defvar leader-key
   (cond ((eq system-type 'gnu/linux) "<henkan>")
-        ((eq system-type 'darwin) "M-SPC")
+        ;; Karabiner-Elements を使って Caps Lock を <help> にリマップして使う．
+        ((eq system-type 'darwin) "<help>")
         ((eq system-type 'windows-nt) "<convert>")))
 (global-set-key (kbd leader-key) leader-map)
 (define-key global-map (kbd "C-h") 'backward-delete-char-untabify)
