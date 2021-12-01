@@ -14,6 +14,12 @@
   (interactive)
   (find-file user-init-file))
 
+;; macOS で pakcage-refresh-contents が失敗するのを直す．
+;; 出典: https://emacs.stackexchange.com/a/68568
+(when (and (equal emacs-version "27.2")
+           (eql system-type 'darwin))
+  (setq gnutls-algorithm-priority "NORMAL:-VERS-TLS1.3"))
+
 (setq package-archives '(("melpa" . "https://melpa.org/packages/")
                          ("gnu" . "https://elpa.gnu.org/packages/")))
 (package-refresh-contents (boundp 'package-selected-packages))
