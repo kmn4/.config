@@ -163,6 +163,7 @@
 ;; | Mozc | Agda  | Mozc       | NoIM         |
 (when wsl?
   (package-install 'mozc)
+  (setq mozc-candidate-style 'echo-area)
   (defun im-mozc-on () (interactive) (set-input-method "japanese-mozc"))
   (defun im-agda-on () (interactive) (set-input-method "Agda"))
   (defun im-off () (interactive) (set-input-method nil))
@@ -267,6 +268,14 @@ PATH がディレクトリを指すなら、PATH 自身。
   (find-file (s-concat "/sudo::" buffer-file-name)))
 
 (advice-add 'bookmark-all-names :filter-return (lambda (names) (sort names #'string<)))
+
+(defun replace-japanese-punctuations-interactively ()
+  "すべての句読点をカンマとピリオドに置き換える。"
+  (interactive)
+  (goto-char 0)
+  (query-replace "、" "，")
+  (goto-char 0)
+  (query-replace "。" "．"))
 
 (setq ring-bell-function 'ignore)
 
