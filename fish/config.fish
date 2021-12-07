@@ -12,7 +12,3 @@ set -x BIBINPUTS $HOME/Dropbox/lab/bib
 if not contains $BREWHOME/bin $PATH
     set -xa PATH $BREWHOME/bin
 end
-
-if string match -e WSL2 (uname -a)
-    set -x DISPLAY (cat /etc/resolv.conf | grep nameserver | awk '{print $2}'):0
-end
