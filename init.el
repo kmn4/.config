@@ -149,8 +149,7 @@
 (avy-migemo-mode +1)
 
 ;; 入力メソッドの設定。
-(package-install 'agda2-mode)
-(require 'agda2-mode)
+(require 'agda-input)
 (unless wsl? (setq default-input-method "Agda"))
 ;; WSL で Emacs を使っているとき、入力メソッドの切換は次のような状態遷移系にする。
 ;; states     : NoIM, Agda, Mozc
