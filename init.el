@@ -286,11 +286,13 @@ PATH がディレクトリを指すなら、PATH 自身。
     (define-key leader-map (kbd key) def)
     (setq key (pop bindings) def (pop bindings))))
 
-(defvar leader-key
+(defcustom leader-key
   (cond ((eq system-type 'gnu/linux) "<henkan>")
         ;; Karabiner-Elements を使って Caps Lock を <help> にリマップして使う．
         ((eq system-type 'darwin) "<help>")
-        ((eq system-type 'windows-nt) "<convert>")))
+        ((eq system-type 'windows-nt) "<convert>"))
+  "自分で好きに使えるプレフィックスキー。")
+(setq lsp-keymap-prefix (concat leader-key " l"))
 (global-set-key (kbd leader-key) leader-map)
 (define-key global-map (kbd "C-h") 'backward-delete-char-untabify)
 (define-key global-map (kbd "<f5>") 'revert-buffer)
