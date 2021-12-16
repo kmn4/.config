@@ -44,6 +44,13 @@
 (defconst macos? (eq system-type 'darwin))
 (defconst wsl? (and unix? (s-contains-p "WSL2" (shell-command-output "uname -a"))))
 
+;; 主に macOS で円記号をバックスラッシュに読み替える．
+;; 出典: https://tsuu32.hatenablog.com/entry/2019/08/27/122459
+(define-key local-function-key-map (kbd "¥") (kbd "\\"))
+(define-key local-function-key-map (kbd "C-¥") (kbd "C-\\"))
+(define-key local-function-key-map (kbd "M-¥") (kbd "M-\\"))
+(define-key local-function-key-map (kbd "C-M-¥") (kbd "C-M-\\"))
+
 (defcustom +dropbox-root (substitute-env-vars "$HOME/Dropbox")
   "Dropbox sync root directory.")
 (defun +dropbox-root (path) (s-lex-format "${+dropbox-root}/${path}"))
@@ -117,6 +124,19 @@
 (package-install 'magit)
 (package-install 'git-gutter+)
 (global-git-gutter+-mode +1)
+
+(defun buffer-list-where (pred)
+  "List of all live buffers where PRED holds."
+  (-filter (lambda (buf) (with-current-buffer buf (funcall pred))) (buffer-list)))
+
+(defun buffer-list-major-mode (major)
+  "List of all live buffers that are in major mode MAJOR."
+  (buffer-list-where (lambda () (eq major major-mode))))
+
+(defun buffer-list-minor-mode (minor)
+  "List of all live buffers where minor mode MINOR is enabled."
+  (buffer-list-where (lambda () (and (boundp minor) (symbol-value minor)))))
+
 (defmacro in-all-buffers-where (pred &rest body)
   "Do BODY in all buffers where PRED evaluates to t."
   `(dolist (buf (buffer-list))
@@ -275,6 +295,12 @@ PATH がディレクトリを指すなら、PATH 自身。
   (query-replace "、" "，")
   (goto-char 0)
   (query-replace "。" "．"))
+
+(defun reload-all-dired-buffers ()
+  (interactive)
+  (let ((dired-buffers (buffer-list-major-mode 'dired-mode))
+        (reload (lambda (buf) (with-current-buffer buf (revert-buffer)))))
+    (mapc reload dired-buffers)))
 
 (setq ring-bell-function 'ignore)
 
