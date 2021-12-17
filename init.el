@@ -255,6 +255,10 @@ PATH がディレクトリを指すなら、PATH 自身。
 (with-eval-after-load 'org
   (define-key org-mode-map (kbd "M-p") #'org-move-subtree-up)
   (define-key org-mode-map (kbd "M-n") #'org-move-subtree-down)
+  (setq org-adapt-indentation nil)
+  (defvar org-indent-mode-on-automatically t)
+  (add-hook 'org-mode-hook
+    (lambda () (when org-indent-mode-on-automatically (org-indent-mode +1))))
   (setq org-agenda-files (list (+dropbox-root "org"))
         org-agenda-span 'month)
   (setq org-export-use-babel nil
