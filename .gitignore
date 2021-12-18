@@ -5,3 +5,6 @@
 /emacs-custom-settings.el
 /recentf
 /transient
+/eln-cache/
+/projects
+/session.*

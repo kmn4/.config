@@ -159,14 +159,11 @@
 ;; Ubuntu  -- apt install cmigemo
 ;; Windows -- https://www.kaoriya.net/software/cmigemo/
 ;; M-x customize-variable migemo-dictionary
-(package-install 'migemo)
-(require 'migemo)
-(package-install 'avy)
-(require 'avy-migemo)
-(require 'avy-migemo-e.g.ivy)
-(require 'avy-migemo-e.g.counsel)
-(require 'avy-migemo-e.g.swiper)
-(avy-migemo-mode +1)
+(require 'swiper-migemo)
+(add-to-list 'swiper-migemo-enable-command 'counsel-recentf)
+(add-to-list 'swiper-migemo-enable-command 'counsel-rg)
+(setq migemo-options '("--quiet" "--nonewline" "--emacs"))
+(global-swiper-migemo-mode +1)
 
 ;; 入力メソッドの設定。
 (require 'agda-input)
@@ -341,7 +338,7 @@ PATH がディレクトリを指すなら、PATH 自身。
  "gs" #'git-gutter+-show-hunk-inline-at-point
  ;; [s]earch
  "sg" #'counsel-git-grep
- "sr" #'counsel-rg-migemo
+ "sr" #'counsel-rg
  ;; [p]roject-aware commands
  "pf" #'project-find-file
  ;; [j]ump
