@@ -1,14 +1,13 @@
 (setq user-emacs-directory (expand-file-name (file-name-directory load-file-name)))
 
+;; init.el は GitHub を使って複数の環境から取得・更新するので、
+;; 公開したくない情報や環境特有の設定はカスタマイズ変数にして別ファイルに追い出す。
 (setq custom-file (concat user-emacs-directory "emacs-custom-settings.el"))
 (unless (file-exists-p custom-file)
   (with-temp-buffer (write-file custom-file)))
 (load custom-file)
 
-(defun visit-init-file ()
-  "Visit init.el."
-  (interactive)
-  (find-file user-init-file))
+;;;; load-path と leaf.
 
 (let ((default-directory (concat user-emacs-directory "site-lisp")))
   (push default-directory load-path)
@@ -22,14 +21,176 @@
 
 (setq package-archives '(("melpa" . "https://melpa.org/packages/")
                          ("gnu" . "https://elpa.gnu.org/packages/")))
+;; パッケージアーカイブの情報を初回起動時のみ同期的に更新する。
 (package-refresh-contents (boundp 'package-selected-packages))
 
 (unless (package-installed-p 'leaf) (package-install 'leaf))
 (leaf leaf-tree :ensure t)
 
+;;;; キーマップ。
+;; init.el に問題があってすべてを読み込めないときでも
+;; ある程度バインドされていたほうが便利なので初めに設定してしまう。
+
+;; 主に macOS で円記号をバックスラッシュに読み替える．
+;; 出典: https://tsuu32.hatenablog.com/entry/2019/08/27/122459
+(define-key local-function-key-map (kbd "¥") (kbd "\\"))
+(define-key local-function-key-map (kbd "C-¥") (kbd "C-\\"))
+(define-key local-function-key-map (kbd "M-¥") (kbd "M-\\"))
+(define-key local-function-key-map (kbd "C-M-¥") (kbd "C-M-\\"))
+
+;; 独自のキーマップ。Spacemacs のスペースキーにバインドされたマップみたいに使う。
+(defconst leader-map (make-sparse-keymap) "My keymap.")
+
+;; leaf の :bind で leader-map を設定しようして
+;;   (leaf NAME :bind (:leader-map BIND...))
+;; のように書くと、leaf は leader-map が NAME というパッケージに定義されていると想定して
+;; 展開する。しかし実際には独自のキーマップであるため、期待と異なる挙動を示す。
+;; そのため、leader-map の設定には次の関数を使うことにする。
+(defun set-leader-map (key def &rest bindings)
+  "Add KEY and DEF to my keymap."
+  (while key
+    (define-key leader-map (kbd key) def)
+    (setq key (pop bindings) def (pop bindings))))
+
+;; leader-map をバインドするキー。
+;; キーボードや OS によって異なるキーを使いたいのでカスタマイズ変数とする。
+(defcustom leader-key
+  (cond ((eq system-type 'gnu/linux) "<henkan>")
+        ;; Karabiner-Elements を使って Caps Lock を <help> にリマップして使う．
+        ((eq system-type 'darwin) "<help>")
+        ((eq system-type 'windows-nt) "<convert>"))
+  "自分で好きに使えるプレフィックスキー。")
+(global-set-key (kbd leader-key) leader-map)
+(define-key global-map (kbd "C-h") 'backward-delete-char-untabify)
+(define-key global-map (kbd "<f5>") 'revert-buffer)
+(define-key global-map (kbd "C-x C-c") #'save-buffers-kill-emacs)
+(set-leader-map
+ ;; shell
+ "!" #'open-shell-here
+ ;; visiting [f]ile
+ "fr" #'counsel-recentf
+ "fi" #'visit-init-file
+ "fs" #'revisit-with-sudo
+ ;; [g]it
+ "gb" #'magit-blame
+ "gr" #'git-gutter+-refresh-all-buffers
+ "gn" #'git-gutter+-next-hunk
+ "gp" #'git-gutter+-previous-hunk
+ "gs" #'git-gutter+-show-hunk-inline-at-point
+ ;; [s]earch
+ "sg" #'counsel-git-grep
+ "sr" #'counsel-rg
+ ;; [p]roject-aware commands
+ "pf" #'project-find-file
+ ;; [j]ump
+ "jf" #'find-function
+ "jl" #'find-library
+ ;; [l]sp
+ "l" #'lsp
+ ;; [o]rg mode
+ "oa" #'org-agenda)
+
 (leaf util
   :ensure dash s
   :require dash s)
+
+;;;; Emacs や基本的なライブラリにしか依存しない関数など
+
+(defun visit-init-file ()
+  "Visit init.el."
+  (interactive)
+  (find-file user-init-file))
+
+(defun revisit-with-sudo ()
+  "Revisit the file of selected buffer with root priviledge."
+  (interactive)
+  (find-file (s-concat "/sudo::" buffer-file-name)))
+
+(defun replace-in-buffer (from to)
+  (save-excursion
+    (goto-char 0)
+    (while (search-forward from nil t)
+      (replace-match to))))
+
+;; 論文とかでは句読点をカンマとピリオドに統一したい。IME 設定は面倒なので勝手にやってほしい。
+;; M-x add-file-local-variable RET replace-japanese-punctuations-on-save RET t RET
+
+(defun replace-japanese-punctuations ()
+  (replace-in-buffer "、" "，")
+  (replace-in-buffer "。" "．"))
+
+(defvar-local replace-japanese-punctuations-on-save nil)
+
+(add-hook 'before-save-hook
+          (lambda () (when replace-japanese-punctuations-on-save
+                       (replace-japanese-punctuations))))
+
+;; 引用があるときは機械的に置き換えるとまずいのでいちいち判断する。
+;; それなら IME で設定したほうが早そうだけど…
+(defun replace-japanese-punctuations-interactively ()
+  "すべての句読点をカンマとピリオドに置き換える。"
+  (interactive)
+  (goto-char 0)
+  (query-replace "、" "，")
+  (goto-char 0)
+  (query-replace "。" "．"))
+
+;; シェルとターミナル
+
+(defcustom terminal-emulator "gnome-terminal" "Terminal enulator.")
+
+(defun open-shell-here ()
+  "visit 中のファイルが存在するディレクトリでターミナルを開く。"
+  (interactive)
+  (open-shell default-directory))
+
+(defun open-shell (dir)
+  "DIR でシェルを開く。"
+  (just-run-shell-command (s-concat terminal-emulator " " dir)))
+
+(defun just-run-shell-command (command)
+  "出力のキャプチャや通信を一切せずに COMMAND を実行する。"
+  (call-process-shell-command command nil 0))
+
+(defun shell-command-output (command)
+  "COMMAND を実行し、その標準出力を文字列として返す。"
+  (with-temp-buffer
+    (shell-command command (current-buffer))
+    (buffer-string)))
+
+;; バッファリスト
+
+(defun buffer-list-where (pred)
+  "List of all live buffers where PRED holds."
+  (-filter (lambda (buf) (with-current-buffer buf (funcall pred))) (buffer-list)))
+
+(defun buffer-list-major-mode (major)
+  "List of all live buffers that are in major mode MAJOR."
+  (buffer-list-where (lambda () (eq major major-mode))))
+
+(defun buffer-list-minor-mode (minor)
+  "List of all live buffers where minor mode MINOR is enabled."
+  (buffer-list-where (lambda () (and (boundp minor) (symbol-value minor)))))
+
+(defmacro in-all-buffers-where (pred &rest body)
+  "Do BODY in all buffers where PRED evaluates to t."
+  `(dolist (buf (buffer-list))
+     (with-current-buffer buf
+       (when (funcall ,pred) ,@body))))
+
+(defun reload-all-dired-buffers ()
+  (interactive)
+  (let ((dired-buffers (buffer-list-major-mode 'dired-mode))
+        (reload (lambda (buf) (with-current-buffer buf (revert-buffer)))))
+    (mapc reload dired-buffers)))
+
+;; 環境判定系
+
+(defconst unix? (memq system-type '(gnu/linux darwin)))
+(defconst macos? (eq system-type 'darwin))
+(defconst wsl? (and unix? (s-contains-p "WSL2" (shell-command-output "uname -a"))))
+
+(defun graphical? () (null (eq (framep (selected-frame)) t)))
 
 (leaf envvar
   :config
@@ -39,22 +200,6 @@
     (exec-path-from-shell-initialize))
   (setenv "LANG" "ja_JP.utf-8"))
 
-(defun shell-command-output (command)
-  "COMMAND を実行し、その標準出力を文字列として返す。"
-  (with-temp-buffer
-    (shell-command command (current-buffer))
-    (buffer-string)))
-(defconst unix? (memq system-type '(gnu/linux darwin)))
-(defconst macos? (eq system-type 'darwin))
-(defconst wsl? (and unix? (s-contains-p "WSL2" (shell-command-output "uname -a"))))
-
-;; 主に macOS で円記号をバックスラッシュに読み替える．
-;; 出典: https://tsuu32.hatenablog.com/entry/2019/08/27/122459
-(define-key local-function-key-map (kbd "¥") (kbd "\\"))
-(define-key local-function-key-map (kbd "C-¥") (kbd "C-\\"))
-(define-key local-function-key-map (kbd "M-¥") (kbd "M-\\"))
-(define-key local-function-key-map (kbd "C-M-¥") (kbd "C-M-\\"))
-
 (defcustom +dropbox-root (substitute-env-vars "$HOME/Dropbox")
   "Dropbox sync root directory.")
 (defun +dropbox-root (path) (s-lex-format "${+dropbox-root}/${path}"))
@@ -62,11 +207,6 @@
 (leaf convenience
   :custom
   (confirm-kill-emacs . #'yes-or-no-p))
-
-(defmacro add-hooks (fn &rest hooks) "Add FN to each of HOOKS."
-          `(let ((fn ,fn))
-             (dolist (hook ',hooks)
-               (add-hook hook fn))))
 
 (leaf display-line-numbers-mode
   :hook prog-mode-hook org-mode-hook LaTeX-mode-hook)
@@ -126,6 +266,8 @@
     (define-key global-map (kbd (format "M-%d" digit))
       (intern (format "winum-select-window-%d" digit)))))
 
+(leaf winner :config (winner-mode +1))
+
 (leaf which-key
   :ensure t
   :config (which-key-mode +1))
@@ -134,29 +276,18 @@
   :ensure magit git-gutter+
   :config (global-git-gutter+-mode +1))
 
-(defun buffer-list-where (pred)
-  "List of all live buffers where PRED holds."
-  (-filter (lambda (buf) (with-current-buffer buf (funcall pred))) (buffer-list)))
-
-(defun buffer-list-major-mode (major)
-  "List of all live buffers that are in major mode MAJOR."
-  (buffer-list-where (lambda () (eq major major-mode))))
-
-(defun buffer-list-minor-mode (minor)
-  "List of all live buffers where minor mode MINOR is enabled."
-  (buffer-list-where (lambda () (and (boundp minor) (symbol-value minor)))))
-
-(defmacro in-all-buffers-where (pred &rest body)
-  "Do BODY in all buffers where PRED evaluates to t."
-  `(dolist (buf (buffer-list))
-     (with-current-buffer buf
-       (when (funcall ,pred) ,@body))))
-
 (defun git-gutter+-refresh-all-buffers ()
   (interactive)
   (in-all-buffers-where (-const git-gutter+-mode) (git-gutter+-refresh)))
 
 (leaf rg :ensure t)
+
+(leaf dockerfile-mode :ensure t)
+
+;; counsel-bookmark を名前順で表示したい。
+(advice-add 'bookmark-all-names :filter-return (lambda (names) (sort names #'string<)))
+
+(setq ring-bell-function 'ignore)
 
 (leaf yasnippet
   :ensure t
@@ -170,29 +301,28 @@
 ;; Windows -- https://www.kaoriya.net/software/cmigemo/
 ;; M-x customize-variable migemo-dictionary
 (leaf migemo :ensure t)
-(require 'swiper-migemo)
-(add-to-list 'swiper-migemo-enable-command 'counsel-recentf)
-(add-to-list 'swiper-migemo-enable-command 'counsel-rg)
-(setq migemo-options '("--quiet" "--nonewline" "--emacs"))
-(global-swiper-migemo-mode +1)
-
-(leaf input-method
-  :require agda-input
+(leaf swiper-migemo
+  :require t
   :config
-  (unless wsl? (setq default-input-method "Agda"))
-  ;; WSL で Emacs を使っているとき、入力メソッドの切換は次のような状態遷移系にする。
-  ;; states     : NoIM, Agda, Mozc
-  ;; inputs     : C-\, <C-henkan>, <C-muhenkan>
-  ;; transitions:
-  ;; |      | C-\   | <C-henkan> | <c-muhenkan> |
-  ;; |------+-------+------------+--------------|
-  ;; | NoIM | Agda  | Mozc       | NoIM         |
-  ;; | Agda | NoIME | Mozc       | NoIM         |
-  ;; | Mozc | Agda  | Mozc       | NoIM         |
+  (add-to-list 'swiper-migemo-enable-command 'counsel-recentf)
+  (add-to-list 'swiper-migemo-enable-command 'counsel-rg)
+  (setq migemo-options '("--quiet" "--nonewline" "--emacs"))
+  (global-swiper-migemo-mode +1))
+
+;; 入力メソッド
+;; |      | C-\   | <C-henkan> | <c-muhenkan> |
+;; |------+-------+------------+--------------|
+;; | NoIM | Agda  | Mozc       | NoIM         |
+;; | Agda | NoIME | Mozc       | NoIM         |
+;; | Mozc | Agda  | Mozc       | NoIM         |
+(leaf input-method
+  :config
+  (leaf agda-input :require t
+    :custom (default-input-method . "Agda"))
   (leaf mozc :when wsl?
     :ensure t
-    :config
-    (setq mozc-candidate-style 'echo-area)
+    :custom (mozc-candidate-style . 'echo-area))
+  (when wsl?
     (defun im-mozc-on () (interactive) (set-input-method "japanese-mozc"))
     (defun im-agda-on () (interactive) (set-input-method "Agda"))
     (defun im-off () (interactive) (set-input-method nil))
@@ -205,46 +335,26 @@
             (t (im-agda-on))))
     (defun im-C-henkan () (interactive) (im-mozc-on))
     (defun im-C-muhenkan () (interactive) (im-off))
-    :bind
-    ((:global-map
-      ("C-\\" . im-C-backslash)
-      ("<C-henkan>" . im-C-henkan)
-      ("<C-muhenkan>" . im-C-muhenkan))
-     (:mozc-mode-map
-      ("C-\\" . im-C-backslash)))))
-
-;; ターミナルエミュレータの起動
-(defcustom terminal-emulator "gnome-terminal" "Terminal enulator.")
-(defun open-shell-here ()
-  "visit 中のファイルが存在するディレクトリでターミナルを開く。"
-  (interactive)
-  (if-let ((dir (path-directory buffer-file-name)))
-      (open-shell dir)
-    (error "バッファがファイルに関連付けられていない？")))
-(defun open-shell (dir)
-  "DIR でシェルを開く。"
-  (just-run-shell-command (s-concat terminal-emulator " " dir)))
-(defun just-run-shell-command (command)
-  "出力のキャプチャや通信を一切せずに COMMAND を実行する。"
-  (call-process-shell-command command))
-(defun path-directory (path)
-  "PATH のディレクトリを返す。
-
-PATH がファイルを指すなら、それが存在しているディレクトリ。
-PATH がディレクトリを指すなら、PATH 自身。
-それ以外なら NIL."
-  (cond ((file-regular-p path) (file-name-directory path))
-        ((file-directory-p path) path)))
+    (global-set-key (kbd "C-\\") #'im-C-backslash)
+    (define-key mozc-mode-map (kbd "C-\\") #'im-C-backslash)
+    (global-set-key (kbd "<C-henkan>") #'im-C-henkan)
+    (global-set-key (kbd "<C-muhenkan>") #'im-C-muhenkan)))
 
 (leaf lsp
   :ensure lsp-mode lsp-ui
+  :custom
+  `(lsp-keymap-prefix . ,(concat leader-key " l"))
   :config
-  (leaf lsp-metals
-    :config
-    (when (executable-find "metals-emacs")
-      (setq lsp-metals-server-command "metals-emacs"))))
+  )
 
-(defun graphical? () (null (eq (framep (selected-frame)) t)))
+;; Scala
+
+(leaf lsp-metals
+  :config
+  (when (executable-find "metals-emacs")
+    (setq lsp-metals-server-command "metals-emacs")))
+
+;; TeX
 
 (leaf tex
   :ensure auctex magic-latex-buffer
@@ -273,6 +383,8 @@ PATH がディレクトリを指すなら、PATH 自身。
     (bibtex-files . '(bibtex-file-path)))
   )
 
+;; Org
+
 (leaf org
   :custom
   (org-adapt-indentation . nil)
@@ -289,94 +401,6 @@ PATH がディレクトリを指すなら、PATH 自身。
   :hook
   (org-mode-hook . (lambda () (when org-indent-mode-on-automatically (org-indent-mode +1))))
   )
-
-(leaf dockerfile-mode :ensure t)
-
-(defun count-chars-buffer (count?)
-  (save-excursion
-    (goto-char (point-min))
-    (let ((chars 0))
-      (while (char-after)
-        (forward-char 1)
-        (when-let* ((c (char-after))
-                    (_ (funcall count? c)))
-          (setq chars (1+ chars))))
-      chars)))
-(defun count-chars ()
-  (interactive)
-  (save-restriction
-    (narrow-to-region (region-beginning) (region-end))
-    (let ((chars
-           (count-chars-buffer (lambda (c) (null (or (eq c ?\n) (eq c ? ) (eq c ?　)))))))
-      (message (int-to-string chars)))
-    ))
-
-(defun revisit-with-sudo ()
-  "Revisit the file of selected buffer with root priviledge."
-  (interactive)
-  (find-file (s-concat "/sudo::" buffer-file-name)))
-
-(advice-add 'bookmark-all-names :filter-return (lambda (names) (sort names #'string<)))
-
-(defun replace-japanese-punctuations-interactively ()
-  "すべての句読点をカンマとピリオドに置き換える。"
-  (interactive)
-  (goto-char 0)
-  (query-replace "、" "，")
-  (goto-char 0)
-  (query-replace "。" "．"))
-
-(defun reload-all-dired-buffers ()
-  (interactive)
-  (let ((dired-buffers (buffer-list-major-mode 'dired-mode))
-        (reload (lambda (buf) (with-current-buffer buf (revert-buffer)))))
-    (mapc reload dired-buffers)))
-
-(setq ring-bell-function 'ignore)
-
-(defconst leader-map (make-sparse-keymap) "My keymap.")
-(defun set-leader-map (key def &rest bindings)
-  "Add KEY and DEF to my keymap."
-  (while key
-    (define-key leader-map (kbd key) def)
-    (setq key (pop bindings) def (pop bindings))))
-
-(defcustom leader-key
-  (cond ((eq system-type 'gnu/linux) "<henkan>")
-        ;; Karabiner-Elements を使って Caps Lock を <help> にリマップして使う．
-        ((eq system-type 'darwin) "<help>")
-        ((eq system-type 'windows-nt) "<convert>"))
-  "自分で好きに使えるプレフィックスキー。")
-(setq lsp-keymap-prefix (concat leader-key " l"))
-(global-set-key (kbd leader-key) leader-map)
-(define-key global-map (kbd "C-h") 'backward-delete-char-untabify)
-(define-key global-map (kbd "<f5>") 'revert-buffer)
-(define-key global-map (kbd "C-x C-c") #'save-buffers-kill-emacs)
-(set-leader-map
- ;; shell
- "!" #'open-shell-here
- ;; visiting [f]ile
- "fr" #'counsel-recentf
- "fi" #'visit-init-file
- "fs" #'revisit-with-sudo
- ;; [g]it
- "gb" #'magit-blame
- "gr" #'git-gutter+-refresh-all-buffers
- "gn" #'git-gutter+-next-hunk
- "gp" #'git-gutter+-previous-hunk
- "gs" #'git-gutter+-show-hunk-inline-at-point
- ;; [s]earch
- "sg" #'counsel-git-grep
- "sr" #'counsel-rg
- ;; [p]roject-aware commands
- "pf" #'project-find-file
- ;; [j]ump
- "jf" #'find-function
- "jl" #'find-library
- ;; [l]sp
- "l" #'lsp
- ;; [o]rg mode
- "oa" #'org-agenda)
 
 (leaf server :unless (server-running-p)
   :config
