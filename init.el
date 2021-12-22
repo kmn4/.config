@@ -2,9 +2,7 @@
 
 ;; init.el は GitHub を使って複数の環境から取得・更新するので、
 ;; 公開したくない情報や環境特有の設定はカスタマイズ変数にして別ファイルに追い出す。
-(setq custom-file (concat user-emacs-directory "emacs-custom-settings.el"))
-(unless (file-exists-p custom-file)
-  (with-temp-buffer (write-file custom-file)))
+(setq custom-file (locate-user-emacs-file "emacs-custom-settings.el"))
 (load custom-file)
 
 ;;;; load-path と leaf.
@@ -21,10 +19,10 @@
 
 (setq package-archives '(("melpa" . "https://melpa.org/packages/")
                          ("gnu" . "https://elpa.gnu.org/packages/")))
-;; パッケージアーカイブの情報を初回起動時のみ同期的に更新する。
-(package-refresh-contents (boundp 'package-selected-packages))
-
-(unless (package-installed-p 'leaf) (package-install 'leaf))
+;; leaf
+(if (package-installed-p 'leaf) (package-refresh-contents t) ;; 非同期
+  (package-refresh-contents)
+  (package-install 'leaf))
 (leaf leaf-tree :ensure t)
 
 ;;;; キーマップ。
@@ -204,6 +202,8 @@
   "Dropbox sync root directory.")
 (defun +dropbox-root (path) (s-lex-format "${+dropbox-root}/${path}"))
 
+(leaf savehist :config (savehist-mode +1))
+
 (leaf convenience
   :custom
   (confirm-kill-emacs . #'yes-or-no-p))
@@ -273,8 +273,10 @@
   :config (which-key-mode +1))
 
 (leaf git
-  :ensure magit git-gutter+
-  :config (global-git-gutter+-mode +1))
+  :config
+  (leaf magit :ensure t)
+  (leaf git-gutter+ :ensure t :config (global-git-gutter+-mode +1))
+  (leaf git-modes :ensure t))
 
 (defun git-gutter+-refresh-all-buffers ()
   (interactive)
