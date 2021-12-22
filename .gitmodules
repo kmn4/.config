@@ -1,3 +1,6 @@
 [submodule "site-lisp/swiper-migemo"]
 	path = site-lisp/swiper-migemo
 	url = https://github.com/tam17aki/swiper-migemo
+[submodule "site-lisp/smtlib-mode"]
+	path = site-lisp/smtlib-mode
+	url = git@github.com:kmn4/smtlib-mode

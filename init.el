@@ -356,6 +356,10 @@
   (when (executable-find "metals-emacs")
     (setq lsp-metals-server-command "metals-emacs")))
 
+;; SMT-LIB
+
+(leaf smtlib-mode :require t)
+
 ;; TeX
 
 (leaf tex
