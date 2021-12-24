@@ -184,8 +184,9 @@
 
 ;; 環境判定系
 
-(defconst unix? (memq system-type '(gnu/linux darwin)))
+(defconst linux? (eq system-type 'gnu/linux))
 (defconst macos? (eq system-type 'darwin))
+(defconst unix? (or linux? macos?))
 (defconst wsl? (and unix? (s-contains-p "WSL2" (shell-command-output "uname -a"))))
 
 (defun graphical? () (null (eq (framep (selected-frame)) t)))
@@ -245,7 +246,19 @@
   :custom (recentf-max-saved-items . 1000)
   :config (recentf-mode +1))
 
-(leaf tool-bar-mode :config (tool-bar-mode -1))
+(leaf cus-start
+  :custom
+  (tool-bar-mode . nil)
+  (scroll-conservatively . 1) ; C-n, C-p でポイントが画面外に出たとき一行だけスクロール
+  (scroll-preserve-screen-position . t) ; C-v, M-v でポイントのウィンドウ内相対位置を変えない
+  )
+
+;; 目で追いやすくするために、マウススクロールを遅く保つ
+(leaf mwheel :custom (mouse-wheel-progressive-speed . nil))
+
+(leaf minimap :ensure t :require t
+  :custom (minimap-window-location . 'right)
+  :config (set-leader-map "tm" #'minimap-mode))
 
 (leaf undo-tree
   :ensure t
@@ -347,11 +360,18 @@
   :custom
   `(lsp-keymap-prefix . ,(concat leader-key " l"))
   :config
-  )
+  ;; 既に LSP サーバが既に走っているプロジェクトのファイルを開くときは自動的に接続。
+  ;; ただし少しだけファイルを開きたいときにいちいち LSP サーバが起動すると鬱陶しいので、
+  ;; LSP を使いたいプロジェクトでは初めに明示的に `lsp' を呼び出す。
+  ;; 出典: https://github.com/kurnevsky/dotfiles/blob/c0049a655a502cd81f1aba7321ff65d178a557c9/.emacs.d/init.el#L1231-L1237
+  (defun lsp-activate-if-already-activated (server-id)
+    (when (lsp-find-workspace server-id (buffer-file-name)) (lsp)))
+  (add-hook 'scala-mode-hook (lambda () (lsp-activate-if-already-activated 'metals))))
 
 ;; Scala
 
-(leaf lsp-metals
+(leaf lsp-metals :when (executable-find "scala")
+  :ensure t
   :config
   (when (executable-find "metals-emacs")
     (setq lsp-metals-server-command "metals-emacs")))
@@ -360,9 +380,18 @@
 
 (leaf smtlib-mode :require t)
 
+;; Racket
+
+(leaf racket-mode :when (executable-find "raco")
+  :ensure t
+  :config
+  (leaf racket-xp
+    :require t
+    :hook (racket-mode-hook . racket-xp-mode)))
+
 ;; TeX
 
-(leaf tex
+(leaf tex :when (executable-find "tex")
   :ensure auctex magic-latex-buffer
   :custom
   (magic-latex-enable-block-align . nil)
@@ -378,9 +407,9 @@
     :ensure t
     :custom
     (reftex-label-alist .
-     '(("definition" ?d "def:" "~\\ref{%s}" t ("definition" "def.") -3)
-       ("lemma" ?m "lem:" "~\\ref{%s}" t ("lemma" "lem.") -3)
-       ("theorem" ?h "thm:" "~\\ref{%s}" t   ("theorem" "th.") -3)))
+                        '(("definition" ?d "def:" "~\\ref{%s}" t ("definition" "def.") -3)
+                          ("lemma" ?m "lem:" "~\\ref{%s}" t ("lemma" "lem.") -3)
+                          ("theorem" ?h "thm:" "~\\ref{%s}" t   ("theorem" "th.") -3)))
     (reftex-default-bibliography . `(,(+dropbox-root "lab/bib/ref.bib"))) ; TODO
     )
   (leaf bibtex
