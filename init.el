@@ -17,8 +17,8 @@
            (eql system-type 'darwin))
   (setq gnutls-algorithm-priority "NORMAL:-VERS-TLS1.3"))
 
-(setq package-archives '(("melpa" . "https://melpa.org/packages/")
-                         ("gnu" . "https://elpa.gnu.org/packages/")))
+(require 'package)
+(add-to-list 'package-archives '("melpa" . "https://melpa.org/packages/"))
 ;; leaf
 (if (package-installed-p 'leaf) (package-refresh-contents t) ;; 非同期
   (package-refresh-contents)
@@ -65,6 +65,9 @@
 (set-leader-map
  ;; shell
  "!" #'open-shell-here
+ ;; [c]ustomize
+ "cv" #'customize-variable-other-window
+ "cg" #'customize-group-other-window
  ;; visiting [f]ile
  "fr" #'counsel-recentf
  "fi" #'visit-init-file
@@ -80,6 +83,8 @@
  "sr" #'counsel-rg
  ;; [p]roject-aware commands
  "pf" #'project-find-file
+ ;; [i]nsert
+ "i0" #'insert-at-beginnings-in-region
  ;; [j]ump
  "jf" #'find-function
  "jl" #'find-library
@@ -97,12 +102,28 @@
 (defun visit-init-file ()
   "Visit init.el."
   (interactive)
-  (find-file user-init-file))
+  (find-file user-init-file)
+  (when (fboundp #'leaf-tree-mode) (leaf-tree-mode)))
 
 (defun revisit-with-sudo ()
   "Revisit the file of selected buffer with root priviledge."
   (interactive)
   (find-file (s-concat "/sudo::" buffer-file-name)))
+
+(defun insert-at-beginnings-in-region (word)
+  "リージョンの各行について、その先頭に WORD を挿入する。"
+  (interactive "sWord to insert: ")
+  (when (use-region-p)
+    (save-excursion
+      (let ((cur (region-beginning))
+            (end (region-end))
+            col)
+        (goto-char cur)
+        (setq col (current-column))
+        (while (<= (point) end)
+          (insert word)
+          (forward-line +1)
+          (move-to-column col))))))
 
 (defun replace-in-buffer (from to)
   (save-excursion
@@ -191,6 +212,8 @@
 
 (defun graphical? () (null (eq (framep (selected-frame)) t)))
 
+;; 以下は "NOT part of Emacs" なパッケージも使う
+
 (leaf envvar
   :config
   (leaf exec-path-from-shell :unless (eq system-type 'windows-nt)
@@ -208,6 +231,19 @@
 (leaf convenience
   :custom
   (confirm-kill-emacs . #'yes-or-no-p))
+
+(leaf restart-emacs :ensure t)
+
+(leaf paradox :ensure t
+  :custom (paradox-github-token . t))
+
+(leaf google-translate :ensure t popup
+  :config
+  ;; 出典: https://github.com/atykhonov/google-translate/issues/137#issuecomment-723938431
+  (defun google-translate--search-tkk () "Search TKK." (list 430675 2721866130)))
+
+(leaf move-text :ensure t
+  :config (move-text-default-bindings))
 
 (leaf display-line-numbers-mode
   :hook prog-mode-hook org-mode-hook LaTeX-mode-hook)
@@ -231,7 +267,6 @@
 	       (setf (alist-get 'font default-frame-alist) name))
       (message "Font not found: %s" name)))
   (set-font default-font-name))
-
 
 (leaf info
   :config
@@ -355,6 +390,14 @@
     (global-set-key (kbd "<C-henkan>") #'im-C-henkan)
     (global-set-key (kbd "<C-muhenkan>") #'im-C-muhenkan)))
 
+(leaf flymake
+  :config
+  (set-leader-map
+   "en" #'flymake-goto-next-error
+   "ep" #'flymake-goto-prev-error
+   "el" #'flymake-show-buffer-diagnostics
+   "pel" #'flymake-show-project-diagnostics))
+
 (leaf lsp
   :ensure lsp-mode lsp-ui
   :custom
@@ -391,18 +434,26 @@
 
 ;; TeX
 
-(leaf tex :when (executable-find "tex")
-  :ensure auctex magic-latex-buffer
+(defun tex-installed-p () (executable-find "tex"))
+
+(leaf auctex :when (tex-installed-p)
+  :ensure t
   :custom
-  (magic-latex-enable-block-align . nil)
-  (magic-latex-enable-inline-image . nil)
   (LaTeX-electric-left-right-brace . t)
   :hook
-  (LaTeX-mode-hook . (lambda () (when (graphical?) (magic-latex-buffer +1))))
   (LaTeX-mode-hook . (lambda () (reftex-mode +1)))
   :config
   (setq TeX-command-list (-remove (lambda (l) (string-equal (car l) "LaTeX")) TeX-command-list))
   (push '("LaTeX" "latexmk --synctex=1 %T" TeX-run-command nil t) TeX-command-list)
+
+  (leaf magic-latex-buffer :when (tex-installed-p)
+    :ensure t
+    :after auctex
+    :custom
+    (magic-latex-enable-block-align . nil)
+    (magic-latex-enable-inline-image . nil)
+    :hook
+    (LaTeX-mode-hook . (lambda () (when (graphical?) (magic-latex-buffer +1)))))
   (leaf reftex
     :ensure t
     :custom
