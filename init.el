@@ -91,7 +91,9 @@
  ;; [l]sp
  "l" #'lsp
  ;; [o]rg mode
- "oa" #'org-agenda)
+ "oa" #'org-agenda
+ ;; [w]indow
+ "wt" #'toggle-window-split)
 
 (leaf util
   :ensure dash s
@@ -109,6 +111,23 @@
   "Revisit the file of selected buffer with root priviledge."
   (interactive)
   (find-file (s-concat "/sudo::" buffer-file-name)))
+
+;; 出典: https://stackoverflow.com/a/33456622
+(defun toggle-window-split ()
+  (interactive)
+  (when (= (count-windows) 2)
+    (let* ((1st (frame-first-window))
+           (2nd (window-next-sibling 1st))
+           (1st-buf (window-buffer 1st))
+           (2nd-buf (window-buffer 2nd))
+           (splitter (if (= (car (window-edges 1st))
+                            (car (window-edges 2nd)))
+                         #'split-window-horizontally
+                       #'split-window-vertically)))
+      (delete-other-windows)
+      (funcall splitter)
+      (set-window-buffer (selected-window) 1st-buf)
+      (set-window-buffer (next-window) 2nd-buf))))
 
 (defun insert-at-beginnings-in-region (word)
   "リージョンの各行について、その先頭に WORD を挿入する。"
@@ -260,13 +279,14 @@
   :config
   (defconst source-code-pro "Source Han Code JP-13")
   (defcustom default-font-name source-code-pro "Default font name.")
-  (defun set-font (name)
-    (if-let ((spec (font-spec :name name))
-	     (font (find-font spec)))
-        (progn (set-frame-font name nil t)
-	       (setf (alist-get 'font default-frame-alist) name))
-      (message "Font not found: %s" name)))
-  (set-font default-font-name))
+  (defun set-font (&optional new-default)
+    "フォントを `default-font-name' に設定する。
+
+NEW-DEFAULT が非 nil のときは、現在のセッションに限りこれを新たなデフォルトとする。"
+    (when new-default (setq default-font-name new-default))
+    (set-frame-font default-font-name nil t))
+  (if (daemonp) (add-hook 'server-after-make-frame-hook #'set-font)
+    (add-hook 'after-init-hook #'set-font)))
 
 (leaf info
   :config
@@ -487,10 +507,6 @@
   :hook
   (org-mode-hook . (lambda () (when org-indent-mode-on-automatically (org-indent-mode +1))))
   )
-
-(leaf server :unless (server-running-p)
-  :config
-  (server-start))
 
 ;; Local Variables:
 ;; indent-tabs-mode: nil
