@@ -81,6 +81,7 @@
  ;; [s]earch
  "sg" #'counsel-git-grep
  "sr" #'counsel-rg
+ "sm" #'global-swiper-migemo-mode
  ;; [p]roject-aware commands
  "pf" #'project-find-file
  ;; [i]nsert
@@ -319,8 +320,12 @@ NEW-DEFAULT が非 nil のときは、現在のセッションに限りこれを
   :ensure t
   :config (global-undo-tree-mode +1))
 
+(leaf hl-todo :ensure t
+  :hook prog-mode-hook org-mode-hook
+  :config (add-to-list 'hl-todo-keyword-faces (cons "WARN" "#ff0000")))
+
 (leaf ivy
-  :ensure t swiper counsel
+  :ensure t swiper counsel ivy-hydra
   :bind (("C-s" . swiper))
   :config
   (ivy-mode +1)
@@ -376,8 +381,7 @@ NEW-DEFAULT が非 nil のときは、現在のセッションに限りこれを
   :config
   (add-to-list 'swiper-migemo-enable-command 'counsel-recentf)
   (add-to-list 'swiper-migemo-enable-command 'counsel-rg)
-  (setq migemo-options '("--quiet" "--nonewline" "--emacs"))
-  (global-swiper-migemo-mode +1))
+  (setq migemo-options '("--quiet" "--nonewline" "--emacs")))
 
 ;; 入力メソッド
 ;; |      | C-\   | <C-henkan> | <c-muhenkan> |
@@ -507,6 +511,15 @@ NEW-DEFAULT が非 nil のときは、現在のセッションに限りこれを
   :hook
   (org-mode-hook . (lambda () (when org-indent-mode-on-automatically (org-indent-mode +1))))
   )
+
+;; TODO
+;; (leaf company :ensure t)
+;; (leaf projectile :ensure t)
+;; (leaf flycheck :ensure t)
+;; (leaf all-the-icon :ensure t)
+;; TODO モードライン
+;; - SWM (swiper-migemo-mode) を目立たせる
+;; - 常時オンなモードは表示しない
 
 ;; Local Variables:
 ;; indent-tabs-mode: nil
