@@ -82,8 +82,6 @@
  "sg" #'counsel-git-grep
  "sr" #'counsel-rg
  "sm" #'global-swiper-migemo-mode
- ;; [p]roject-aware commands
- "pf" #'project-find-file
  ;; [i]nsert
  "i0" #'insert-at-beginnings-in-region
  ;; [j]ump
@@ -230,8 +228,6 @@
 (defconst unix? (or linux? macos?))
 (defconst wsl? (and unix? (s-contains-p "WSL2" (shell-command-output "uname -a"))))
 
-(defun graphical? () (null (eq (framep (selected-frame)) t)))
-
 ;; 以下は "NOT part of Emacs" なパッケージも使う
 
 (leaf envvar
@@ -302,6 +298,14 @@ NEW-DEFAULT が非 nil のときは、現在のセッションに限りこれを
   :custom (recentf-max-saved-items . 1000)
   :config (recentf-mode +1))
 
+(leaf project
+  :custom (project-vc-merge-submodules . nil)  ; サブモジュールは別プロジェクト扱い
+  :config
+  (defun project-counsel-rg ()
+    (interactive)
+    (counsel-rg nil (project-root (project-current t))))
+  :bind (project-prefix-map ("C-s" . project-counsel-rg)))
+
 (leaf cus-start
   :custom
   (tool-bar-mode . nil)
@@ -367,6 +371,24 @@ NEW-DEFAULT が非 nil のときは、現在のセッションに限りこれを
 (leaf yasnippet
   :ensure t
   :config (yas-global-mode +1))
+
+;; `completion-at-point' を直接利用する場合と比べて、補完中にドキュメントを読めることが company の利点。
+;; 独自 UI よりも `counsel-company' ほうが候補の絞り込みに便利だが、後者ではドキュメント表示ができないので我慢。
+(leaf company :ensure t :require t ; require しないと `global-company-mode' が呼ばれない
+  :custom
+  ;; `company-posframe' があれば `company-echo-metadata-frontend' は不要
+  (company-frontends . '(company-pseudo-tooltip-unless-just-one-frontend company-preview-if-just-one-frontend))
+  (company-idle-delay . 0)
+  :bind
+  (company-mode-map ([remap completion-at-point] . company-complete))
+  (company-active-map ("C-h" . backward-delete-char-untabify)
+                      ("M-<" . #'company-select-first)
+                      ("M->" . #'company-select-last))
+  :config (global-company-mode +1)
+  (leaf company-posframe :ensure t
+    ;; *Help* が汚染されるのでドキュメントは手動 (<f1>キー) で開く
+    :custom (company-posframe-quickhelp-delay . nil)
+    :config (company-posframe-mode +1)))
 
 (leaf fish-mode :when unix? :ensure t)
 
@@ -476,8 +498,7 @@ NEW-DEFAULT が非 nil のときは、現在のセッションに限りこれを
     :custom
     (magic-latex-enable-block-align . nil)
     (magic-latex-enable-inline-image . nil)
-    :hook
-    (LaTeX-mode-hook . (lambda () (when (graphical?) (magic-latex-buffer +1)))))
+    :hook (LaTeX-mode-hook . (lambda () (when (display-graphic-p) (magic-latex-buffer +1)))))
   (leaf reftex
     :ensure t
     :custom
@@ -513,7 +534,6 @@ NEW-DEFAULT が非 nil のときは、現在のセッションに限りこれを
   )
 
 ;; TODO
-;; (leaf company :ensure t)
 ;; (leaf projectile :ensure t)
 ;; (leaf flycheck :ensure t)
 ;; (leaf all-the-icon :ensure t)
