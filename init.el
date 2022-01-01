@@ -95,8 +95,8 @@
  "wt" #'toggle-window-split)
 
 (leaf util
-  :ensure dash s
-  :require dash s)
+  :ensure dash s f
+  :require dash s f)
 
 ;;;; Emacs や基本的なライブラリにしか依存しない関数など
 
@@ -142,6 +142,15 @@
           (insert word)
           (forward-line +1)
           (move-to-column col))))))
+
+(defun forward-line-point (&optional n) (save-excursion (forward-line n) (point)))
+
+;; TODO もとからある空白はそのままにする？
+(defun join-line-without-spaces ()
+  (interactive)
+  (save-excursion
+    (call-interactively #'join-line)
+    (while (search-forward " " (forward-line-point) t) (replace-match ""))))
 
 (defun replace-in-buffer (from to)
   (save-excursion
@@ -227,6 +236,12 @@
 (defconst macos? (eq system-type 'darwin))
 (defconst unix? (or linux? macos?))
 (defconst wsl? (and unix? (s-contains-p "WSL2" (shell-command-output "uname -a"))))
+
+;; ブラウザ
+;; 参考: https://www.iplab.cs.tsukuba.ac.jp/~takakura/blog/20200715/
+(defun browser-function--wsl (url &rest _)
+  (just-run-shell-command (format "cmd.exe /c start %s" url)))
+(when wsl? (customize-set-variable 'browse-url-browser-function #'browser-function--wsl))
 
 ;; 以下は "NOT part of Emacs" なパッケージも使う
 
