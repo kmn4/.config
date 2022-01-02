@@ -303,7 +303,7 @@ NEW-DEFAULT が非 nil のときは、現在のセッションに限りこれを
 (leaf info
   :config
   (setq Info-directory-list (-union Info-directory-list Info-default-directory-list))
-  (push (substitute-env-vars "$XDG_DATA_HOME/info") Info-directory-list))
+  (add-to-list 'Info-directory-list (concat (xdg-data-home) "/info")))
 
 (leaf electric-pair-local-mode :hook prog-mode-hook)
 (leaf show-paren-mode :hook prog-mode-hook)
@@ -378,6 +378,8 @@ NEW-DEFAULT が非 nil のときは、現在のセッションに限りこれを
 
 (leaf dockerfile-mode :ensure t)
 
+(leaf systemd :when (executable-find "systemctl") :ensure t)
+
 ;; counsel-bookmark を名前順で表示したい。
 (advice-add 'bookmark-all-names :filter-return (lambda (names) (sort names #'string<)))
 
@@ -395,7 +397,7 @@ NEW-DEFAULT が非 nil のときは、現在のセッションに限りこれを
   (company-frontends . '(company-pseudo-tooltip-unless-just-one-frontend company-preview-if-just-one-frontend))
   (company-idle-delay . 0)
   :bind
-  (company-mode-map ([remap completion-at-point] . company-complete))
+  (company-mode-map ("C-M-i" . company-complete))
   (company-active-map ("C-h" . backward-delete-char-untabify)
                       ("M-<" . #'company-select-first)
                       ("M->" . #'company-select-last))
@@ -428,12 +430,13 @@ NEW-DEFAULT が非 nil のときは、現在のセッションに限りこれを
 ;; | Mozc | Agda  | Mozc       | NoIM         |
 (leaf input-method
   :config
+  (defcustom use-mozc wsl? "Mozc")
   (leaf agda-input :require t
     :custom (default-input-method . "Agda"))
-  (leaf mozc :when wsl?
+  (leaf mozc :when use-mozc
     :ensure t
     :custom (mozc-candidate-style . 'echo-area))
-  (when wsl?
+  (when use-mozc
     (defun im-mozc-on () (interactive) (set-input-method "japanese-mozc"))
     (defun im-agda-on () (interactive) (set-input-method "Agda"))
     (defun im-off () (interactive) (set-input-method nil))
