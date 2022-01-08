@@ -497,8 +497,8 @@ NEW-DEFAULT が非 nil のときは、現在のセッションに限りこれを
 
 (defun tex-installed-p () (executable-find "tex"))
 
-(leaf auctex :when (tex-installed-p)
-  :ensure t
+(leaf latex :when (tex-installed-p)
+  :ensure auctex
   :custom
   (LaTeX-electric-left-right-brace . t)
   :hook
@@ -509,7 +509,7 @@ NEW-DEFAULT が非 nil のときは、現在のセッションに限りこれを
 
   (leaf magic-latex-buffer :when (tex-installed-p)
     :ensure t
-    :after auctex
+    :after latex
     :custom
     (magic-latex-enable-block-align . nil)
     (magic-latex-enable-inline-image . nil)
