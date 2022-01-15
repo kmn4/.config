@@ -464,6 +464,15 @@ NEW-DEFAULT が非 nil のときは、現在のセッションに限りこれを
 
 (leaf lsp
   :ensure lsp-mode lsp-ui
+  :init
+  ;; 参考: https://github.com/ncaq/.emacs.d/blob/f1612eeb346974254e893c091901c987003d5e53/init.el#L971-L973
+  (defun lsp-format-buffer-no-error ()
+    ;; エラーを握りつぶす
+    (condition-case err (lsp-format-buffer)
+      (lsp-capability-not-supported nil)))
+  (defun lsp-format-before-save ()
+    (add-hook 'before-save-hook 'lsp-format-buffer-no-error nil t))
+  (add-hook 'lsp-mode-hook 'lsp-format-before-save)
   :custom
   `(lsp-keymap-prefix . ,(concat leader-key " l"))
   :config
