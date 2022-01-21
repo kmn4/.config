@@ -1,5 +1,3 @@
-(setq user-emacs-directory (expand-file-name (file-name-directory load-file-name)))
-
 ;; init.el は GitHub を使って複数の環境から取得・更新するので、
 ;; 公開したくない情報や環境特有の設定はカスタマイズ変数にして別ファイルに追い出す。
 (setq custom-file (locate-user-emacs-file "emacs-custom-settings.el"))
@@ -8,7 +6,7 @@
 ;;;; load-path と leaf.
 
 (let ((default-directory (concat user-emacs-directory "site-lisp")))
-  (push default-directory load-path)
+  (add-to-list 'load-path default-directory)
   (normal-top-level-add-subdirs-to-load-path))
 
 ;; macOS で pakcage-refresh-contents が失敗するのを直す．
@@ -237,12 +235,6 @@
 (defconst unix? (or linux? macos?))
 (defconst wsl? (and unix? (s-contains-p "WSL2" (shell-command-output "uname -a"))))
 
-;; ブラウザ
-;; 参考: https://www.iplab.cs.tsukuba.ac.jp/~takakura/blog/20200715/
-(defun browser-function--wsl (url &rest _)
-  (just-run-shell-command (format "cmd.exe /c start %s" url)))
-(when wsl? (customize-set-variable 'browse-url-browser-function #'browser-function--wsl))
-
 ;; 以下は "NOT part of Emacs" なパッケージも使う
 
 (leaf envvar
@@ -334,6 +326,8 @@ NEW-DEFAULT が非 nil のときは、現在のセッションに限りこれを
 (leaf minimap :ensure t :require t
   :custom (minimap-window-location . 'right)
   :config (set-leader-map "tm" #'minimap-mode))
+
+(leaf tab-bar :config (set-leader-map "tt" #'tab-bar-mode))
 
 (leaf undo-tree
   :ensure t
@@ -482,7 +476,11 @@ NEW-DEFAULT が非 nil のときは、現在のセッションに限りこれを
   ;; 出典: https://github.com/kurnevsky/dotfiles/blob/c0049a655a502cd81f1aba7321ff65d178a557c9/.emacs.d/init.el#L1231-L1237
   (defun lsp-activate-if-already-activated (server-id)
     (when (lsp-find-workspace server-id (buffer-file-name)) (lsp)))
-  (add-hook 'scala-mode-hook (lambda () (lsp-activate-if-already-activated 'metals))))
+  (add-hook 'scala-mode-hook (lambda () (lsp-activate-if-already-activated 'metals)))
+  (leaf dap-mode
+    :config
+    (define-key dap-mode-map (kbd (concat leader-key "ldb")) #'dap-breakpoint-toggle))
+  )
 
 ;; Scala
 
@@ -495,6 +493,10 @@ NEW-DEFAULT が非 nil のときは、現在のセッションに限りこれを
 ;; SMT-LIB
 
 (leaf smtlib-mode :require t)
+
+;; Rust
+
+(leaf rust-mode :when (executable-find "cargo") :ensure t)
 
 ;; Racket
 
@@ -527,7 +529,6 @@ NEW-DEFAULT が非 nil のときは、現在のセッションに限りこれを
     (magic-latex-enable-inline-image . nil)
     :hook (LaTeX-mode-hook . (lambda () (when (display-graphic-p) (magic-latex-buffer +1)))))
   (leaf reftex
-    :ensure t
     :custom
     (reftex-label-alist .
                         '(("definition" ?d "def:" "~\\ref{%s}" t ("definition" "def.") -3)
@@ -536,7 +537,6 @@ NEW-DEFAULT が非 nil のときは、現在のセッションに限りこれを
     (reftex-default-bibliography . `(,(+dropbox-root "lab/bib/ref.bib"))) ; TODO
     )
   (leaf bibtex
-    :ensure t
     :custom
     (bibtex-files . '(bibtex-file-path)))
   )
@@ -561,7 +561,7 @@ NEW-DEFAULT が非 nil のときは、現在のセッションに限りこれを
   )
 
 ;; TODO
-;; (leaf projectile :ensure t)
+(leaf projectile :ensure t :config (projectile-mode +1))
 ;; (leaf flycheck :ensure t)
 ;; (leaf all-the-icon :ensure t)
 ;; TODO モードライン
@@ -571,3 +571,4 @@ NEW-DEFAULT が非 nil のときは、現在のセッションに限りこれを
 ;; Local Variables:
 ;; indent-tabs-mode: nil
 ;; End:
+(put 'narrow-to-region 'disabled nil)
