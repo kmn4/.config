@@ -360,7 +360,7 @@ NEW-DEFAULT が非 nil のときは、現在のセッションに限りこれを
 
 (leaf git
   :config
-  (leaf magit :ensure t)
+  (leaf magit :ensure t :require t)
   (leaf git-gutter+ :ensure t :config (global-git-gutter+-mode +1))
   (leaf git-modes :ensure t))
 
