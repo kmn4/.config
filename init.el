@@ -292,6 +292,8 @@ NEW-DEFAULT が非 nil のときは、現在のセッションに限りこれを
   (if (daemonp) (add-hook 'server-after-make-frame-hook #'set-font)
     (add-hook 'after-init-hook #'set-font)))
 
+(leaf xdg :require t)
+
 (leaf info
   :config
   (setq Info-directory-list (-union Info-directory-list Info-default-directory-list))
@@ -477,10 +479,7 @@ NEW-DEFAULT が非 nil のときは、現在のセッションに限りこれを
   (defun lsp-activate-if-already-activated (server-id)
     (when (lsp-find-workspace server-id (buffer-file-name)) (lsp)))
   (add-hook 'scala-mode-hook (lambda () (lsp-activate-if-already-activated 'metals)))
-  (leaf dap-mode
-    :config
-    (define-key dap-mode-map (kbd (concat leader-key "ldb")) #'dap-breakpoint-toggle))
-  )
+  (leaf dap-mode :config (set-leader-map "ldb" #'dap-breakpoint-toggle)))
 
 ;; Scala
 
