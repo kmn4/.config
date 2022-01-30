@@ -374,6 +374,8 @@ NEW-DEFAULT が非 nil のときは、現在のセッションに限りこれを
 
 (leaf dockerfile-mode :ensure t)
 
+(leaf yaml-mode :ensure t)
+
 (leaf systemd :when (executable-find "systemctl") :ensure t)
 
 ;; counsel-bookmark を名前順で表示したい。
