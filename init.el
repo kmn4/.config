@@ -60,6 +60,7 @@
 (define-key global-map (kbd "C-h") 'backward-delete-char-untabify)
 (define-key global-map (kbd "<f5>") 'revert-buffer)
 (define-key global-map (kbd "C-x C-c") #'save-buffers-kill-emacs)
+(define-key global-map [remap list-buffers] #'ibuffer)
 (set-leader-map
  ;; shell
  "!" #'open-shell-here
@@ -178,6 +179,11 @@
   (query-replace "、" "，")
   (goto-char 0)
   (query-replace "。" "．"))
+
+(defun count-without-spaces ()
+  "空白文字を無視して文字数を数える。"
+  (interactive)
+  (how-many "\\S-" nil nil t))
 
 ;; シェルとターミナル
 
@@ -480,8 +486,7 @@ NEW-DEFAULT が非 nil のときは、現在のセッションに限りこれを
   ;; 出典: https://github.com/kurnevsky/dotfiles/blob/c0049a655a502cd81f1aba7321ff65d178a557c9/.emacs.d/init.el#L1231-L1237
   (defun lsp-activate-if-already-activated (server-id)
     (when (lsp-find-workspace server-id (buffer-file-name)) (lsp)))
-  (add-hook 'scala-mode-hook (lambda () (lsp-activate-if-already-activated 'metals)))
-  (leaf dap-mode :config (set-leader-map "ldb" #'dap-breakpoint-toggle)))
+  (add-hook 'scala-mode-hook (lambda () (lsp-activate-if-already-activated 'metals))))
 
 ;; Scala
 
