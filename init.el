@@ -411,7 +411,32 @@ NEW-DEFAULT が非 nil のときは、現在のセッションに限りこれを
     :custom (company-posframe-quickhelp-delay . nil)
     :config (company-posframe-mode +1)))
 
+;;;; 外部ツールインテグレーション
+
+;; シェル周り
+
+;; vterm (https://github.com/akermu/emacs-libvterm)
+;; Ubuntu では `libtool', `libtool-bin', `cmake', `libvterm-dev' が必要。
+;; シェル側の設定も必要なので注意 (https://github.com/akermu/emacs-libvterm#shell-side-configuration)
+(leaf vterm :ensure t
+  :bind
+  (:vterm-mode-map
+   ("C-h" . vterm-send-C-h)
+   ("C-v" . scroll-up-command)
+   ("M-v" . scroll-down-command))
+  :config
+  (defun vterm-other-window (&optional arg)
+    "Open vterm in other window.
+
+ARG is passed to `vterm', so refer to its docstring for exaplanation."
+    (interactive "P")
+    (pop-to-buffer nil)
+    (vterm arg))
+  (set-leader-map "4!" #'vterm-other-window))
+
 (leaf fish-mode :when unix? :ensure t)
+
+;; 言語設定とMigemo
 
 (set-language-environment "Japanese")
 (prefer-coding-system 'utf-8)
@@ -457,6 +482,8 @@ NEW-DEFAULT が非 nil のときは、現在のセッションに限りこれを
     (define-key mozc-mode-map (kbd "C-\\") #'im-C-backslash)
     (global-set-key (kbd "<C-henkan>") #'im-C-henkan)
     (global-set-key (kbd "<C-muhenkan>") #'im-C-muhenkan)))
+
+;;;; プログラミング
 
 (leaf flymake
   :config
@@ -565,6 +592,10 @@ NEW-DEFAULT が非 nil のときは、現在のセッションに限りこれを
   :hook
   (org-mode-hook . (lambda () (when org-indent-mode-on-automatically (org-indent-mode +1))))
   )
+
+;; Go
+
+(leaf go-mode :ensure t)
 
 ;; TODO
 (leaf projectile :ensure t :config (projectile-mode +1))
