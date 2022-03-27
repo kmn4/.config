@@ -483,6 +483,13 @@ ARG is passed to `vterm', so refer to its docstring for exaplanation."
     (global-set-key (kbd "<C-henkan>") #'im-C-henkan)
     (global-set-key (kbd "<C-muhenkan>") #'im-C-muhenkan)))
 
+;; PDF
+
+;; https://github.com/politza/pdf-tools#server-prerequisites
+(leaf pdf-tools :when unix? :ensure t
+  :config
+  (add-hook 'pdf-view-mode-hook #'auto-revert-mode))
+
 ;;;; プログラミング
 
 (leaf flymake
