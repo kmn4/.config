@@ -321,6 +321,8 @@ NEW-DEFAULT が非 nil のときは、現在のセッションに限りこれを
     (counsel-rg nil (project-root (project-current t))))
   :bind (project-prefix-map ("C-s" . project-counsel-rg)))
 
+(leaf projectile :ensure t :config (projectile-mode +1))
+
 (leaf cus-start
   :custom
   (tool-bar-mode . nil)
@@ -339,7 +341,9 @@ NEW-DEFAULT が非 nil のときは、現在のセッションに限りこれを
 
 (leaf undo-tree
   :ensure t
-  :config (global-undo-tree-mode +1))
+  :config
+  (global-undo-tree-mode +1)
+  (setq undo-tree-history-directory-alist `((".*" . ,(concat user-emacs-directory ".cache/undo-tree")))))
 
 (leaf hl-todo :ensure t
   :hook prog-mode-hook org-mode-hook
@@ -547,6 +551,11 @@ ARG is passed to `vterm', so refer to its docstring for exaplanation."
     :require t
     :hook (racket-mode-hook . racket-xp-mode)))
 
+;; Haskell
+
+(leaf *haskell :when (executable-find "ghc")
+  :ensure haskell-mode lsp-haskell)
+
 ;; TeX
 
 (defun tex-installed-p () (executable-find "tex"))
@@ -604,10 +613,10 @@ ARG is passed to `vterm', so refer to its docstring for exaplanation."
 
 (leaf go-mode :ensure t)
 
-;; TODO
-(leaf projectile :ensure t :config (projectile-mode +1))
-;; (leaf flycheck :ensure t)
-;; (leaf all-the-icon :ensure t)
+;;;; 見た目
+
+(leaf all-the-icons :ensure t)
+
 ;; TODO モードライン
 ;; - SWM (swiper-migemo-mode) を目立たせる
 ;; - 常時オンなモードは表示しない
