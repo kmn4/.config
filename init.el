@@ -243,6 +243,8 @@
 
 ;; 以下は "NOT part of Emacs" なパッケージも使う
 
+(leaf diminish :ensure t)
+
 (leaf envvar
   :config
   (leaf exec-path-from-shell :unless (eq system-type 'windows-nt)
@@ -307,7 +309,8 @@ NEW-DEFAULT が非 nil のときは、現在のセッションに限りこれを
 
 (leaf electric-pair-local-mode :hook prog-mode-hook)
 (leaf show-paren-mode :hook prog-mode-hook)
-(leaf hs-minor-mode :hook prog-mode-hook)
+(leaf hs-minor-mode :hook prog-mode-hook
+  :config (diminish 'hs-minor-mode))
 
 (leaf recentf
   :custom (recentf-max-saved-items . 1000)
@@ -343,7 +346,13 @@ NEW-DEFAULT が非 nil のときは、現在のセッションに限りこれを
   :ensure t
   :global-minor-mode global-undo-tree-mode
   :config
-  (setq undo-tree-history-directory-alist `((".*" . ,(concat user-emacs-directory ".cache/undo-tree")))))
+  (setq undo-tree-history-directory-alist `((".*" . ,(concat user-emacs-directory ".cache/undo-tree"))))
+  (diminish 'undo-tree-mode))
+
+(leaf eldoc :config (diminish 'eldoc-mode))
+
+;; auto-revert-mode is enabled on all Git-managed files due to magit-auto-revert-mode
+(leaf autorevert :config (diminish 'auto-revert-mode))
 
 (leaf hl-todo :ensure t
   :hook prog-mode-hook org-mode-hook
@@ -352,7 +361,10 @@ NEW-DEFAULT が非 nil のときは、現在のセッションに限りこれを
 (leaf ivy
   :ensure t swiper counsel ivy-hydra
   :global-minor-mode t counsel-mode
-  :bind (("C-s" . swiper)))
+  :bind (("C-s" . swiper))
+  :config
+  (diminish 'ivy-mode)
+  (diminish 'counsel-mode))
 
 (leaf winum
   :ensure t
@@ -364,12 +376,14 @@ NEW-DEFAULT が非 nil のときは、現在のセッションに限りこれを
 
 (leaf winner :config (winner-mode +1))
 
-(leaf which-key :ensure t :global-minor-mode t)
+(leaf which-key :ensure t :global-minor-mode t
+  :config (diminish 'which-key-mode))
 
 (leaf git
   :config
   (leaf magit :ensure t :require t)
-  (leaf git-gutter+ :ensure t :global-minor-mode global-git-gutter+-mode)
+  (leaf git-gutter+ :ensure t :global-minor-mode global-git-gutter+-mode
+    :config (diminish 'git-gutter+-mode))
   (leaf git-modes :ensure t))
 
 (defun git-gutter+-refresh-all-buffers ()
@@ -389,7 +403,8 @@ NEW-DEFAULT が非 nil のときは、現在のセッションに限りこれを
 
 (setq ring-bell-function 'ignore)
 
-(leaf yasnippet :ensure t :global-minor-mode yas-global-mode)
+(leaf yasnippet :ensure t :global-minor-mode yas-global-mode
+  :config (diminish 'yas-minor-mode))
 
 ;; `completion-at-point' を直接利用する場合と比べて、補完中にドキュメントを読めることが company の利点。
 ;; 独自 UI よりも `counsel-company' ほうが候補の絞り込みに便利だが、後者ではドキュメント表示ができないので我慢。
@@ -406,7 +421,9 @@ NEW-DEFAULT が非 nil のときは、現在のセッションに限りこれを
   :config
   (leaf company-posframe :ensure t :global-minor-mode t
     ;; *Help* が汚染されるのでドキュメントは手動 (<f1>キー) で開く
-    :custom (company-posframe-quickhelp-delay . nil)))
+    :custom (company-posframe-quickhelp-delay . nil)
+    :config (diminish 'company-posframe-mode))
+  (diminish 'company-mode))
 
 ;;;; 外部ツールインテグレーション
 
@@ -517,7 +534,8 @@ ARG is passed to `vterm', so refer to its docstring for exaplanation."
   ;; 出典: https://github.com/kurnevsky/dotfiles/blob/c0049a655a502cd81f1aba7321ff65d178a557c9/.emacs.d/init.el#L1231-L1237
   (defun lsp-activate-if-already-activated (server-id)
     (when (lsp-find-workspace server-id (buffer-file-name)) (lsp)))
-  (add-hook 'scala-mode-hook (lambda () (lsp-activate-if-already-activated 'metals))))
+  (add-hook 'scala-mode-hook (lambda () (lsp-activate-if-already-activated 'metals)))
+  (diminish 'lsp-lens-mode))
 
 ;; Scala
 
@@ -609,6 +627,14 @@ ARG is passed to `vterm', so refer to its docstring for exaplanation."
 ;;;; 見た目
 
 (leaf all-the-icons :ensure t)
+
+(leaf *mode-line
+  ;; https://ayatakesi.github.io/emacs/28.1/html/Optional-Mode-Line.html#Optional-Mode-Line
+  :global-minor-mode line-number-mode column-number-mode
+  :custom
+  (column-number-indicator-zero-based . nil)
+  (mode-line-percent-position . nil)
+  (mode-line-compact . t))
 
 ;; TODO モードライン
 ;; - SWM (swiper-migemo-mode) を目立たせる
