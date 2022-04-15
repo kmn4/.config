@@ -255,7 +255,7 @@
   "Dropbox sync root directory.")
 (defun +dropbox-root (path) (s-lex-format "${+dropbox-root}/${path}"))
 
-(leaf savehist :config (savehist-mode +1))
+(leaf savehist :global-minor-mode t)
 
 (leaf convenience
   :custom
@@ -311,7 +311,7 @@ NEW-DEFAULT が非 nil のときは、現在のセッションに限りこれを
 
 (leaf recentf
   :custom (recentf-max-saved-items . 1000)
-  :config (recentf-mode +1))
+  :global-minor-mode t)
 
 (leaf project
   :custom (project-vc-merge-submodules . nil)  ; サブモジュールは別プロジェクト扱い
@@ -321,7 +321,7 @@ NEW-DEFAULT が非 nil のときは、現在のセッションに限りこれを
     (counsel-rg nil (project-root (project-current t))))
   :bind (project-prefix-map ("C-s" . project-counsel-rg)))
 
-(leaf projectile :ensure t :config (projectile-mode +1))
+(leaf projectile :ensure t :global-minor-mode t)
 
 (leaf cus-start
   :custom
@@ -341,8 +341,8 @@ NEW-DEFAULT が非 nil のときは、現在のセッションに限りこれを
 
 (leaf undo-tree
   :ensure t
+  :global-minor-mode global-undo-tree-mode
   :config
-  (global-undo-tree-mode +1)
   (setq undo-tree-history-directory-alist `((".*" . ,(concat user-emacs-directory ".cache/undo-tree")))))
 
 (leaf hl-todo :ensure t
@@ -351,29 +351,25 @@ NEW-DEFAULT が非 nil のときは、現在のセッションに限りこれを
 
 (leaf ivy
   :ensure t swiper counsel ivy-hydra
-  :bind (("C-s" . swiper))
-  :config
-  (ivy-mode +1)
-  (counsel-mode +1))
+  :global-minor-mode t counsel-mode
+  :bind (("C-s" . swiper)))
 
 (leaf winum
   :ensure t
+  :global-minor-mode t
   :config
-  (winum-mode +1)
   (dolist (digit (number-sequence 0 9))
     (define-key global-map (kbd (format "M-%d" digit))
       (intern (format "winum-select-window-%d" digit)))))
 
 (leaf winner :config (winner-mode +1))
 
-(leaf which-key
-  :ensure t
-  :config (which-key-mode +1))
+(leaf which-key :ensure t :global-minor-mode t)
 
 (leaf git
   :config
   (leaf magit :ensure t :require t)
-  (leaf git-gutter+ :ensure t :config (global-git-gutter+-mode +1))
+  (leaf git-gutter+ :ensure t :global-minor-mode global-git-gutter+-mode)
   (leaf git-modes :ensure t))
 
 (defun git-gutter+-refresh-all-buffers ()
@@ -393,13 +389,11 @@ NEW-DEFAULT が非 nil のときは、現在のセッションに限りこれを
 
 (setq ring-bell-function 'ignore)
 
-(leaf yasnippet
-  :ensure t
-  :config (yas-global-mode +1))
+(leaf yasnippet :ensure t :global-minor-mode yas-global-mode)
 
 ;; `completion-at-point' を直接利用する場合と比べて、補完中にドキュメントを読めることが company の利点。
 ;; 独自 UI よりも `counsel-company' ほうが候補の絞り込みに便利だが、後者ではドキュメント表示ができないので我慢。
-(leaf company :ensure t :require t ; require しないと `global-company-mode' が呼ばれない
+(leaf company :ensure t :global-minor-mode global-company-mode
   :custom
   ;; `company-posframe' があれば `company-echo-metadata-frontend' は不要
   (company-frontends . '(company-pseudo-tooltip-unless-just-one-frontend company-preview-if-just-one-frontend))
@@ -409,11 +403,10 @@ NEW-DEFAULT が非 nil のときは、現在のセッションに限りこれを
   (company-active-map ("C-h" . backward-delete-char-untabify)
                       ("M-<" . #'company-select-first)
                       ("M->" . #'company-select-last))
-  :config (global-company-mode +1)
-  (leaf company-posframe :ensure t
+  :config
+  (leaf company-posframe :ensure t :global-minor-mode t
     ;; *Help* が汚染されるのでドキュメントは手動 (<f1>キー) で開く
-    :custom (company-posframe-quickhelp-delay . nil)
-    :config (company-posframe-mode +1)))
+    :custom (company-posframe-quickhelp-delay . nil)))
 
 ;;;; 外部ツールインテグレーション
 
