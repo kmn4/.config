@@ -5,7 +5,8 @@
 
 ;;;; load-path と leaf.
 
-(let ((default-directory (concat user-emacs-directory "site-lisp")))
+(setq site-lisp-directory (concat user-emacs-directory "site-lisp/"))
+(let ((default-directory site-lisp-directory))
   (add-to-list 'load-path default-directory)
   (normal-top-level-add-subdirs-to-load-path))
 
@@ -366,6 +367,13 @@ NEW-DEFAULT が非 nil のときは、現在のセッションに限りこれを
   :config
   (diminish 'ivy-mode)
   (diminish 'counsel-mode))
+
+(leaf hydra :ensure t :require t
+  :config
+  (load (concat site-lisp-directory "window-hydra.el/hydra.el"))
+  (global-set-key [remap shrink-window-horizontally] #'hydra-window/shrink-window-horizontally)
+  (global-set-key [remap enlarge-window-horizontally] #'hydra-window/enlarge-window-horizontally)
+  (global-set-key [remap windmove-right] #'hydra-window/windmove-right))
 
 (leaf winum
   :ensure t
