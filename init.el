@@ -287,7 +287,7 @@
             (when (apply #'derived-mode-p delete-trailing-whitespace-modes)
               (delete-trailing-whitespace))))
 
-(leaf font
+(leaf *font
   :config
   (defconst source-code-pro "Source Han Code JP-13")
   (defcustom default-font-name source-code-pro "Default font name.")
@@ -295,7 +295,8 @@
     "フォントを `default-font-name' に設定する。
 
 NEW-DEFAULT が非 nil のときは、現在のセッションに限りこれを新たなデフォルトとする。"
-    (when new-default (setq default-font-name new-default))
+    (interactive (list (read-string "font: " default-font-name)))
+    (when new-default (customize-set-variable 'default-font-name new-default))
     (set-frame-font default-font-name nil t))
   (if (daemonp) (add-hook 'server-after-make-frame-hook #'set-font)
     (add-hook 'after-init-hook #'set-font)))
