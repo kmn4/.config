@@ -511,7 +511,8 @@ ARG is passed to `vterm', so refer to its docstring for exaplanation."
 ;; https://github.com/politza/pdf-tools#server-prerequisites
 (leaf pdf-tools :when unix? :ensure t
   :config
-  (add-hook 'pdf-view-mode-hook #'auto-revert-mode))
+  (add-hook 'pdf-view-mode-hook #'auto-revert-mode)
+  (pdf-tools-install))
 
 ;;;; プログラミング
 
