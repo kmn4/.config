@@ -312,7 +312,7 @@ NEW-DEFAULT が非 nil のときは、現在のセッションに限りこれを
 (leaf electric-pair-local-mode :hook prog-mode-hook)
 (leaf show-paren-mode :hook prog-mode-hook)
 (leaf hs-minor-mode :hook prog-mode-hook
-  :config (diminish 'hs-minor-mode))
+  :defer-config (diminish 'hs-minor-mode))
 
 (leaf recentf
   :custom (recentf-max-saved-items . 1000)
@@ -349,12 +349,13 @@ NEW-DEFAULT が非 nil のときは、現在のセッションに限りこれを
   :global-minor-mode global-undo-tree-mode
   :config
   (setq undo-tree-history-directory-alist `((".*" . ,(concat user-emacs-directory ".cache/undo-tree"))))
+  :defer-config
   (diminish 'undo-tree-mode))
 
-(leaf eldoc :config (diminish 'eldoc-mode))
+(leaf eldoc :defer-config (diminish 'eldoc-mode))
 
 ;; auto-revert-mode is enabled on all Git-managed files due to magit-auto-revert-mode
-(leaf autorevert :config (diminish 'auto-revert-mode))
+(leaf autorevert :defer-config (diminish 'auto-revert-mode))
 
 (leaf hl-todo :ensure t
   :hook prog-mode-hook org-mode-hook
@@ -364,7 +365,7 @@ NEW-DEFAULT が非 nil のときは、現在のセッションに限りこれを
   :ensure t swiper counsel ivy-hydra
   :global-minor-mode t counsel-mode
   :bind (("C-s" . swiper))
-  :config
+  :defer-config
   (diminish 'ivy-mode)
   (diminish 'counsel-mode))
 
@@ -386,13 +387,13 @@ NEW-DEFAULT が非 nil のときは、現在のセッションに限りこれを
 (leaf winner :config (winner-mode +1))
 
 (leaf which-key :ensure t :global-minor-mode t
-  :config (diminish 'which-key-mode))
+  :defer-config (diminish 'which-key-mode))
 
 (leaf git
   :config
   (leaf magit :ensure t :require t)
   (leaf git-gutter+ :ensure t :global-minor-mode global-git-gutter+-mode
-    :config (diminish 'git-gutter+-mode))
+    :defer-config (diminish 'git-gutter+-mode))
   (leaf git-modes :ensure t))
 
 (defun git-gutter+-refresh-all-buffers ()
@@ -413,7 +414,7 @@ NEW-DEFAULT が非 nil のときは、現在のセッションに限りこれを
 (setq ring-bell-function 'ignore)
 
 (leaf yasnippet :ensure t :global-minor-mode yas-global-mode
-  :config (diminish 'yas-minor-mode))
+  :defer-config (diminish 'yas-minor-mode))
 
 ;; `completion-at-point' を直接利用する場合と比べて、補完中にドキュメントを読めることが company の利点。
 ;; 独自 UI よりも `counsel-company' ほうが候補の絞り込みに便利だが、後者ではドキュメント表示ができないので我慢。
@@ -432,6 +433,7 @@ NEW-DEFAULT が非 nil のときは、現在のセッションに限りこれを
     ;; *Help* が汚染されるのでドキュメントは手動 (<f1>キー) で開く
     :custom (company-posframe-quickhelp-delay . nil)
     :config (diminish 'company-posframe-mode))
+  :defer-config
   (diminish 'company-mode))
 
 ;;;; 外部ツールインテグレーション
@@ -545,6 +547,7 @@ ARG is passed to `vterm', so refer to its docstring for exaplanation."
   (defun lsp-activate-if-already-activated (server-id)
     (when (lsp-find-workspace server-id (buffer-file-name)) (lsp)))
   (add-hook 'scala-mode-hook (lambda () (lsp-activate-if-already-activated 'metals)))
+  :defer-config
   (diminish 'lsp-lens-mode))
 
 ;; Scala
