@@ -514,7 +514,8 @@ ARG is passed to `vterm', so refer to its docstring for exaplanation."
 (leaf pdf-tools :when unix? :ensure t
   :config
   (add-hook 'pdf-view-mode-hook #'auto-revert-mode)
-  (pdf-tools-install))
+  (if (daemonp) (add-hook 'server-after-make-frame-hook #'pdf-tools-install)
+    (pdf-tools-install)))
 
 ;;;; プログラミング
 
@@ -545,7 +546,7 @@ ARG is passed to `vterm', so refer to its docstring for exaplanation."
   ;; LSP を使いたいプロジェクトでは初めに明示的に `lsp' を呼び出す。
   ;; 出典: https://github.com/kurnevsky/dotfiles/blob/c0049a655a502cd81f1aba7321ff65d178a557c9/.emacs.d/init.el#L1231-L1237
   (defun lsp-activate-if-already-activated (server-id)
-    (when (lsp-find-workspace server-id (buffer-file-name)) (lsp)))
+    (when (and (functionp 'lsp-find-workspace) (lsp-find-workspace server-id (buffer-file-name))) (lsp)))
   (add-hook 'scala-mode-hook (lambda () (lsp-activate-if-already-activated 'metals)))
   :defer-config
   (diminish 'lsp-lens-mode))
