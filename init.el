@@ -94,9 +94,9 @@
  ;; [w]indow
  "wt" #'toggle-window-split)
 
-(leaf util
-  :ensure dash s f
-  :require dash s f)
+(leaf dash :ensure t :require t)
+(leaf s :ensure t :require t)
+(leaf f :ensure t :require t)
 
 ;;;; Emacs や基本的なライブラリにしか依存しない関数など
 
@@ -246,7 +246,7 @@
 
 (leaf diminish :ensure t)
 
-(leaf envvar
+(leaf *envvar
   :config
   (leaf exec-path-from-shell :unless (eq system-type 'windows-nt)
     :ensure t
@@ -267,7 +267,8 @@
 (leaf restart-emacs :ensure t)
 
 (leaf paradox :ensure t
-  :custom (paradox-github-token . t))
+  :custom (paradox-github-token . t)
+  :config (paradox-enable))
 
 (leaf google-translate :ensure t popup
   :config
@@ -277,8 +278,8 @@
 (leaf move-text :ensure t
   :config (move-text-default-bindings))
 
-(leaf display-line-numbers-mode
-  :hook prog-mode-hook org-mode-hook LaTeX-mode-hook)
+(leaf display-line-numbers
+  :hook ((prog-mode-hook org-mode-hook LaTeX-mode-hook) . display-line-numbers-mode))
 
 (defvar delete-trailing-whitespace-modes
   (list 'prog-mode 'tex-mode)
@@ -287,20 +288,6 @@
           (lambda ()
             (when (apply #'derived-mode-p delete-trailing-whitespace-modes)
               (delete-trailing-whitespace))))
-
-(leaf *font
-  :config
-  (defconst source-code-pro "Source Han Code JP-13")
-  (defcustom default-font-name source-code-pro "Default font name.")
-  (defun set-font (&optional new-default)
-    "フォントを `default-font-name' に設定する。
-
-NEW-DEFAULT が非 nil のときは、現在のセッションに限りこれを新たなデフォルトとする。"
-    (interactive (list (read-string "font: " default-font-name)))
-    (when new-default (customize-set-variable 'default-font-name new-default))
-    (set-frame-font default-font-name nil t))
-  (if (daemonp) (add-hook 'server-after-make-frame-hook #'set-font)
-    (add-hook 'after-init-hook #'set-font)))
 
 (leaf xdg :require t)
 
@@ -648,6 +635,23 @@ ARG is passed to `vterm', so refer to its docstring for exaplanation."
   (column-number-indicator-zero-based . nil)
   (mode-line-percent-position . nil)
   (mode-line-compact . t))
+
+(leaf *font
+  :config
+  (defconst source-code-pro "Source Han Code JP-13")
+  (defcustom default-font-name source-code-pro "Default font name.")
+  (defun set-font (&optional new-default)
+    "フォントを `default-font-name' に設定する。
+
+NEW-DEFAULT が非 nil のときは、現在のセッションに限りこれを新たなデフォルトとする。"
+    (interactive (list (read-string "font: " default-font-name)))
+    (when new-default (customize-set-variable 'default-font-name new-default))
+    (set-frame-font default-font-name nil t))
+  (if (daemonp) (add-hook 'server-after-make-frame-hook #'set-font)
+    (add-hook 'after-init-hook #'set-font))
+  ;; :custom-face
+  ;; (default . '((((type x)) :family "Source Han Code JP" :height 90 :slant normal)))
+  )
 
 ;; TODO モードライン
 ;; - SWM (swiper-migemo-mode) を目立たせる
