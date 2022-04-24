@@ -128,6 +128,13 @@
       (set-window-buffer (selected-window) 1st-buf)
       (set-window-buffer (next-window) 2nd-buf))))
 
+;; 出典: https://twitter.com/mkyutani/status/1503945681094201346
+(defun win-clip ()
+  "現在の選択範囲を clip.exe でコピーする。"
+  (interactive)
+  (when (region-active-p)
+    (shell-command-on-region (region-beginning) (region-end) "clip.exe" nil nil)))
+
 (defun insert-at-beginnings-in-region (word)
   "リージョンの各行について、その先頭に WORD を挿入する。"
   (interactive "sWord to insert: ")
