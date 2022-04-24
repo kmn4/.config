@@ -311,7 +311,7 @@ NEW-DEFAULT が非 nil のときは、現在のセッションに限りこれを
 
 (leaf electric-pair-local-mode :hook prog-mode-hook)
 (leaf show-paren-mode :hook prog-mode-hook)
-(leaf hs-minor-mode :hook prog-mode-hook
+(leaf hideshow :hook (prog-mode-hook . hs-minor-mode)
   :defer-config (diminish 'hs-minor-mode))
 
 (leaf recentf
@@ -548,8 +548,7 @@ ARG is passed to `vterm', so refer to its docstring for exaplanation."
   (defun lsp-activate-if-already-activated (server-id)
     (when (and (functionp 'lsp-find-workspace) (lsp-find-workspace server-id (buffer-file-name))) (lsp)))
   (add-hook 'scala-mode-hook (lambda () (lsp-activate-if-already-activated 'metals)))
-  :defer-config
-  (diminish 'lsp-lens-mode))
+  (leaf lsp-lens :defer-config (diminish 'lsp-lens-mode)))
 
 ;; Scala
 
