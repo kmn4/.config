@@ -1,3 +1,0 @@
-[submodule "emacs"]
-	path = emacs
-	url = git@github.com:kmn4/emacs-config
