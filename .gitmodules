@@ -1,0 +1,9 @@
+[submodule "emacs/site-lisp/window-hydra.el"]
+	path = emacs/site-lisp/window-hydra.el
+	url = https://gist.github.com/924f645043310f2fc888.git
+[submodule "emacs/site-lisp/swiper-migemo"]
+	path = emacs/site-lisp/swiper-migemo
+	url = https://github.com/tam17aki/swiper-migemo
+[submodule "emacs/site-lisp/smtlib-mode"]
+	path = emacs/site-lisp/smtlib-mode
+	url = git@github.com:kmn4/smtlib-mode
