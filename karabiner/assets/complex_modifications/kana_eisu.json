@@ -1,0 +1,66 @@
+{
+    "title": "かな，英数",
+    "rules": [
+	{
+	    "description": "かなキーを help として扱う",
+	    "manipulators": [
+		{
+		    "type": "basic",
+		    "from": {
+			"key_code": "japanese_kana",
+			"modifiers": {
+			    "optional": []
+			}
+		    },
+		    "to": [
+			{
+			    "key_code": "help"
+			}
+		    ]
+		}
+	    ]
+	},
+	{
+	    "description": "Control と「かなキー」を同時に押した時，「かなキー」として扱う",
+	    "manipulators": [
+		{
+		    "type": "basic",
+		    "from": {
+			"key_code": "japanese_kana",
+			"modifiers": {
+			    "mandatory": [
+				"control"
+			    ]
+			}
+		    },
+		    "to": [
+			{
+			    "key_code": "japanese_kana"
+			}
+		    ]
+		}
+	    ]
+	},
+	{
+	    "description": "Control と「英数キー」を同時に押した時，「英数キー」として扱う",
+	    "manipulators": [
+		{
+		    "type": "basic",
+		    "from": {
+			"key_code": "japanese_eisuu",
+			"modifiers": {
+			    "mandatory": [
+				"control"
+			    ]
+			}
+		    },
+		    "to": [
+			{
+			    "key_code": "japanese_eisuu"
+			}
+		    ]
+		}
+	    ]
+	}
+    ]
+}
