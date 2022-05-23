@@ -341,8 +341,8 @@
 (leaf undo-tree
   :ensure t
   :global-minor-mode global-undo-tree-mode
-  :config
-  (setq undo-tree-history-directory-alist `((".*" . ,(concat user-emacs-directory ".cache/undo-tree"))))
+  :custom
+  (undo-tree-history-directory-alist . `((".*" . ,(concat user-emacs-directory ".cache/undo-tree"))))
   :defer-config
   (diminish 'undo-tree-mode))
 
@@ -525,13 +525,20 @@ ARG is passed to `vterm', so refer to its docstring for exaplanation."
   :ensure lsp-mode lsp-ui
   :init
   ;; 参考: https://github.com/ncaq/.emacs.d/blob/f1612eeb346974254e893c091901c987003d5e53/init.el#L971-L973
+  (defvar lsp-format-before-save t "LSPモードが入っているバッファを保存するときにフォーマットするかどうか。")
+  (defun lsp-toggle-format-before-save ()
+    "`lsp-format-before-save' をトグルする。"
+    (interactive)
+    (setq lsp-format-before-save (null lsp-format-before-save)))
   (defun lsp-format-buffer-no-error ()
     ;; エラーを握りつぶす
     (condition-case err (lsp-format-buffer)
       (lsp-capability-not-supported nil)))
   (defun lsp-format-before-save ()
-    (add-hook 'before-save-hook 'lsp-format-buffer-no-error nil t))
-  (add-hook 'lsp-mode-hook 'lsp-format-before-save)
+    "LSPモードが有効かつ `lsp-format-before-save' が非 nil なら、`lsp-format-buffer' を呼び出す。"
+    (when (and (symbolp 'lsp-mode) lsp-mode lsp-format-before-save)
+      (lsp-format-buffer-no-error)))
+  (add-hook 'before-save-hook #'lsp-format-before-save)
   :custom
   `(lsp-keymap-prefix . ,(concat leader-key " l"))
   :config
@@ -555,6 +562,9 @@ ARG is passed to `vterm', so refer to its docstring for exaplanation."
 ;; SMT-LIB
 
 (leaf smtlib-mode :require t)
+
+;; CUDA
+(leaf *cuda :mode ("\\.cu$" . c-mode))
 
 ;; Rust
 
