@@ -618,6 +618,19 @@ ARG is passed to `vterm', so refer to its docstring for exaplanation."
     (bibtex-files . '(bibtex-file-path)))
   )
 
+(leaf satysfi :when (executable-find "satysfi") :require t
+  :mode (("\\.saty$" "\\.satyh$" "\\.satyg$") . satysfi-mode)
+  :hook
+  (satysfi-mode-hook . (lambda () (indent-tabs-mode -1)))
+  :config
+  (defun satysfi-find-pdf-other-window ()
+    "Visit PDF for visiting SATySFi source in other window."
+    (interactive)
+    (let ((pdf-name (s-replace-regexp "\\.saty$" ".pdf" (buffer-file-name))))
+      (let ((buf (current-buffer)))
+        (find-file-other-window pdf-name))))
+  (defalias 'satysfi-mode/open-pdf #'satysfi-find-pdf-other-window))
+
 ;; Org
 
 (leaf org
