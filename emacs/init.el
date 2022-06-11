@@ -92,7 +92,9 @@
  ;; [o]rg mode
  "oa" #'org-agenda
  ;; [w]indow
- "wt" #'toggle-window-split)
+ "wt" #'toggle-window-split
+ ;; mizc
+ "M-w" #'win-clip)
 
 (leaf dash :ensure t :require t)
 (leaf s :ensure t :require t)
@@ -110,6 +112,11 @@
   "Revisit the file of selected buffer with root priviledge."
   (interactive)
   (find-file (s-concat "/sudo::" buffer-file-name)))
+
+(defun ssh-find-home (userhost)
+  "user@host のホームディレクトリを SSH 接続して開く．"
+  (interactive "suser@host: ")
+  (find-file (format "/ssh:%s:~" userhost)))
 
 ;; 出典: https://stackoverflow.com/a/33456622
 (defun toggle-window-split ()
