@@ -1,3 +1,2 @@
-*
-!config.fish
-!.gitignore
+extra-config.fish
+fish_variables
