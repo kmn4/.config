@@ -179,7 +179,9 @@
   (replace-in-buffer "、" "，")
   (replace-in-buffer "。" "．"))
 
-(defvar-local replace-japanese-punctuations-on-save nil)
+(defcustom replace-japanese-punctuations-on-save nil
+  "ファイルの保存時に日本語の句読点を全角のカンマとピリオドに置き換える．"
+  :safe t)
 
 (add-hook 'before-save-hook
           (lambda () (when replace-japanese-punctuations-on-save
@@ -543,7 +545,7 @@ ARG is passed to `vterm', so refer to its docstring for exaplanation."
       (lsp-capability-not-supported nil)))
   (defun lsp-format-before-save ()
     "LSPモードが有効かつ `lsp-format-before-save' が非 nil なら、`lsp-format-buffer' を呼び出す。"
-    (when (and (symbolp 'lsp-mode) lsp-mode lsp-format-before-save)
+    (when (and (boundp 'lsp-mode) lsp-mode lsp-format-before-save)
       (lsp-format-buffer-no-error)))
   (add-hook 'before-save-hook #'lsp-format-before-save)
   :custom
