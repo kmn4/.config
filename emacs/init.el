@@ -631,6 +631,7 @@ ARG is passed to `vterm', so refer to its docstring for exaplanation."
   :mode (("\\.saty$" "\\.satyh$" "\\.satyg$") . satysfi-mode)
   :hook
   (satysfi-mode-hook . (lambda () (indent-tabs-mode -1)))
+  (satysfi-mode-hook . (lambda () (display-line-numbers-mode +1)))
   :config
   (defun satysfi-find-pdf-other-window ()
     "Visit PDF for visiting SATySFi source in other window."
