@@ -87,6 +87,7 @@
  ;; [j]ump
  "jf" #'find-function
  "jl" #'find-library
+ "jm" #'pop-to-mark-command
  ;; [l]sp
  "l" #'lsp
  ;; [o]rg mode
@@ -515,10 +516,17 @@ ARG is passed to `vterm', so refer to its docstring for exaplanation."
 
 ;; https://github.com/politza/pdf-tools#server-prerequisites
 (leaf pdf-tools :when unix? :ensure t
-  :config
-  (add-hook 'pdf-view-mode-hook #'auto-revert-mode)
+  :bind (pdf-view-mode-map ("C-s" . pdf-occur))
+  :init
   (if (daemonp) (add-hook 'server-after-make-frame-hook #'pdf-tools-install)
-    (pdf-tools-install)))
+    (pdf-tools-install))
+  :hook (pdf-view-mode-hook . auto-revert-mode))
+
+;; Markdown
+
+(leaf markdown-mode :when unix? :ensure t
+  :custom (markdown-command . "marked")
+  :mode ("\\.md$" . gfm-mode))
 
 ;;;; プログラミング
 
