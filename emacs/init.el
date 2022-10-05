@@ -1,6 +1,7 @@
 ;; init.el は GitHub を使って複数の環境から取得・更新するので、
 ;; 公開したくない情報や環境特有の設定はカスタマイズ変数にして別ファイルに追い出す。
 (setq custom-file (locate-user-emacs-file "emacs-custom-settings.el"))
+(unless (file-exists-p custom-file) (with-temp-buffer (write-file custom-file)))
 (load custom-file)
 
 ;;;; load-path と leaf.
