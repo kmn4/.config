@@ -413,6 +413,8 @@
 
 (defun git-gutter+-refresh-all-buffers ()
   (interactive)
+  ;; TODO: .gitignore されているファイルなど、Git 管理外のファイルでもリフレッシュが
+  ;;       試行される場合がある。エラーメッセージがエコーエリアに出てしまうので上手く回避したい。
   (in-all-buffers-where (-const git-gutter+-mode) (git-gutter+-refresh)))
 
 (leaf rg :ensure t)
