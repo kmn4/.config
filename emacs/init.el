@@ -283,7 +283,7 @@
 
 (leaf restart-emacs :ensure t)
 
-(leaf paradox :ensure t
+(leaf paradox :ensure t async
   :custom (paradox-github-token . t)
   :config (paradox-enable))
 
@@ -344,9 +344,11 @@
 
 (leaf minimap :ensure t :require t
   :custom (minimap-window-location . 'right)
-  :config (set-leader-map "tm" #'minimap-mode))
+  :config (set-leader-map "tM" #'minimap-mode))
 
 (leaf tab-bar :config (set-leader-map "tt" #'tab-bar-mode))
+
+(leaf menu-bar :config (set-leader-map "tm" #'menu-bar-mode))
 
 (leaf undo-tree
   :ensure t
@@ -363,7 +365,9 @@
 
 (leaf hl-todo :ensure t
   :hook prog-mode-hook org-mode-hook
-  :config (add-to-list 'hl-todo-keyword-faces (cons "WARN" "#ff0000")))
+  :config
+  (add-to-list 'hl-todo-keyword-faces '("WARN" . "#ff0000"))
+  (add-to-list 'hl-todo-keyword-faces '("\?\?\?" . "#cc9393")))
 
 (leaf ivy
   :ensure t swiper counsel ivy-hydra
@@ -439,6 +443,9 @@
     :config (diminish 'company-posframe-mode))
   :defer-config
   (diminish 'company-mode))
+
+(leaf smartparens :ensure t :hook prog-mode-hook TeX-mode-hook
+  :config (set-leader-map "pr" #'sp-rewrap-sexp "pu" #'sp-unwrap-sexp))
 
 ;;;; 外部ツールインテグレーション
 
@@ -627,9 +634,7 @@ ARG is passed to `vterm', so refer to its docstring for exaplanation."
     (reftex-label-alist .
                         '(("definition" ?d "def:" "~\\ref{%s}" t ("definition" "def.") -3)
                           ("lemma" ?m "lem:" "~\\ref{%s}" t ("lemma" "lem.") -3)
-                          ("theorem" ?h "thm:" "~\\ref{%s}" t   ("theorem" "th.") -3)))
-    (reftex-default-bibliography . `(,(+dropbox-root "lab/bib/ref.bib"))) ; TODO
-    )
+                          ("theorem" ?h "thm:" "~\\ref{%s}" t   ("theorem" "th.") -3))))
   (leaf bibtex
     :custom
     (bibtex-files . '(bibtex-file-path)))
