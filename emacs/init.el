@@ -259,6 +259,11 @@
 (defconst unix? (or linux? macos?))
 (defconst wsl? (and unix? (s-contains-p "WSL2" (shell-command-output "uname -a"))))
 
+(defconst dev-null
+  (cond (unix? "/dev/null")
+        (t nil))
+  "/dev/null のようなファイルへのパス")
+
 ;; 以下は "NOT part of Emacs" なパッケージも使う
 
 (leaf diminish :ensure t)
@@ -354,7 +359,8 @@
   :ensure t
   :global-minor-mode global-undo-tree-mode
   :custom
-  (undo-tree-history-directory-alist . `((".*" . ,(concat user-emacs-directory ".cache/undo-tree"))))
+  (undo-tree-history-directory-alist . `((".*\.gpg" . ,dev-null)
+                                         (".*" . ,(concat user-emacs-directory ".cache/undo-tree"))))
   :defer-config
   (diminish 'undo-tree-mode))
 
