@@ -472,20 +472,12 @@
   (diminish 'company-mode))
 
 ;; Emoji ✨
-;; 参考: https://ianyepan.github.io/posts/emacs-emojis/
-;;
-;; 1. curl -LSs "https://fonts.google.com/download?family=Noto+Color+Emoji" \
-;;         -o NotoColorEmoji.zip
-;; 2. TTF を ~/.local/share/fonts へ移動して fc-cache -f
-(leaf *emoji
+(leaf emojify :ensure t :global-minor-mode 'global-emojify-mode
+  :custom
+  (emojify-display-style . 'image)
+  (emojify-emoji-styles . '(unicode))
   :config
-  (set-fontset-font t 'symbol (font-spec :family "Noto Color Emoji" nil 'prepend))
-  (leaf emojify :ensure t :global-minor-mode 'global-emojify-mode
-    :custom
-    (emojify-display-styles . 'unicode)
-    (emojify-emoji-styles . '(unicode))
-    :config
-    (set-leader-map "ie" #'emojify-insert-emoji)))
+  (set-leader-map "ie" #'emojify-insert-emoji))
 
 (leaf smartparens :ensure t :hook prog-mode-hook TeX-mode-hook
   :config (set-leader-map "pr" #'sp-rewrap-sexp "pu" #'sp-unwrap-sexp))
