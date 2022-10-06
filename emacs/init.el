@@ -370,8 +370,10 @@
   :custom (minimap-window-location . 'right)
   :config (set-leader-map "tM" #'minimap-mode))
 
-
-(leaf menu-bar :config (set-leader-map "tm" #'menu-bar-mode))
+(leaf menu-bar
+  :config
+  (menu-bar-mode -1)
+  (set-leader-map "tm" #'menu-bar-mode))
 
 (leaf undo-tree
   :ensure t
