@@ -786,6 +786,14 @@ NEW-DEFAULT が非 nil のときは、現在のセッションに限りこれを
   "現在、ライトテーマが設定されている。"
   (eq (car custom-enabled-themes) default-light-theme))
 
+(leaf dashboard :ensure t
+  :config (dashboard-setup-startup-hook)
+  :custom
+  (dashboard-startup-banner . 'logo)
+  (dashboard-center-content . t)
+  (dashboard-items . '((bookmarks . 5) (recents . 3)))
+  (dashboard-footer-messages . '("Happy Coding!"))
+  (initial-buffer-choice . (lambda () (get-buffer-create "*dashboard*"))))
 
 ;; TODO モードライン
 ;; - SWM (swiper-migemo-mode) を目立たせる
