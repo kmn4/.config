@@ -204,6 +204,8 @@
   (interactive)
   (how-many "\\S-" nil nil t))
 
+(defun buffer-major-mode (buf) (with-current-buffer buf major-mode))
+
 ;; シェルとターミナル
 
 (defcustom terminal-emulator "gnome-terminal" "Terminal enulator.")
@@ -264,6 +266,22 @@
   (cond (unix? "/dev/null")
         (t nil))
   "/dev/null のようなファイルへのパス")
+
+(leaf imenu
+  :config
+  (defun imenu-list-hide () (imenu-list-show) (imenu-list-quit-window))
+  (defun imenu-list-toggle ()
+    (interactive)
+    (save-selected-window
+      (if (imenu-list-exists (selected-frame))
+          (imenu-list-hide)
+        (imenu-list-show))))
+  (defun imenu-list-exists (&optional frame)
+    (let ((windows (window-list frame)))
+      (-some (lambda (win)
+               (eq (buffer-major-mode (window-buffer win)) 'imenu-list-major-mode))
+             windows)))
+  (set-leader-map "ti" #'imenu-list-toggle))
 
 ;; 以下は "NOT part of Emacs" なパッケージも使う
 
