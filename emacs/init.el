@@ -377,8 +377,8 @@
   (add-to-list 'hl-todo-keyword-faces '("\?\?\?" . "#cc9393")))
 
 (leaf ivy
-  :ensure t swiper counsel ivy-hydra
-  :global-minor-mode t counsel-mode
+  :ensure t swiper counsel ivy-hydra ivy-rich
+  :global-minor-mode t counsel-mode ivy-rich-mode
   :bind (("C-s" . swiper))
   :defer-config
   (diminish 'ivy-mode)
@@ -450,6 +450,22 @@
     :config (diminish 'company-posframe-mode))
   :defer-config
   (diminish 'company-mode))
+
+;; Emoji ✨
+;; 参考: https://ianyepan.github.io/posts/emacs-emojis/
+;;
+;; 1. curl -LSs "https://fonts.google.com/download?family=Noto+Color+Emoji" \
+;;         -o NotoColorEmoji.zip
+;; 2. TTF を ~/.local/share/fonts へ移動して fc-cache -f
+(leaf *emoji
+  :config
+  (set-fontset-font t 'symbol (font-spec :family "Noto Color Emoji" nil 'prepend))
+  (leaf emojify :ensure t :global-minor-mode 'global-emojify-mode
+    :custom
+    (emojify-display-styles . 'unicode)
+    (emojify-emoji-styles . '(unicode))
+    :config
+    (set-leader-map "ie" #'emojify-insert-emoji)))
 
 (leaf smartparens :ensure t :hook prog-mode-hook TeX-mode-hook
   :config (set-leader-map "pr" #'sp-rewrap-sexp "pu" #'sp-unwrap-sexp))
@@ -686,7 +702,13 @@ ARG is passed to `vterm', so refer to its docstring for exaplanation."
 
 ;;;; 見た目
 
-(leaf all-the-icons :ensure t)
+(leaf all-the-icons :ensure t
+  :config
+  (leaf all-the-icons-dired :ensure t :hook dired-mode-hook
+    :custom (all-the-icons-dired-monochrome . nil))
+  (leaf all-the-icons-ivy-rich :ensure t :after ivy ivy-rich
+    :config (all-the-icons-ivy-rich-mode +1))
+  (leaf all-the-icons-ibuffer :ensure t :hook ibuffer-mode-hook))
 
 (leaf *mode-line
   ;; https://ayatakesi.github.io/emacs/28.1/html/Optional-Mode-Line.html#Optional-Mode-Line
@@ -712,6 +734,22 @@ NEW-DEFAULT が非 nil のときは、現在のセッションに限りこれを
   ;; :custom-face
   ;; (default . '((((type x)) :family "Source Han Code JP" :height 90 :slant normal)))
   )
+
+;; テーマ
+(defun toggle-theme ()
+  "ライトテーマとダークテーマを切り替える。"
+  (interactive)
+  (let ((in-light-theme-tmp (in-light-theme)))
+    (mapc #'disable-theme custom-enabled-themes)
+    (if in-light-theme-tmp
+        (load-theme default-dark-theme)
+      (load-theme default-light-theme))))
+(defcustom default-light-theme 'tsdh-light "デフォルトのライトテーマ")
+(defcustom default-dark-theme 'wombat "デフォルトのダークテーマ")
+(defun in-light-theme ()
+  "現在、ライトテーマが設定されている。"
+  (eq (car custom-enabled-themes) default-light-theme))
+
 
 ;; TODO モードライン
 ;; - SWM (swiper-migemo-mode) を目立たせる
