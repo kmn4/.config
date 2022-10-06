@@ -601,6 +601,9 @@ ARG is passed to `vterm', so refer to its docstring for exaplanation."
   (add-hook 'before-save-hook #'lsp-format-before-save)
   :custom
   `(lsp-keymap-prefix . ,(concat leader-key " l"))
+  :custom-face
+  ;; TODO: ピーク時にはむしろ背景をグレーにしたい
+  (lsp-ui-peek-peek . '((t (:background "dim gray"))))
   :config
   ;; 既に LSP サーバが既に走っているプロジェクトのファイルを開くときは自動的に接続。
   ;; ただし少しだけファイルを開きたいときにいちいち LSP サーバが起動すると鬱陶しいので、
