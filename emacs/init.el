@@ -370,7 +370,6 @@
   :custom (minimap-window-location . 'right)
   :config (set-leader-map "tM" #'minimap-mode))
 
-(leaf tab-bar :config (set-leader-map "tt" #'tab-bar-mode))
 
 (leaf menu-bar :config (set-leader-map "tm" #'menu-bar-mode))
 
@@ -746,6 +745,21 @@ NEW-DEFAULT が非 nil のときは、現在のセッションに限りこれを
   ;; :custom-face
   ;; (default . '((((type x)) :family "Source Han Code JP" :height 90 :slant normal)))
   )
+
+(leaf centaur-tabs :ensure t :global-minor-mode centaur-tabs-mode
+  :bind
+  (centaur-tabs-mode-map
+   ("C-<next>" . centaur-tabs-forward)
+   ("C-<prior>" . centaur-tabs-backward))
+  :hook
+  ((imenu-list-major-mode-hook) . centaur-tabs-local-mode)
+  :custom
+  (centaur-tabs-set-icons . t)
+  (centaur-tabs-set-modified-marker . t)
+  :config
+  (set-leader-map "tt" #'centaur-tabs-mode)
+  :defer-config
+  (centaur-tabs-headline-match))
 
 ;; テーマ
 (defun toggle-theme ()
