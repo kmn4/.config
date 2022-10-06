@@ -715,6 +715,14 @@ ARG is passed to `vterm', so refer to its docstring for exaplanation."
 
 ;;;; 見た目
 
+(leaf treemacs :ensure t
+  :bind
+  ("M-0" . #'treemacs)
+  (treemacs-mode-map
+   ("k" . #'treemacs-previous-line)
+   ("j" . #'treemacs-next-line))
+  :config (set-leader-map "0" #'treemacs))
+
 (leaf all-the-icons :ensure t
   :config
   (leaf all-the-icons-dired :ensure t :hook dired-mode-hook
