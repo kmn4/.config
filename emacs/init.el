@@ -207,6 +207,28 @@
 
 (defun buffer-major-mode (buf) (with-current-buffer buf major-mode))
 
+(defun duplicate-line-stay ()
+  (interactive)
+  "カーソルのある行を下に複製する。カーソルは動かさない。"
+  ;; save-excursion だとなぜか行頭に移動してしまう
+  (let ((pos (point)))
+    (kill-whole-line) (yank) (yank)
+    (goto-char pos)))
+
+(defun forward-line-same-col (&optional n)
+  (let ((col (current-column)))
+    (forward-line n)
+    (move-to-column col)))
+
+(defun duplicate-line-down ()
+  (interactive)
+  "カーソルのある行を下に複製し、カーソルを下へ移動する。"
+  (duplicate-line-stay)
+  (forward-line-same-col +1))
+
+(global-set-key (kbd "M-S-<down>") #'duplicate-line-down)
+(global-set-key (kbd "M-S-<up>") #'duplicate-line-stay)
+
 ;; シェルとターミナル
 
 (defcustom terminal-emulator "gnome-terminal" "Terminal enulator.")
@@ -512,8 +534,8 @@ _/_: undo      _d_: down        ^ ^
   :config
   (setq mc/cmds-to-run-once '(mc/mark-next-lines mc/mark-previous-lines))
   :bind
-  ("M-S-<down>" . mc/mark-next-lines)
-  ("M-S-<up>" . mc/mark-previous-lines)
+  ("C-M-<down>" . mc/mark-next-lines)
+  ("C-M-<up>" . mc/mark-previous-lines)
   ("M-N" . mc/mark-next-like-this-symbol)
   ("M-P" . mc/mark-previous-like-this-symbol))
 
