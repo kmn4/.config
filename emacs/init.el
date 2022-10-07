@@ -633,6 +633,8 @@ ARG is passed to `vterm', so refer to its docstring for exaplanation."
   :custom (markdown-command . "marked")
   :mode ("\\.md$" . gfm-mode))
 
+(leaf writeroom-mode :ensure t)
+
 ;;;; プログラミング
 
 (leaf flymake
