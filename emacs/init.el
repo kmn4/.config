@@ -24,6 +24,7 @@
   (package-refresh-contents)
   (package-install 'leaf))
 (leaf leaf-tree :ensure t)
+(leaf leaf-keywords :ensure t :config (leaf-keywords-init))
 
 ;;;; キーマップ。
 ;; init.el に問題があってすべてを読み込めないときでも
@@ -480,8 +481,32 @@
   :config
   (set-leader-map "ie" #'emojify-insert-emoji))
 
-(leaf smartparens :ensure t :hook prog-mode-hook TeX-mode-hook
-  :config (set-leader-map "pr" #'sp-rewrap-sexp "pu" #'sp-unwrap-sexp))
+(leaf smartparens :ensure t
+  :require t smartparens-config
+  :hook prog-mode-hook TeX-mode-hook
+  :hydra (hydra-parens
+          (:hint nil)
+          "
+^Edit^         ^Move^           ^Mark/Kill
+^^^^^-------------------------------------
+_s_: slurp     _f_: forward     _k_: kill
+_|_: split     _b_: backward    _y_: yank
+_/_: undo      _d_: down        ^ ^
+^ ^            _u_: up          ^ ^
+^ ^            ^ ^              ^ ^
+"
+          ("s" sp-slurp-hybrid-sexp)
+          ("|" sp-split-sexp)
+          ("/" undo)
+
+          ("f" forward-sexp)
+          ("b" backward-sexp)
+          ("d" down-list)
+          ("u" backward-up-list)
+
+          ("k" sp-kill-sexp)
+          ("y" yank))
+  :config (set-leader-map "pr" #'sp-rewrap-sexp "pu" #'sp-unwrap-sexp "ph" #'hydra-parens/body))
 
 (leaf multiple-cursors :ensure t
   :config
