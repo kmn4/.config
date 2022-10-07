@@ -814,20 +814,25 @@ NEW-DEFAULT が非 nil のときは、現在のセッションに限りこれを
   :defer-config
   (centaur-tabs-headline-match))
 
-;; テーマ
-(defun toggle-theme ()
-  "ライトテーマとダークテーマを切り替える。"
-  (interactive)
-  (let ((in-light-theme-tmp (in-light-theme)))
-    (mapc #'disable-theme custom-enabled-themes)
-    (if in-light-theme-tmp
-        (load-theme default-dark-theme)
-      (load-theme default-light-theme))))
-(defcustom default-light-theme 'tsdh-light "デフォルトのライトテーマ")
-(defcustom default-dark-theme 'wombat "デフォルトのダークテーマ")
-(defun in-light-theme ()
-  "現在、ライトテーマが設定されている。"
-  (eq (car custom-enabled-themes) default-light-theme))
+(leaf rainbow-delimiters :ensure t :hook prog-mode-hook TeX-mode-hook)
+
+(leaf *theme
+  :ensure vscode-dark-plus-theme spacemacs-theme
+  :config
+  (defun toggle-theme ()
+    "ライトテーマとダークテーマを切り替える。"
+    (interactive)
+    (let ((in-light-theme-tmp (in-light-theme)))
+      (mapc #'disable-theme custom-enabled-themes)
+      (if in-light-theme-tmp
+          (load-theme default-dark-theme)
+        (load-theme default-light-theme))))
+  (defcustom default-light-theme 'spacemacs-light "デフォルトのライトテーマ")
+  (defcustom default-dark-theme 'vscode-dark-plus "デフォルトのダークテーマ")
+  (defun in-light-theme ()
+    "現在、ライトテーマが設定されている。"
+    (eq (car custom-enabled-themes) default-light-theme))
+  (load-theme default-dark-theme))
 
 (leaf dashboard :ensure t
   :config (dashboard-setup-startup-hook)
