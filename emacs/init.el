@@ -483,6 +483,21 @@
 (leaf smartparens :ensure t :hook prog-mode-hook TeX-mode-hook
   :config (set-leader-map "pr" #'sp-rewrap-sexp "pu" #'sp-unwrap-sexp))
 
+(leaf multiple-cursors :ensure t
+  :config
+  (setq mc/cmds-to-run-once '(mc/mark-next-lines mc/mark-previous-lines))
+  :bind
+  ("M-S-<down>" . mc/mark-next-lines)
+  ("M-S-<up>" . mc/mark-previous-lines)
+  ("M-N" . mc/mark-next-like-this-symbol)
+  ("M-P" . mc/mark-previous-like-this-symbol))
+
+(leaf expand-region :ensure t
+  :custom
+  (expand-region-contract-fast-key . "c")
+  (expand-region-show-usage-message . nil)
+  :config (set-leader-map "x" #'er/expand-region))
+
 ;;;; 外部ツールインテグレーション
 
 ;; シェル周り
