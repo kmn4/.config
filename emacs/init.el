@@ -840,6 +840,8 @@ NEW-DEFAULT が非 nil のときは、現在のセッションに限りこれを
 
 (leaf rainbow-delimiters :ensure t :hook prog-mode-hook TeX-mode-hook)
 
+(leaf volatile-highlights :ensure t :global-minor-mode volatile-highlights-mode)
+
 (leaf *theme
   :ensure vscode-dark-plus-theme spacemacs-theme
   :config
