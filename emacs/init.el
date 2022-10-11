@@ -839,7 +839,9 @@ NEW-DEFAULT が非 nil のときは、現在のセッションに限りこれを
   (centaur-tabs-headline-match))
 
 (leaf rainbow-delimiters :ensure t :hook prog-mode-hook TeX-mode-hook)
-
+(leaf highlight-thing :ensure t :hook (prog-mode-hook . highlight-thing-mode)
+  :custom (highlight-thing-delay-seconds . 0.2)
+  :custom-face (highlight-thing . '((t (:inherit 'highlight)))))
 (leaf volatile-highlights :ensure t :global-minor-mode volatile-highlights-mode)
 
 (leaf *theme
