@@ -356,8 +356,7 @@
 
 (leaf electric-pair-local-mode :hook prog-mode-hook)
 (leaf show-paren-mode :hook prog-mode-hook)
-(leaf hideshow :hook (prog-mode-hook . hs-minor-mode)
-  :defer-config (diminish 'hs-minor-mode))
+(leaf hideshow :hook (prog-mode-hook . hs-minor-mode) :diminish hs-minor-mode)
 
 (leaf recentf
   :custom (recentf-max-saved-items . 1000)
@@ -398,13 +397,12 @@
   :custom
   (undo-tree-history-directory-alist . `((".*\.gpg" . ,dev-null)
                                          (".*" . ,(concat user-emacs-directory ".cache/undo-tree"))))
-  :defer-config
-  (diminish 'undo-tree-mode))
+  :diminish undo-tree-mode)
 
-(leaf eldoc :defer-config (diminish 'eldoc-mode))
+(leaf eldoc :diminish eldoc-mode)
 
 ;; auto-revert-mode is enabled on all Git-managed files due to magit-auto-revert-mode
-(leaf autorevert :defer-config (diminish 'auto-revert-mode))
+(leaf autorevert :diminish auto-revert-mode)
 
 (leaf hl-todo :ensure t
   :hook prog-mode-hook org-mode-hook
@@ -416,9 +414,7 @@
   :ensure t swiper counsel ivy-hydra ivy-rich
   :global-minor-mode t counsel-mode ivy-rich-mode
   :bind (("C-s" . swiper))
-  :defer-config
-  (diminish 'ivy-mode)
-  (diminish 'counsel-mode))
+  :diminish ivy-mode counsel-mode)
 
 (leaf hydra :ensure t :require t
   :config
@@ -437,14 +433,13 @@
 
 (leaf winner :config (winner-mode +1))
 
-(leaf which-key :ensure t :global-minor-mode t
-  :defer-config (diminish 'which-key-mode))
+(leaf which-key :ensure t :global-minor-mode t :diminish which-key-mode)
 
 (leaf *git
   :config
   (leaf magit :ensure t :require t)
   (leaf git-gutter+ :ensure t :global-minor-mode global-git-gutter+-mode
-    :defer-config (diminish 'git-gutter+-mode)
+    :diminish git-gutter+-mode
     :config
     (defun git-gutter+-refresh-all-buffers ()
       (interactive)
@@ -487,12 +482,12 @@ _s_, _<tab>_: show    _U_: unstage all    _c_: commit
 
 (setq ring-bell-function 'ignore)
 
-(leaf yasnippet :ensure t :global-minor-mode yas-global-mode
-  :defer-config (diminish 'yas-minor-mode))
+(leaf yasnippet :ensure t :global-minor-mode yas-global-mode :diminish yas-minor-mode)
 
 ;; `completion-at-point' を直接利用する場合と比べて、補完中にドキュメントを読めることが company の利点。
 ;; 独自 UI よりも `counsel-company' ほうが候補の絞り込みに便利だが、後者ではドキュメント表示ができないので我慢。
 (leaf company :ensure t :global-minor-mode global-company-mode
+  :diminish company-mode
   :custom
   ;; `company-posframe' があれば `company-echo-metadata-frontend' は不要
   (company-frontends . '(company-pseudo-tooltip-unless-just-one-frontend company-preview-if-just-one-frontend))
@@ -506,9 +501,7 @@ _s_, _<tab>_: show    _U_: unstage all    _c_: commit
   (leaf company-posframe :ensure t :global-minor-mode t
     ;; *Help* が汚染されるのでドキュメントは手動 (<f1>キー) で開く
     :custom (company-posframe-quickhelp-delay . nil)
-    :config (diminish 'company-posframe-mode))
-  :defer-config
-  (diminish 'company-mode))
+    :diminish company-posframe-mode))
 
 ;; Emoji ✨
 (leaf emojify :ensure t :global-minor-mode 'global-emojify-mode
@@ -691,7 +684,7 @@ ARG is passed to `vterm', so refer to its docstring for exaplanation."
   (defun lsp-activate-if-already-activated (server-id)
     (when (and (functionp 'lsp-find-workspace) (lsp-find-workspace server-id (buffer-file-name))) (lsp)))
   (add-hook 'scala-mode-hook (lambda () (lsp-activate-if-already-activated 'metals)))
-  (leaf lsp-lens :defer-config (diminish 'lsp-lens-mode)))
+  (leaf lsp-lens :diminish lsp-lens-mode))
 
 ;; Scala
 
