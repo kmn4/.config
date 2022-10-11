@@ -74,12 +74,6 @@
  "fr" #'counsel-recentf
  "fi" #'visit-init-file
  "fs" #'revisit-with-sudo
- ;; [g]it
- "gb" #'magit-blame
- "gr" #'git-gutter+-refresh-all-buffers
- "gn" #'git-gutter+-next-hunk
- "gp" #'git-gutter+-previous-hunk
- "gs" #'git-gutter+-show-hunk-inline-at-point
  ;; [s]earch
  "sg" #'counsel-git-grep
  "sr" #'counsel-rg
@@ -446,18 +440,39 @@
 (leaf which-key :ensure t :global-minor-mode t
   :defer-config (diminish 'which-key-mode))
 
-(leaf git
+(leaf *git
   :config
   (leaf magit :ensure t :require t)
   (leaf git-gutter+ :ensure t :global-minor-mode global-git-gutter+-mode
-    :defer-config (diminish 'git-gutter+-mode))
-  (leaf git-modes :ensure t))
-
-(defun git-gutter+-refresh-all-buffers ()
-  (interactive)
-  ;; TODO: .gitignore されているファイルなど、Git 管理外のファイルでもリフレッシュが
-  ;;       試行される場合がある。エラーメッセージがエコーエリアに出てしまうので上手く回避したい。
-  (in-all-buffers-where (-const git-gutter+-mode) (git-gutter+-refresh)))
+    :defer-config (diminish 'git-gutter+-mode)
+    :config
+    (defun git-gutter+-refresh-all-buffers ()
+      (interactive)
+      ;; TODO: .gitignore されているファイルなど、Git 管理外のファイルでもリフレッシュが
+      ;;       試行される場合がある。エラーメッセージがエコーエリアに出てしまうので上手く回避したい。
+      (in-all-buffers-where (-const git-gutter+-mode) (git-gutter+-refresh))))
+  (leaf git-modes :ensure t)
+  (set-leader-map "g" #'hydra-git/body)
+  :hydra (hydra-git
+          (:hint nil)
+          "
+^Move^^^              ^Action^            ^Magit
+^^^--------------------------------------------------
+_n_: next^^           _a_: stage          _g_: magit
+_p_: prev^^           _r_: revert         _b_: blame
+_s_, _<tab>_: show    _U_: unstage all    _c_: commit
+"
+          ("n" #'git-gutter+-next-hunk)
+          ("p" #'git-gutter+-previous-hunk)
+          ("s" #'git-gutter+-show-hunk-inline-at-point)
+          ("<tab>" #'git-gutter+-show-hunk-inline-at-point)
+          ("a" #'git-gutter+-stage-hunks)
+          ("r" #'git-gutter+-revert-hunks)
+          ("U" #'git-gutter+-unstage-whole-buffer)
+          ("g" #'magit-status :exit t)
+          ("b" #'magit-blame :exit t)
+          ("c" #'magit-commit :exit t)
+          ("R" #'git-gutter+-refresh-all-buffers "refresh gutter in all buffers" :exit t)))
 
 (leaf rg :ensure t)
 
