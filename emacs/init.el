@@ -23,8 +23,8 @@
 (if (package-installed-p 'leaf) (package-refresh-contents t) ;; 非同期
   (package-refresh-contents)
   (package-install 'leaf))
-(leaf leaf-tree :ensure t)
 (leaf leaf-keywords :ensure t :config (leaf-keywords-init))
+(leaf leaf-tree :ensure t :diminish t)
 
 ;;;; キーマップ。
 ;; init.el に問題があってすべてを読み込めないときでも
@@ -514,6 +514,7 @@ _s_, _<tab>_: show    _U_: unstage all    _c_: commit
 (leaf smartparens :ensure t
   :require t smartparens-config
   :hook prog-mode-hook TeX-mode-hook
+  :diminish smartparens-mode
   :hydra (hydra-parens
           (:hint nil)
           "
@@ -733,14 +734,12 @@ ARG is passed to `vterm', so refer to its docstring for exaplanation."
   (setq TeX-command-list (-remove (lambda (l) (string-equal (car l) "LaTeX")) TeX-command-list))
   (push '("LaTeX" "latexmk --synctex=1 %T" TeX-run-command nil t) TeX-command-list)
 
-  (leaf magic-latex-buffer :when (tex-installed-p)
-    :ensure t
-    :after latex
+  (leaf magic-latex-buffer :ensure t :diminish t
     :custom
     (magic-latex-enable-block-align . nil)
     (magic-latex-enable-inline-image . nil)
     :hook (LaTeX-mode-hook . (lambda () (when (display-graphic-p) (magic-latex-buffer +1)))))
-  (leaf reftex
+  (leaf reftex :diminish t
     :custom
     (reftex-label-alist .
                         '(("definition" ?d "def:" "~\\ref{%s}" t ("definition" "def.") -3)
@@ -848,9 +847,12 @@ NEW-DEFAULT が非 nil のときは、現在のセッションに限りこれを
 
 (leaf rainbow-delimiters :ensure t :hook prog-mode-hook TeX-mode-hook)
 (leaf highlight-thing :ensure t :hook (prog-mode-hook . highlight-thing-mode)
+  :diminish highlight-thing-mode
   :custom (highlight-thing-delay-seconds . 0.2)
   :custom-face (highlight-thing . '((t (:inherit 'highlight)))))
-(leaf volatile-highlights :ensure t :global-minor-mode volatile-highlights-mode)
+(leaf volatile-highlights :ensure t :global-minor-mode volatile-highlights-mode
+  :diminish volatile-highlights-mode)
+(leaf hi-lock :diminish hi-lock-mode)
 
 (leaf *theme
   :ensure vscode-dark-plus-theme spacemacs-theme
