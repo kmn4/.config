@@ -23,7 +23,7 @@
 (if (package-installed-p 'leaf) (package-refresh-contents t) ;; 非同期
   (package-refresh-contents)
   (package-install 'leaf))
-(leaf leaf-keywords :ensure t :config (leaf-keywords-init))
+(leaf leaf-keywords :ensure t diminish hydra :config (leaf-keywords-init))
 (leaf leaf-tree :ensure t :diminish t)
 
 ;;;; キーマップ。
@@ -302,8 +302,6 @@
 
 ;; 以下は "NOT part of Emacs" なパッケージも使う
 
-(leaf diminish :ensure t)
-
 (leaf *envvar
   :config
   (leaf exec-path-from-shell :unless (eq system-type 'windows-nt)
@@ -415,8 +413,6 @@
   :global-minor-mode t counsel-mode ivy-rich-mode
   :bind (("C-s" . swiper))
   :diminish ivy-mode counsel-mode)
-
-(leaf hydra :ensure t)
 
 (leaf winum
   :ensure t
