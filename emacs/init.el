@@ -285,14 +285,14 @@
   "/dev/null のようなファイルへのパス")
 
 (leaf imenu
-  :config
-  (defun imenu-list-hide () (imenu-list-show) (imenu-list-quit-window))
+  :init
+  (defun imenu-list-hide () (imenu-list) (imenu-list-quit-window))
   (defun imenu-list-toggle ()
     (interactive)
     (save-selected-window
       (if (imenu-list-exists (selected-frame))
           (imenu-list-hide)
-        (imenu-list-show))))
+        (imenu-list))))
   (defun imenu-list-exists (&optional frame)
     (let ((windows (window-list frame)))
       (-some (lambda (win)
@@ -558,7 +558,7 @@ _/_: undo      _d_: down        ^ ^
    ("C-h" . vterm-send-C-h)
    ("C-v" . scroll-up-command)
    ("M-v" . scroll-down-command))
-  :config
+  :init
   (defun vterm-other-window (&optional arg)
     "Open vterm in other window.
 
@@ -665,6 +665,7 @@ ARG is passed to `vterm', so refer to its docstring for exaplanation."
   (add-hook 'before-save-hook #'lsp-format-before-save)
   :custom
   `(lsp-keymap-prefix . ,(concat leader-key " l"))
+  (lsp-idle-delay . 0.2)
   :custom-face
   ;; TODO: ピーク時にはむしろ背景をグレーにしたい
   (lsp-ui-peek-peek . '((t (:background "dim gray"))))
@@ -840,7 +841,12 @@ NEW-DEFAULT が非 nil のときは、現在のセッションに限りこれを
 (leaf highlight-thing :ensure t :hook (prog-mode-hook . highlight-thing-mode)
   :diminish highlight-thing-mode
   :custom (highlight-thing-delay-seconds . 0.2)
-  :custom-face (highlight-thing . '((t (:inherit 'highlight)))))
+  :custom-face (highlight-thing . '((t (:inherit 'highlight))))
+  :init
+  (defun toggle-hlt () (highlight-thing-mode 'toggle))
+  :config
+  ;; LSP モードでは無効化する
+  (leaf lsp :hook (lsp-mode-hook . toggle-hlt)))
 (leaf volatile-highlights :ensure t :global-minor-mode volatile-highlights-mode
   :diminish volatile-highlights-mode)
 (leaf hi-lock :diminish hi-lock-mode)
