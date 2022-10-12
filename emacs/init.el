@@ -416,12 +416,7 @@
   :bind (("C-s" . swiper))
   :diminish ivy-mode counsel-mode)
 
-(leaf hydra :ensure t :require t
-  :config
-  (load (concat site-lisp-directory "window-hydra.el/hydra.el"))
-  (global-set-key [remap shrink-window-horizontally] #'hydra-window/shrink-window-horizontally)
-  (global-set-key [remap enlarge-window-horizontally] #'hydra-window/enlarge-window-horizontally)
-  (global-set-key [remap windmove-right] #'hydra-window/windmove-right))
+(leaf hydra :ensure t)
 
 (leaf winum
   :ensure t
