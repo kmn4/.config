@@ -284,6 +284,13 @@
         (t nil))
   "/dev/null のようなファイルへのパス")
 
+(defun major-mode-window (mode &optional frame)
+  "メジャーモードが MODE であるようなウィンドウが FRAME に存在するならそれを返す。"
+  (let ((windows (window-list frame)))
+    (-find (lambda (win)
+             (eq (buffer-major-mode (window-buffer win)) mode))
+           windows)))
+
 (leaf imenu
   :init
   (defun imenu-list-hide () (imenu-list) (imenu-list-quit-window))
@@ -294,10 +301,7 @@
           (imenu-list-hide)
         (imenu-list))))
   (defun imenu-list-exists (&optional frame)
-    (let ((windows (window-list frame)))
-      (-some (lambda (win)
-               (eq (buffer-major-mode (window-buffer win)) 'imenu-list-major-mode))
-             windows)))
+    (major-mode-window 'imenu-list-major-mode frame))
   (set-leader-map "ti" #'imenu-list-toggle))
 
 ;; 以下は "NOT part of Emacs" なパッケージも使う
@@ -397,7 +401,7 @@
                                          (".*" . ,(concat user-emacs-directory ".cache/undo-tree"))))
   :diminish undo-tree-mode)
 
-(leaf eldoc :diminish eldoc-mode)
+(leaf eldoc :diminish eldoc-mode :custom (eldoc-idle-delay . 0.2))
 
 ;; auto-revert-mode is enabled on all Git-managed files due to magit-auto-revert-mode
 (leaf autorevert :diminish auto-revert-mode)
@@ -637,13 +641,21 @@ ARG is passed to `vterm', so refer to its docstring for exaplanation."
 
 ;;;; プログラミング
 
-(leaf flymake
-  :config
-  (set-leader-map
-   "en" #'flymake-goto-next-error
-   "ep" #'flymake-goto-prev-error
-   "el" #'flymake-show-buffer-diagnostics
-   "pel" #'flymake-show-project-diagnostics))
+(leaf flycheck :ensure t :hook prog-mode-hook LaTeX-mode-hook
+  :config (set-leader-map "e" #'hydra-flycheck/body)
+  :custom (flycheck-display-errors-delay . 0)  ; HACK: あえて即表示させると ElDoc が上書きできる
+  :init
+  (defun flycheck-toggle-error-list (&optional frame)
+    (interactive)
+    (if-let ((window (major-mode-window 'flycheck-error-list-mode frame)))
+        (delete-window window)
+      (flycheck-list-errors)))
+  :hydra (hydra-flycheck nil "Flycheck"
+          ("e" #'flycheck-display-error-at-point "explain")
+          ("n" #'flycheck-next-error "next")
+          ("p" #'flycheck-previous-error "prev")
+          ("l" #'flycheck-toggle-error-list "list")
+          ("?" #'flycheck-describe-checker "help" :exit t)))
 
 (leaf lsp
   :ensure lsp-mode lsp-ui
@@ -884,5 +896,6 @@ NEW-DEFAULT が非 nil のときは、現在のセッションに限りこれを
 
 ;; Local Variables:
 ;; indent-tabs-mode: nil
+;; flycheck-mode: nil
 ;; End:
 (put 'narrow-to-region 'disabled nil)
