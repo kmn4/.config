@@ -349,7 +349,21 @@
             (when (apply #'derived-mode-p delete-trailing-whitespace-modes)
               (delete-trailing-whitespace))))
 
-(leaf xdg :require t)
+(defun push-list (list-var elts)
+  (mapc (lambda (elt) (push elt (symbol-value list-var))) (seq-reverse elts)))
+
+(leaf xdg :require t
+  :config (set-leader-map "jd" #'ivy-find-xdg-user-dirs)
+  :init
+  ;; Documents, Downloads, Desktop をすぐに開けるようにする
+  (defvar xdg-user-dirs-of-interest
+    (mapcar (-compose (lambda (s) (s-concat s "/")) #'xdg-user-dir)
+            '("DOCUMENTS" "DOWNLOAD" "DESKTOP")))
+  (defun ivy-find-xdg-user-dirs ()
+    (interactive)
+    (ivy-read "Find XDG User Dir: " xdg-user-dirs-of-interest
+              :require-match t
+              :action #'find-file)))
 
 (leaf info
   :config
@@ -806,7 +820,18 @@ ARG is passed to `vterm', so refer to its docstring for exaplanation."
   (leaf all-the-icons-dired :ensure t :hook dired-mode-hook
     :custom (all-the-icons-dired-monochrome . nil))
   (leaf all-the-icons-ivy-rich :ensure t :after ivy ivy-rich
-    :config (all-the-icons-ivy-rich-mode +1))
+    :config
+    ;; XDG User Dir は D から始まるディレクトリが多くて識別しづらいので
+    ;; アイコンを表示してわかりやすくする。
+    (push-list
+     'all-the-icons-ivy-rich-display-transformers-list
+     '(ivy-find-xdg-user-dirs
+       (:columns
+        ((all-the-icons-ivy-rich-file-icon)
+         (all-the-icons-ivy-rich-project-name))
+        :delimiter "\t")))
+    ;; push-list したあとで有効化
+    (all-the-icons-ivy-rich-mode +1))
   (leaf all-the-icons-ibuffer :ensure t :hook ibuffer-mode-hook))
 
 (leaf *mode-line
