@@ -1,101 +1,115 @@
+;;; init.el --- Emacs initialization script
+
+;;; Commentary:
+
+;;; Code:
+
 ;; init.el は GitHub を使って複数の環境から取得・更新するので、
 ;; 公開したくない情報や環境特有の設定はカスタマイズ変数にして別ファイルに追い出す。
-(setq custom-file (locate-user-emacs-file "emacs-custom-settings.el"))
-(unless (file-exists-p custom-file) (with-temp-buffer (write-file custom-file)))
-(load custom-file)
+(eval-and-compile
+  (setq custom-file (locate-user-emacs-file "emacs-custom-settings.el"))
+  (unless (file-exists-p custom-file) (with-temp-buffer (write-file custom-file)))
+  (load custom-file))
 
 ;;;; load-path と leaf.
 
-(setq site-lisp-directory (concat user-emacs-directory "site-lisp/"))
-(let ((default-directory site-lisp-directory))
-  (add-to-list 'load-path default-directory)
-  (normal-top-level-add-subdirs-to-load-path))
+(eval-and-compile
+  (let* ((site-lisp-directory (concat user-emacs-directory "site-lisp/"))
+         (default-directory site-lisp-directory))
+    (add-to-list 'load-path default-directory)
+    (normal-top-level-add-subdirs-to-load-path)))
 
 ;; macOS で pakcage-refresh-contents が失敗するのを直す．
 ;; 出典: https://emacs.stackexchange.com/a/68568
-(when (and (equal emacs-version "27.2")
-           (eql system-type 'darwin))
-  (setq gnutls-algorithm-priority "NORMAL:-VERS-TLS1.3"))
+(eval-and-compile
+  (when (and (equal emacs-version "27.2")
+             (eql system-type 'darwin))
+    (custom-set-variables 'gnutls-algorithm-priority "NORMAL:-VERS-TLS1.3")))
 
-(require 'package)
-(add-to-list 'package-archives '("melpa" . "https://melpa.org/packages/"))
 ;; leaf
-(if (package-installed-p 'leaf) (package-refresh-contents t) ;; 非同期
-  (package-refresh-contents)
-  (package-install 'leaf))
-(leaf leaf-keywords :ensure t diminish hydra :config (leaf-keywords-init))
-(leaf leaf-tree :ensure t :diminish t)
+(eval-and-compile
+  (require 'package)
+  (add-to-list 'package-archives '("melpa" . "https://melpa.org/packages/"))
+  (if (package-installed-p 'leaf) (package-refresh-contents t) ;; 非同期
+    (package-refresh-contents)
+    (package-install 'leaf))
+  (leaf leaf-keywords :ensure t diminish hydra :config (leaf-keywords-init))
+  (leaf leaf-tree :ensure t :diminish t))
 
 ;;;; キーマップ。
 ;; init.el に問題があってすべてを読み込めないときでも
 ;; ある程度バインドされていたほうが便利なので初めに設定してしまう。
 
-;; 主に macOS で円記号をバックスラッシュに読み替える．
-;; 出典: https://tsuu32.hatenablog.com/entry/2019/08/27/122459
-(define-key local-function-key-map (kbd "¥") (kbd "\\"))
-(define-key local-function-key-map (kbd "C-¥") (kbd "C-\\"))
-(define-key local-function-key-map (kbd "M-¥") (kbd "M-\\"))
-(define-key local-function-key-map (kbd "C-M-¥") (kbd "C-M-\\"))
+(eval-and-compile
+  ;; 主に macOS で円記号をバックスラッシュに読み替える．
+  ;; 出典: https://tsuu32.hatenablog.com/entry/2019/08/27/122459
+  (define-key local-function-key-map (kbd "¥") (kbd "\\"))
+  (define-key local-function-key-map (kbd "C-¥") (kbd "C-\\"))
+  (define-key local-function-key-map (kbd "M-¥") (kbd "M-\\"))
+  (define-key local-function-key-map (kbd "C-M-¥") (kbd "C-M-\\"))
 
-;; 独自のキーマップ。Spacemacs のスペースキーにバインドされたマップみたいに使う。
-(defconst leader-map (make-sparse-keymap) "My keymap.")
+  ;; 独自のキーマップ。Spacemacs のスペースキーにバインドされたマップみたいに使う。
+  (defconst leader-map (make-sparse-keymap) "My keymap.")
 
-;; leaf の :bind で leader-map を設定しようして
-;;   (leaf NAME :bind (:leader-map BIND...))
-;; のように書くと、leaf は leader-map が NAME というパッケージに定義されていると想定して
-;; 展開する。しかし実際には独自のキーマップであるため、期待と異なる挙動を示す。
-;; そのため、leader-map の設定には次の関数を使うことにする。
-(defun set-leader-map (key def &rest bindings)
-  "Add KEY and DEF to my keymap."
-  (while key
-    (define-key leader-map (kbd key) def)
-    (setq key (pop bindings) def (pop bindings))))
+  ;; leaf の :bind で leader-map を設定しようして
+  ;;   (leaf NAME :bind (:leader-map BIND...))
+  ;; のように書くと、leaf は leader-map が NAME というパッケージに定義されていると想定して
+  ;; 展開する。しかし実際には独自のキーマップであるため、期待と異なる挙動を示す。
+  ;; そのため、leader-map の設定には次の関数を使うことにする。
+  (defun set-leader-map (key def &rest bindings)
+    "Add KEY and DEF to my keymap.
 
-;; leader-map をバインドするキー。
-;; キーボードや OS によって異なるキーを使いたいのでカスタマイズ変数とする。
-(defcustom leader-key
-  (cond ((eq system-type 'gnu/linux) "<henkan>")
-        ;; Karabiner-Elements を使って Caps Lock を <help> にリマップして使う．
-        ((eq system-type 'darwin) "<help>")
-        ((eq system-type 'windows-nt) "<convert>"))
-  "自分で好きに使えるプレフィックスキー。")
-(global-set-key (kbd leader-key) leader-map)
-(define-key global-map (kbd "C-h") 'backward-delete-char-untabify)
-(define-key global-map (kbd "<f5>") 'revert-buffer)
-(define-key global-map (kbd "C-x C-c") #'save-buffers-kill-emacs)
-(define-key global-map [remap list-buffers] #'ibuffer)
-(set-leader-map
- ;; shell
- "!" #'open-shell-here
- ;; [c]ustomize
- "cv" #'customize-variable-other-window
- "cg" #'customize-group-other-window
- ;; visiting [f]ile
- "fr" #'counsel-recentf
- "fi" #'visit-init-file
- "fs" #'revisit-with-sudo
- ;; [s]earch
- "sg" #'counsel-git-grep
- "sr" #'counsel-rg
- "sm" #'global-swiper-migemo-mode
- ;; [i]nsert
- "i0" #'insert-at-beginnings-in-region
- ;; [j]ump
- "jf" #'find-function
- "jl" #'find-library
- "jm" #'pop-to-mark-command
- ;; [l]sp
- "l" #'lsp
- ;; [o]rg mode
- "oa" #'org-agenda
- ;; [w]indow
- "wt" #'toggle-window-split
- ;; mizc
- "M-w" #'win-clip)
+BINDINGS should be of the form [KEY DEF]..."
+    (while key
+      (define-key leader-map (kbd key) def)
+      (setq key (pop bindings) def (pop bindings))))
 
-(leaf dash :ensure t :require t)
-(leaf s :ensure t :require t)
-(leaf f :ensure t :require t)
+  ;; leader-map をバインドするキー。
+  ;; キーボードや OS によって異なるキーを使いたいのでカスタマイズ変数とする。
+  (defcustom leader-key
+    (cond ((eq system-type 'gnu/linux) "<henkan>")
+          ;; Karabiner-Elements を使って Caps Lock を <help> にリマップして使う．
+          ((eq system-type 'darwin) "<help>")
+          ((eq system-type 'windows-nt) "<convert>"))
+    "自分で好きに使えるプレフィックスキー。"
+    :type 'string :group 'init)
+  (global-set-key (kbd leader-key) leader-map)
+  (define-key global-map (kbd "C-h") 'backward-delete-char-untabify)
+  (define-key global-map (kbd "<f5>") 'revert-buffer)
+  (define-key global-map (kbd "C-x C-c") #'save-buffers-kill-emacs)
+  (define-key global-map [remap list-buffers] #'ibuffer)
+  (set-leader-map
+   ;; shell
+   "!" #'open-shell-here
+   ;; [c]ustomize
+   "cv" #'customize-variable-other-window
+   "cg" #'customize-group-other-window
+   ;; visiting [f]ile
+   "fr" #'counsel-recentf
+   "fi" #'visit-init-file
+   "fs" #'revisit-with-sudo
+   ;; [s]earch
+   "sg" #'counsel-git-grep
+   "sr" #'counsel-rg
+   ;; [i]nsert
+   "i0" #'insert-at-beginnings-in-region
+   ;; [j]ump
+   "jf" #'find-function
+   "jl" #'find-library
+   "jm" #'pop-to-mark-command
+   ;; [l]sp
+   "l" #'lsp
+   ;; [o]rg mode
+   "oa" #'org-agenda
+   ;; [w]indow
+   "wt" #'toggle-window-split
+   ;; mizc
+   "M-w" #'win-clip))
+
+(eval-and-compile
+  (leaf dash :ensure t :require t)
+  (leaf s :ensure t :require t)
+  (leaf f :ensure t :require t))
 
 ;;;; Emacs や基本的なライブラリにしか依存しない関数など
 
@@ -111,12 +125,13 @@
   (find-file (s-concat "/sudo::" buffer-file-name)))
 
 (defun ssh-find-home (userhost)
-  "user@host のホームディレクトリを SSH 接続して開く．"
+  "USERHOST として与えられる user@host のホームディレクトリを SSH 接続して開く．"
   (interactive "suser@host: ")
   (find-file (format "/ssh:%s:~" userhost)))
 
 ;; 出典: https://stackoverflow.com/a/33456622
 (defun toggle-window-split ()
+  "フレームにウィンドウが2つだけのとき、分割の方向を変える。"
   (interactive)
   (when (= (count-windows) 2)
     (let* ((1st (frame-first-window))
@@ -154,16 +169,21 @@
           (forward-line +1)
           (move-to-column col))))))
 
-(defun forward-line-point (&optional n) (save-excursion (forward-line n) (point)))
+(defun forward-line-point (&optional n)
+  "次の行に移動したときのポイントを返す。
+オプション引数 N が与えられた時は、N 行先のポイントを返す。"
+  (save-excursion (forward-line n) (point)))
 
 ;; TODO もとからある空白はそのままにする？
 (defun join-line-without-spaces ()
+  "空白文字を挟むことなく複数行を1行にまとめる。"
   (interactive)
   (save-excursion
     (call-interactively #'join-line)
     (while (search-forward " " (forward-line-point) t) (replace-match ""))))
 
 (defun replace-in-buffer (from to)
+  "現在のバッファ内で全ての FROM を TO に置き換える。"
   (save-excursion
     (goto-char 0)
     (while (search-forward from nil t)
@@ -173,12 +193,13 @@
 ;; M-x add-file-local-variable RET replace-japanese-punctuations-on-save RET t RET
 
 (defun replace-japanese-punctuations ()
+  "すべての句読点をカンマとピリオドに置き換える。"
   (replace-in-buffer "、" "，")
   (replace-in-buffer "。" "．"))
 
 (defcustom replace-japanese-punctuations-on-save nil
   "ファイルの保存時に日本語の句読点を全角のカンマとピリオドに置き換える．"
-  :safe t)
+  :safe t :type 'bool :group 'init)
 
 (add-hook 'before-save-hook
           (lambda () (when replace-japanese-punctuations-on-save
@@ -199,24 +220,28 @@
   (interactive)
   (how-many "\\S-" nil nil t))
 
-(defun buffer-major-mode (buf) (with-current-buffer buf major-mode))
+(defun buffer-major-mode (buf)
+  "BUF のメジャーモードを返す。"
+  (with-current-buffer buf major-mode))
 
 (defun duplicate-line-stay ()
-  (interactive)
   "カーソルのある行を下に複製する。カーソルは動かさない。"
+  (interactive)
   ;; save-excursion だとなぜか行頭に移動してしまう
   (let ((pos (point)))
     (kill-whole-line) (yank) (yank)
     (goto-char pos)))
 
 (defun forward-line-same-col (&optional n)
+  "次の行の同じ列にカーソルを移動する。
+オプション引数 N が与えられた時は N 行先に移動する。"
   (let ((col (current-column)))
     (forward-line n)
     (move-to-column col)))
 
 (defun duplicate-line-down ()
-  (interactive)
   "カーソルのある行を下に複製し、カーソルを下へ移動する。"
+  (interactive)
   (duplicate-line-stay)
   (forward-line-same-col +1))
 
@@ -225,7 +250,8 @@
 
 ;; シェルとターミナル
 
-(defcustom terminal-emulator "gnome-terminal" "Terminal enulator.")
+(defcustom terminal-emulator "gnome-terminal" "Terminal enulator."
+  :type 'string :group 'init)
 
 (defun open-shell-here ()
   "visit 中のファイルが存在するディレクトリでターミナルを開く。"
@@ -267,6 +293,7 @@
        (when (funcall ,pred) ,@body))))
 
 (defun reload-all-dired-buffers ()
+  "全ての Dired バッファをリバートする。"
   (interactive)
   (let ((dired-buffers (buffer-list-major-mode 'dired-mode))
         (reload (lambda (buf) (with-current-buffer buf (revert-buffer)))))
@@ -274,15 +301,15 @@
 
 ;; 環境判定系
 
-(defconst linux? (eq system-type 'gnu/linux))
-(defconst macos? (eq system-type 'darwin))
-(defconst unix? (or linux? macos?))
-(defconst wsl? (and unix? (s-contains-p "WSL2" (shell-command-output "uname -a"))))
+(defconst *linux? (eq system-type 'gnu/linux))
+(defconst *macos? (eq system-type 'darwin))
+(defconst *unix? (or *linux? *macos?))
+(defconst *wsl? (and *unix? (s-contains-p "WSL2" (shell-command-output "uname -a"))))
 
 (defconst dev-null
-  (cond (unix? "/dev/null")
+  (cond (*unix? "/dev/null")
         (t nil))
-  "/dev/null のようなファイルへのパス")
+  "/dev/null のようなファイルへのパス。")
 
 (defun major-mode-window (mode &optional frame)
   "メジャーモードが MODE であるようなウィンドウが FRAME に存在するならそれを返す。"
@@ -292,16 +319,14 @@
            windows)))
 
 (leaf imenu
+  :defun imenu-list-toggle
   :init
-  (defun imenu-list-hide () (imenu-list) (imenu-list-quit-window))
   (defun imenu-list-toggle ()
     (interactive)
     (save-selected-window
-      (if (imenu-list-exists (selected-frame))
-          (imenu-list-hide)
+      (if-let ((window (major-mode-window 'imenu-list-major-mode)))
+          (delete-window window)
         (imenu-list))))
-  (defun imenu-list-exists (&optional frame)
-    (major-mode-window 'imenu-list-major-mode frame))
   (set-leader-map "ti" #'imenu-list-toggle))
 
 ;; 以下は "NOT part of Emacs" なパッケージも使う
@@ -315,8 +340,11 @@
   (setenv "LANG" "ja_JP.utf-8"))
 
 (defcustom +dropbox-root (substitute-env-vars "$HOME/Dropbox")
-  "Dropbox sync root directory.")
-(defun +dropbox-root (path) (s-lex-format "${+dropbox-root}/${path}"))
+  "Dropbox sync root directory."
+  :type 'string :group 'init)
+(defun +dropbox-root (path)
+  "PATH を Dropbox ディレクトリからの相対パスとみなして絶対パスを作る。"
+  (s-lex-format "${+dropbox-root}/${path}"))
 
 (leaf savehist :global-minor-mode t)
 
@@ -343,18 +371,21 @@
 
 (defvar delete-trailing-whitespace-modes
   (list 'prog-mode 'tex-mode)
-  "保存前に `delete-trailing-whitespace' を呼び出すモードのリスト")
+  "保存前に `delete-trailing-whitespace' を呼び出すモードのリスト。")
 (add-hook 'before-save-hook
           (lambda ()
             (when (apply #'derived-mode-p delete-trailing-whitespace-modes)
               (delete-trailing-whitespace))))
 
 (defun push-list (list-var elts)
+  "ELTS を LIST-VAR にプッシュする。
+ELTS の要素の順序は保たれる。"
   (mapc (lambda (elt) (push elt (symbol-value list-var))) (seq-reverse elts)))
 
 (leaf xdg :require t
-  :config (set-leader-map "jd" #'ivy-find-xdg-user-dirs)
-  :init
+  :defun ivy-find-xdg-user-dirs xdg-user-dir xdg-data-home
+  :config
+  (set-leader-map "jd" #'ivy-find-xdg-user-dirs)
   ;; Documents, Downloads, Desktop をすぐに開けるようにする
   (defvar xdg-user-dirs-of-interest
     (mapcar (-compose (lambda (s) (s-concat s "/")) #'xdg-user-dir)
@@ -379,6 +410,7 @@
   :global-minor-mode t)
 
 (leaf project
+  :defun project-root
   :custom (project-vc-merge-submodules . nil)  ; サブモジュールは別プロジェクト扱い
   :config
   (defun project-counsel-rg ()
@@ -422,6 +454,7 @@
 
 (leaf hl-todo :ensure t
   :hook prog-mode-hook org-mode-hook
+  :defvar hl-todo-keyword-faces
   :config
   (add-to-list 'hl-todo-keyword-faces '("WARN" . "#ff0000"))
   (add-to-list 'hl-todo-keyword-faces '("\?\?\?" . "#cc9393")))
@@ -445,11 +478,14 @@
 (leaf which-key :ensure t :global-minor-mode t :diminish which-key-mode)
 
 (leaf *git
+  :defun hydra-git/body
   :config
   (leaf magit :ensure t :require t)
   (leaf git-gutter+ :ensure t :global-minor-mode global-git-gutter+-mode
     :diminish git-gutter+-mode
-    :config
+    :defvar git-gutter+-mode
+    :defun git-gutter+-refresh
+    :init
     (defun git-gutter+-refresh-all-buffers ()
       (interactive)
       ;; TODO: .gitignore されているファイルなど、Git 管理外のファイルでもリフレッシュが
@@ -466,17 +502,17 @@ _n_: next^^           _a_: stage          _g_: magit
 _p_: prev^^           _r_: revert         _b_: blame
 _s_, _<tab>_: show    _U_: unstage all    _c_: commit
 "
-          ("n" #'git-gutter+-next-hunk)
-          ("p" #'git-gutter+-previous-hunk)
-          ("s" #'git-gutter+-show-hunk-inline-at-point)
-          ("<tab>" #'git-gutter+-show-hunk-inline-at-point)
-          ("a" #'git-gutter+-stage-hunks)
-          ("r" #'git-gutter+-revert-hunks)
-          ("U" #'git-gutter+-unstage-whole-buffer)
-          ("g" #'magit-status :exit t)
-          ("b" #'magit-blame :exit t)
-          ("c" #'magit-commit :exit t)
-          ("R" #'git-gutter+-refresh-all-buffers "refresh gutter in all buffers" :exit t)))
+          ("n" git-gutter+-next-hunk)
+          ("p" git-gutter+-previous-hunk)
+          ("s" git-gutter+-show-hunk-inline-at-point)
+          ("<tab>" git-gutter+-show-hunk-inline-at-point)
+          ("a" git-gutter+-stage-hunks)
+          ("r" git-gutter+-revert-hunks)
+          ("U" git-gutter+-unstage-whole-buffer)
+          ("g" magit-status :exit t)
+          ("b" magit-blame :exit t)
+          ("c" magit-commit :exit t)
+          ("R" git-gutter+-refresh-all-buffers "refresh gutter in all buffers" :exit t)))
 
 (leaf rg :ensure t)
 
@@ -524,6 +560,7 @@ _s_, _<tab>_: show    _U_: unstage all    _c_: commit
   :require t smartparens-config
   :hook prog-mode-hook TeX-mode-hook
   :diminish smartparens-mode
+  :defun sp-rewrap-sexp sp-unwrap-sexp hydra-parens/body
   :hydra (hydra-parens
           (:hint nil)
           "
@@ -546,11 +583,9 @@ _/_: undo      _d_: down        ^ ^
 
           ("k" sp-kill-sexp)
           ("y" yank))
-  :config (set-leader-map "pr" #'sp-rewrap-sexp "pu" #'sp-unwrap-sexp "ph" #'hydra-parens/body))
+  :config (set-leader-map "pr" #'sp-rewrap-sexp "pu" #'sp-unwrap-sexp "pp" #'hydra-parens/body))
 
 (leaf multiple-cursors :ensure t
-  :config
-  (setq mc/cmds-to-run-once '(mc/mark-next-lines mc/mark-previous-lines))
   :bind
   ("C-M-<down>" . mc/mark-next-lines)
   ("C-M-<up>" . mc/mark-previous-lines)
@@ -586,7 +621,7 @@ ARG is passed to `vterm', so refer to its docstring for exaplanation."
     (vterm arg))
   (set-leader-map "4!" #'vterm-other-window))
 
-(leaf fish-mode :when unix? :ensure t)
+(leaf fish-mode :when *unix? :ensure t)
 
 ;; 言語設定とMigemo
 
@@ -598,10 +633,13 @@ ARG is passed to `vterm', so refer to its docstring for exaplanation."
 (leaf migemo :ensure t)
 (leaf swiper-migemo
   :require t
+  :defvar swiper-migemo-enable-command
+  :defun global-swiper-migemo-mode
   :config
+  (set-leader-map "sm" #'global-swiper-migemo-mode)
   (add-to-list 'swiper-migemo-enable-command 'counsel-recentf)
   (add-to-list 'swiper-migemo-enable-command 'counsel-rg)
-  (setq migemo-options '("--quiet" "--nonewline" "--emacs")))
+  :custom (migemo-options . '("--quiet" "--nonewline" "--emacs")))
 
 ;; 入力メソッド
 ;; |      | C-\   | <C-henkan> | <c-muhenkan> |
@@ -609,36 +647,38 @@ ARG is passed to `vterm', so refer to its docstring for exaplanation."
 ;; | NoIM | Agda  | Mozc       | NoIM         |
 ;; | Agda | NoIME | Mozc       | NoIM         |
 ;; | Mozc | Agda  | Mozc       | NoIM         |
-(leaf input-method
+(leaf *input-method
+  :init (defcustom use-mozc *wsl? "Mozc" :type 'bool :group 'init)
+  :defvar use-mozc
   :config
-  (defcustom use-mozc wsl? "Mozc")
   (leaf agda-input :require t
     :custom (default-input-method . "Agda"))
   (leaf mozc :when use-mozc
     :ensure t
     :custom (mozc-candidate-style . 'echo-area))
   (when use-mozc
-    (defun im-mozc-on () (interactive) (set-input-method "japanese-mozc"))
-    (defun im-agda-on () (interactive) (set-input-method "Agda"))
-    (defun im-off () (interactive) (set-input-method nil))
-    (defun im-off? () (null current-input-method))
-    (defun im-mozc? () (equal current-input-method "japanese-mozc"))
-    (defun im-agda? () (equal current-input-method "Agda"))
-    (defun im-C-backslash ()
-      (interactive)
-      (cond ((im-agda?) (im-off))
-            (t (im-agda-on))))
-    (defun im-C-henkan () (interactive) (im-mozc-on))
-    (defun im-C-muhenkan () (interactive) (im-off))
-    (global-set-key (kbd "C-\\") #'im-C-backslash)
-    (define-key mozc-mode-map (kbd "C-\\") #'im-C-backslash)
-    (global-set-key (kbd "<C-henkan>") #'im-C-henkan)
-    (global-set-key (kbd "<C-muhenkan>") #'im-C-muhenkan)))
+    (eval-and-compile
+      (defun im-mozc-on () (interactive) (set-input-method "japanese-mozc"))
+      (defun im-agda-on () (interactive) (set-input-method "Agda"))
+      (defun im-off () (interactive) (set-input-method nil))
+      (defun im-off? () (null current-input-method))
+      (defun im-mozc? () (equal current-input-method "japanese-mozc"))
+      (defun im-agda? () (equal current-input-method "Agda"))
+      (defun im-C-backslash ()
+        (interactive)
+        (cond ((im-agda?) (im-off))
+              (t (im-agda-on))))
+      (defun im-C-henkan () (interactive) (im-mozc-on))
+      (defun im-C-muhenkan () (interactive) (im-off))
+      (global-set-key (kbd "C-\\") #'im-C-backslash)
+      (define-key mozc-mode-map (kbd "C-\\") #'im-C-backslash)
+      (global-set-key (kbd "<C-henkan>") #'im-C-henkan)
+      (global-set-key (kbd "<C-muhenkan>") #'im-C-muhenkan))))
 
 ;; PDF
 
 ;; https://github.com/politza/pdf-tools#server-prerequisites
-(leaf pdf-tools :when unix? :ensure t
+(leaf pdf-tools :when *unix? :ensure t
   :bind (pdf-view-mode-map ("C-s" . pdf-occur))
   :init
   (if (daemonp) (add-hook 'server-after-make-frame-hook #'pdf-tools-install)
@@ -647,7 +687,7 @@ ARG is passed to `vterm', so refer to its docstring for exaplanation."
 
 ;; Markdown
 
-(leaf markdown-mode :when unix? :ensure t
+(leaf markdown-mode :when *unix? :ensure t
   :custom (markdown-command . "marked")
   :mode ("\\.md$" . gfm-mode))
 
@@ -656,6 +696,7 @@ ARG is passed to `vterm', so refer to its docstring for exaplanation."
 ;;;; プログラミング
 
 (leaf flycheck :ensure t :hook prog-mode-hook LaTeX-mode-hook
+  :defun flycheck-list-errors hydra-flycheck/body
   :config (set-leader-map "e" #'hydra-flycheck/body)
   :custom (flycheck-display-errors-delay . 0)  ; HACK: あえて即表示させると ElDoc が上書きできる
   :init
@@ -665,30 +706,43 @@ ARG is passed to `vterm', so refer to its docstring for exaplanation."
         (delete-window window)
       (flycheck-list-errors)))
   :hydra (hydra-flycheck nil "Flycheck"
-          ("e" #'flycheck-display-error-at-point "explain")
-          ("n" #'flycheck-next-error "next")
-          ("p" #'flycheck-previous-error "prev")
-          ("l" #'flycheck-toggle-error-list "list")
-          ("?" #'flycheck-describe-checker "help" :exit t)))
+          ("e" flycheck-display-error-at-point "explain")
+          ("n" flycheck-next-error "next")
+          ("p" flycheck-previous-error "prev")
+          ("l" flycheck-toggle-error-list "list")
+          ("?" flycheck-describe-checker "help" :exit t)))
 
 (leaf lsp
   :ensure lsp-mode lsp-ui
+  :defun lsp-format-buffer
   :init
   ;; 参考: https://github.com/ncaq/.emacs.d/blob/f1612eeb346974254e893c091901c987003d5e53/init.el#L971-L973
-  (defvar lsp-format-before-save t "LSPモードが入っているバッファを保存するときにフォーマットするかどうか。")
-  (defun lsp-toggle-format-before-save ()
-    "`lsp-format-before-save' をトグルする。"
-    (interactive)
-    (setq lsp-format-before-save (null lsp-format-before-save)))
-  (defun lsp-format-buffer-no-error ()
-    ;; エラーを握りつぶす
-    (condition-case err (lsp-format-buffer)
-      (lsp-capability-not-supported nil)))
-  (defun lsp-format-before-save ()
-    "LSPモードが有効かつ `lsp-format-before-save' が非 nil なら、`lsp-format-buffer' を呼び出す。"
-    (when (and (boundp 'lsp-mode) lsp-mode lsp-format-before-save)
-      (lsp-format-buffer-no-error)))
-  (add-hook 'before-save-hook #'lsp-format-before-save)
+  (eval-and-compile
+    (defvar lsp-format-before-save t "LSPモードが入っているバッファを保存するときにフォーマットするかどうか。")
+    (defun lsp-toggle-format-before-save ()
+      "`lsp-format-before-save' をトグルする。"
+      (interactive)
+      (setq lsp-format-before-save (null lsp-format-before-save)))
+    (defun lsp-format-buffer-no-error ()
+      ;; エラーを握りつぶす
+      (condition-case err (lsp-format-buffer)
+        (lsp-capability-not-supported nil)))
+    (defun lsp-format-before-save ()
+      "LSPモードが有効かつ `lsp-format-before-save' が非 nil なら、`lsp-format-buffer' を呼び出す。"
+      (when (and (boundp 'lsp-mode) lsp-mode lsp-format-before-save)
+        (lsp-format-buffer-no-error)))
+    (add-hook 'before-save-hook #'lsp-format-before-save))
+  ;; 既に LSP サーバが既に走っているプロジェクトのファイルを開くときは自動的に接続。
+  ;; ただし少しだけファイルを開きたいときにいちいち LSP サーバが起動すると鬱陶しいので、
+  ;; LSP を使いたいプロジェクトでは初めに明示的に `lsp' を呼び出す。
+  ;; 出典: https://github.com/kurnevsky/dotfiles/blob/c0049a655a502cd81f1aba7321ff65d178a557c9/.emacs.d/init.el#L1231-L1237
+  (eval-and-compile
+    (defun lsp-activate-if-already-activated (server-id)
+      (when (and (functionp 'lsp-find-workspace)
+                 (lsp-find-workspace server-id (buffer-file-name)))
+        (lsp)))
+    (add-hook 'scala-mode-hook
+              (lambda () (lsp-activate-if-already-activated 'metals))))
   :custom
   `(lsp-keymap-prefix . ,(concat leader-key " l"))
   (lsp-idle-delay . 0.2)
@@ -696,22 +750,11 @@ ARG is passed to `vterm', so refer to its docstring for exaplanation."
   ;; TODO: ピーク時にはむしろ背景をグレーにしたい
   (lsp-ui-peek-peek . '((t (:background "dim gray"))))
   :config
-  ;; 既に LSP サーバが既に走っているプロジェクトのファイルを開くときは自動的に接続。
-  ;; ただし少しだけファイルを開きたいときにいちいち LSP サーバが起動すると鬱陶しいので、
-  ;; LSP を使いたいプロジェクトでは初めに明示的に `lsp' を呼び出す。
-  ;; 出典: https://github.com/kurnevsky/dotfiles/blob/c0049a655a502cd81f1aba7321ff65d178a557c9/.emacs.d/init.el#L1231-L1237
-  (defun lsp-activate-if-already-activated (server-id)
-    (when (and (functionp 'lsp-find-workspace) (lsp-find-workspace server-id (buffer-file-name))) (lsp)))
-  (add-hook 'scala-mode-hook (lambda () (lsp-activate-if-already-activated 'metals)))
   (leaf lsp-lens :diminish lsp-lens-mode))
 
 ;; Scala
 
-(leaf lsp-metals :when (executable-find "scala")
-  :ensure t
-  :config
-  (when (executable-find "metals-emacs")
-    (setq lsp-metals-server-command "metals-emacs")))
+(leaf lsp-metals :when (executable-find "scala") :ensure t)
 
 ;; SMT-LIB
 
@@ -740,10 +783,11 @@ ARG is passed to `vterm', so refer to its docstring for exaplanation."
 
 ;; TeX
 
-(defun tex-installed-p () (executable-find "tex"))
+(defun tex-installed-p () "TeX がインストールされているか。" (executable-find "tex"))
 
 (leaf latex :when (tex-installed-p)
   :ensure auctex
+  :defvar TeX-command-list
   :custom
   (LaTeX-electric-left-right-brace . t)
   :hook
@@ -774,13 +818,14 @@ ARG is passed to `vterm', so refer to its docstring for exaplanation."
   (satysfi-mode-hook . (lambda () (indent-tabs-mode -1)))
   (satysfi-mode-hook . (lambda () (display-line-numbers-mode +1)))
   :config
-  (defun satysfi-find-pdf-other-window ()
-    "Visit PDF for visiting SATySFi source in other window."
-    (interactive)
-    (let ((pdf-name (s-replace-regexp "\\.saty$" ".pdf" (buffer-file-name))))
-      (let ((buf (current-buffer)))
-        (find-file-other-window pdf-name))))
-  (defalias 'satysfi-mode/open-pdf #'satysfi-find-pdf-other-window))
+  (eval-and-compile
+    (defun satysfi-find-pdf-other-window ()
+      "Visit PDF for visiting SATySFi source in other window."
+      (interactive)
+      (let ((pdf-name (s-replace-regexp "\\.saty$" ".pdf" (buffer-file-name))))
+        (let ((buf (current-buffer)))
+          (find-file-other-window pdf-name))))
+    (defalias 'satysfi-mode/open-pdf #'satysfi-find-pdf-other-window)))
 
 ;; Org
 
@@ -791,8 +836,9 @@ ARG is passed to `vterm', so refer to its docstring for exaplanation."
   (org-agenda-span . 'month)
   (org-export-use-babel . nil)
   (org-export-with-broken-link . t)
-  :config
-  (defvar org-indent-mode-on-automatically t)
+  :init (defvar org-indent-mode-on-automatically t)
+  :defvar org-indent-mode-on-automatically
+  :defun org-indent-mode
   :bind
   (:org-mode-map
    ("M-p" . org-move-subtree-up)
@@ -819,7 +865,7 @@ ARG is passed to `vterm', so refer to its docstring for exaplanation."
   :config
   (leaf all-the-icons-dired :ensure t :hook dired-mode-hook
     :custom (all-the-icons-dired-monochrome . nil))
-  (leaf all-the-icons-ivy-rich :ensure t :after ivy ivy-rich
+  (leaf all-the-icons-ivy-rich :ensure t :require t :after ivy ivy-rich
     :config
     ;; XDG User Dir は D から始まるディレクトリが多くて識別しづらいので
     ;; アイコンを表示してわかりやすくする。
@@ -842,10 +888,11 @@ ARG is passed to `vterm', so refer to its docstring for exaplanation."
   (mode-line-percent-position . nil)
   (mode-line-compact . t))
 
-(leaf *font
-  :config
+;; フォント設定
+(eval-and-compile
   (defconst source-code-pro "Source Han Code JP-13")
-  (defcustom default-font-name source-code-pro "Default font name.")
+  (defcustom default-font-name source-code-pro "Default font name."
+    :type 'string :group 'init)
   (defun set-font (&optional new-default)
     "フォントを `default-font-name' に設定する。
 
@@ -854,12 +901,10 @@ NEW-DEFAULT が非 nil のときは、現在のセッションに限りこれを
     (when new-default (customize-set-variable 'default-font-name new-default))
     (set-frame-font default-font-name nil t))
   (if (daemonp) (add-hook 'server-after-make-frame-hook #'set-font)
-    (add-hook 'after-init-hook #'set-font))
-  ;; :custom-face
-  ;; (default . '((((type x)) :family "Source Han Code JP" :height 90 :slant normal)))
-  )
+    (add-hook 'after-init-hook #'set-font)))
 
 (leaf centaur-tabs :ensure t :global-minor-mode centaur-tabs-mode
+  :defun centaur-tabs-headline-match
   :bind
   (centaur-tabs-mode-map
    ("C-<next>" . centaur-tabs-forward)
@@ -891,20 +936,23 @@ NEW-DEFAULT が非 nil のときは、現在のセッションに限りこれを
 (leaf *theme
   :ensure vscode-dark-plus-theme spacemacs-theme
   :config
-  (defun toggle-theme ()
-    "ライトテーマとダークテーマを切り替える。"
-    (interactive)
-    (let ((in-light-theme-tmp (in-light-theme)))
-      (mapc #'disable-theme custom-enabled-themes)
-      (if in-light-theme-tmp
-          (load-theme default-dark-theme)
-        (load-theme default-light-theme))))
-  (defcustom default-light-theme 'spacemacs-light "デフォルトのライトテーマ")
-  (defcustom default-dark-theme 'vscode-dark-plus "デフォルトのダークテーマ")
-  (defun in-light-theme ()
-    "現在、ライトテーマが設定されている。"
-    (eq (car custom-enabled-themes) default-light-theme))
-  (load-theme default-dark-theme))
+  (eval-and-compile
+    (defun toggle-theme ()
+      "ライトテーマとダークテーマを切り替える。"
+      (interactive)
+      (let ((in-light-theme-tmp (in-light-theme)))
+        (mapc #'disable-theme custom-enabled-themes)
+        (if in-light-theme-tmp
+            (load-theme default-dark-theme)
+          (load-theme default-light-theme))))
+    (defcustom default-light-theme 'spacemacs-light "デフォルトのライトテーマ"
+      :type 'symbol :group 'init)
+    (defcustom default-dark-theme 'vscode-dark-plus "デフォルトのダークテーマ"
+      :type 'symbol :group 'init)
+    (defun in-light-theme ()
+      "現在、ライトテーマが設定されている。"
+      (eq (car custom-enabled-themes) default-light-theme))
+    (load-theme default-dark-theme)))
 
 (leaf dashboard :ensure t
   :config (dashboard-setup-startup-hook)
@@ -917,10 +965,14 @@ NEW-DEFAULT が非 nil のときは、現在のセッションに限りこれを
 
 ;; TODO モードライン
 ;; - SWM (swiper-migemo-mode) を目立たせる
-;; - 常時オンなモードは表示しない
+
+(put 'narrow-to-region 'disabled nil)
+
+(provide 'init)
 
 ;; Local Variables:
 ;; indent-tabs-mode: nil
-;; flycheck-mode: nil
+;; flycheck-disabled-checkers: (emacs-lisp-checkdoc)
 ;; End:
-(put 'narrow-to-region 'disabled nil)
+
+;;; init.el ends here
