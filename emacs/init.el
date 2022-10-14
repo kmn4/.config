@@ -74,6 +74,7 @@ BINDINGS should be of the form [KEY DEF]..."
     "自分で好きに使えるプレフィックスキー。"
     :type 'string :group 'init)
   (global-set-key (kbd leader-key) leader-map)
+  (global-set-key (kbd "C-S-k") #'kill-whole-line)
   (define-key global-map (kbd "C-h") 'backward-delete-char-untabify)
   (define-key global-map (kbd "<f5>") 'revert-buffer)
   (define-key global-map (kbd "C-x C-c") #'save-buffers-kill-emacs)
