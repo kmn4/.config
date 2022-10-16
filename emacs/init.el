@@ -782,6 +782,11 @@ ARG is passed to `vterm', so refer to its docstring for exaplanation."
 (leaf *haskell :when (executable-find "ghc")
   :ensure haskell-mode lsp-haskell)
 
+;; Web
+
+(leaf js-mode :custom (js-indent-level . 2))
+(leaf css-mode :custom (css-indent-offset . 2))
+
 ;; TeX
 
 (defun tex-installed-p () "TeX がインストールされているか。" (executable-find "tex"))
