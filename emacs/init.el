@@ -454,7 +454,7 @@ ELTS の要素の順序は保たれる。"
 (leaf autorevert :diminish auto-revert-mode)
 
 (leaf hl-todo :ensure t
-  :hook prog-mode-hook org-mode-hook
+  :hook prog-mode-hook org-mode-hook LaTeX-mode-hook
   :defvar hl-todo-keyword-faces
   :config
   (add-to-list 'hl-todo-keyword-faces '("WARN" . "#ff0000"))
