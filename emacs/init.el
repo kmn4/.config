@@ -402,7 +402,6 @@ ELTS の要素の順序は保たれる。"
   (setq Info-directory-list (-union Info-directory-list Info-default-directory-list))
   (add-to-list 'Info-directory-list (concat (xdg-data-home) "/info")))
 
-(leaf electric-pair-local-mode :hook prog-mode-hook)
 (leaf show-paren-mode :hook prog-mode-hook)
 (leaf hideshow :hook (prog-mode-hook . hs-minor-mode) :diminish hs-minor-mode
   :defun hs-toggle-hiding
