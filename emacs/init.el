@@ -459,6 +459,9 @@ ELTS の要素の順序は保たれる。"
 
 (leaf eldoc :diminish eldoc-mode :custom (eldoc-idle-delay . 0.2))
 
+(leaf files :custom
+  (backup-directory-alist . `(("." . ,(concat user-emacs-directory ".cache/backup")))))
+
 ;; auto-revert-mode is enabled on all Git-managed files due to magit-auto-revert-mode
 (leaf autorevert :diminish auto-revert-mode)
 
