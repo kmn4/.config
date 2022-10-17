@@ -95,6 +95,7 @@ BINDINGS should be of the form [KEY DEF]..."
    ;; [i]nsert
    "i0" #'insert-at-beginnings-in-region
    ;; [j]ump
+   "jv" #'find-variable
    "jf" #'find-function
    "jl" #'find-library
    "jm" #'pop-to-mark-command
