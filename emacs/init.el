@@ -404,7 +404,17 @@ ELTS の要素の順序は保たれる。"
 
 (leaf electric-pair-local-mode :hook prog-mode-hook)
 (leaf show-paren-mode :hook prog-mode-hook)
-(leaf hideshow :hook (prog-mode-hook . hs-minor-mode) :diminish hs-minor-mode)
+(leaf hideshow :hook (prog-mode-hook . hs-minor-mode) :diminish hs-minor-mode
+  :defun hs-toggle-hiding
+  :init
+  (defun *hs-toggle-hiding (ev)
+    (interactive "e")
+    (posn-set-point (event-start ev))
+    (hs-toggle-hiding))
+  :bind
+  ;; down-mouse-1 は lsp-mode で `lsp-find-definition-mouse' と被る
+  ([(control down-mouse-3)] . nil)
+  (hs-minor-mode-map ([(control mouse-3)] . *hs-toggle-hiding)))
 
 (leaf recentf
   :custom (recentf-max-saved-items . 1000)
