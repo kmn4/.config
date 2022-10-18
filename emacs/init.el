@@ -712,7 +712,9 @@ ARG is passed to `vterm', so refer to its docstring for exaplanation."
 (leaf flycheck :ensure t :hook prog-mode-hook LaTeX-mode-hook
   :defun flycheck-list-errors hydra-flycheck/body
   :config (set-leader-map "e" #'hydra-flycheck/body)
-  :custom (flycheck-display-errors-delay . 0)  ; HACK: あえて即表示させると ElDoc が上書きできる
+  :custom
+  (flycheck-display-errors-delay . 0)  ; HACK: あえて即表示させると ElDoc が上書きできる
+  (flycheck-disabled-checkers . '(scala))
   :init
   (defun flycheck-toggle-error-list (&optional frame)
     (interactive)
