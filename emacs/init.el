@@ -250,6 +250,11 @@ BINDINGS should be of the form [KEY DEF]..."
 (global-set-key (kbd "M-S-<down>") #'duplicate-line-down)
 (global-set-key (kbd "M-S-<up>") #'duplicate-line-stay)
 
+;; `add-to-list' と grugru したい
+(defun delete-from-list (list-var element)
+  "`add-to-list' の逆操作のつもり。"
+  (set list-var (delete element (symbol-value list-var))))
+
 ;; シェルとターミナル
 
 (defcustom terminal-emulator "gnome-terminal" "Terminal enulator."
@@ -605,6 +610,13 @@ _/_: undo      _d_: down        ^ ^
   ("C-M-<up>" . mc/mark-previous-lines)
   ("M-N" . mc/mark-next-like-this-symbol)
   ("M-P" . mc/mark-previous-like-this-symbol))
+
+(leaf grugru :ensure t
+  :bind ("C-;" . grugru)
+  :defun grugru-default-setup
+  :config
+  (grugru-define-on-major-mode 'emacs-lisp-mode 'symbol '("add-to-list" "delete-from-list"))
+  (grugru-default-setup))
 
 (leaf expand-region :ensure t
   :custom
