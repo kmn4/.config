@@ -731,6 +731,22 @@ ARG is passed to `vterm', so refer to its docstring for exaplanation."
 (leaf lsp
   :ensure lsp-mode lsp-ui
   :defun lsp-format-buffer
+  :custom
+  `(lsp-keymap-prefix . ,(concat leader-key " l"))
+  (lsp-idle-delay . 0.2)
+  ;; TODO: モードラインのコードアクションセグメントをクリックすると、
+  ;; 何をするのか確認できないまま実行されてしまう。
+  ;; `lsp-modeline-code-actions-segments' に name を含めると
+  ;; モードラインに内容が表示されるが、これは表示領域を圧迫するので不便。
+  ;; モードラインでも `lsp-auto-execute-action' を尊重するか、
+  ;; アイコンにマウスホバーすると説明が現れるようになって欲しい。
+  ;; 前者は `lsp-modeline--build-code-actions-string' の
+  ;; 定義を変えることで実現できる。
+  (lsp-auto-execute-action . nil)
+  (lsp-modeline-code-actions-segments . '(count icon name))
+  :custom-face
+  ;; TODO: ピーク時にはむしろ背景をグレーにしたい
+  (lsp-ui-peek-peek . '((t (:background "dim gray"))))
   :init
   ;; 参考: https://github.com/ncaq/.emacs.d/blob/f1612eeb346974254e893c091901c987003d5e53/init.el#L971-L973
   (eval-and-compile
@@ -759,12 +775,6 @@ ARG is passed to `vterm', so refer to its docstring for exaplanation."
         (lsp)))
     (add-hook 'scala-mode-hook
               (lambda () (lsp-activate-if-already-activated 'metals))))
-  :custom
-  `(lsp-keymap-prefix . ,(concat leader-key " l"))
-  (lsp-idle-delay . 0.2)
-  :custom-face
-  ;; TODO: ピーク時にはむしろ背景をグレーにしたい
-  (lsp-ui-peek-peek . '((t (:background "dim gray"))))
   :config
   (leaf lsp-lens :diminish lsp-lens-mode))
 
