@@ -621,19 +621,22 @@ _/_: undo      _d_: down        ^ ^
 ;; シェル側の設定も必要なので注意 (https://github.com/akermu/emacs-libvterm#shell-side-configuration)
 (leaf vterm :ensure t
   :bind
-  (:vterm-mode-map
-   ("C-h" . vterm-send-C-h)
-   ("C-v" . scroll-up-command)
-   ("M-v" . scroll-down-command))
+  ("C-z" . vterm-or-suspend)
+  `(vterm-mode-map
+    ,@(mapcar (lambda (c) (cons (concat "C-c C-" (string c)) 'vterm--self-insert))
+              (seq-difference "abcdefghijklmnopqrstuvwxyz" "t"))
+    ("C-c RET" . vterm-send-next-key)
+    ("C-h" . vterm--self-insert)
+    ("C-v" . scroll-up-command)
+    ("M-v" . scroll-down-command)
+    ("C-z" . previous-buffer))
+  :custom
+  (vterm-exit-functions . '((lambda (_ _) (previous-buffer))))
   :init
-  (defun vterm-other-window (&optional arg)
-    "Open vterm in other window.
-
-ARG is passed to `vterm', so refer to its docstring for exaplanation."
-    (interactive "P")
-    (pop-to-buffer nil)
-    (vterm arg))
-  (set-leader-map "4!" #'vterm-other-window))
+  (defun vterm-or-suspend ()
+    "GUI フレームでは `projectile-run-vterm' を、ターミナルでは `suspend-frame' を呼ぶ。"
+    (interactive)
+    (if (window-system) (projectile-run-vterm) (suspend-frame))))
 
 (leaf fish-mode :when *unix? :ensure t)
 
