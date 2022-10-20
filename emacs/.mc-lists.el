@@ -7,6 +7,7 @@
 
 (setq mc/cmds-to-run-once
       '(
+	counsel-M-x
 	mc/mark-next-lines
 	mc/mark-previous-lines
 	))
