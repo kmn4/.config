@@ -734,14 +734,6 @@ ARG is passed to `vterm', so refer to its docstring for exaplanation."
   :custom
   `(lsp-keymap-prefix . ,(concat leader-key " l"))
   (lsp-idle-delay . 0.2)
-  ;; TODO: モードラインのコードアクションセグメントをクリックすると、
-  ;; 何をするのか確認できないまま実行されてしまう。
-  ;; `lsp-modeline-code-actions-segments' に name を含めると
-  ;; モードラインに内容が表示されるが、これは表示領域を圧迫するので不便。
-  ;; モードラインでも `lsp-auto-execute-action' を尊重するか、
-  ;; アイコンにマウスホバーすると説明が現れるようになって欲しい。
-  ;; 前者は `lsp-modeline--build-code-actions-string' の
-  ;; 定義を変えることで実現できる。
   (lsp-auto-execute-action . nil)
   (lsp-modeline-code-actions-segments . '(count icon name))
   :custom-face
@@ -916,14 +908,6 @@ ARG is passed to `vterm', so refer to its docstring for exaplanation."
     (all-the-icons-ivy-rich-mode +1))
   (leaf all-the-icons-ibuffer :ensure t :hook ibuffer-mode-hook))
 
-(leaf *mode-line
-  ;; https://ayatakesi.github.io/emacs/28.1/html/Optional-Mode-Line.html#Optional-Mode-Line
-  :global-minor-mode line-number-mode column-number-mode
-  :custom
-  (column-number-indicator-zero-based . nil)
-  (mode-line-percent-position . nil)
-  (mode-line-compact . t))
-
 ;; フォント設定
 (eval-and-compile
   (defconst source-code-pro "Source Han Code JP-13")
@@ -990,6 +974,22 @@ NEW-DEFAULT が非 nil のときは、現在のセッションに限りこれを
       (eq (car custom-enabled-themes) default-light-theme))
     (load-theme default-dark-theme)))
 
+(leaf *mode-line
+  ;; https://ayatakesi.github.io/emacs/28.1/html/Optional-Mode-Line.html#Optional-Mode-Line
+  :global-minor-mode line-number-mode column-number-mode
+  :custom
+  (column-number-indicator-zero-based . nil)
+  (mode-line-percent-position . nil)
+  (mode-line-compact . nil)
+  ;; TODO `swiper-migemo-mode' がオンならそのことを表示する
+  :config
+  (leaf doom-modeline :ensure t :global-minor-mode doom-modeline-mode
+    :custom
+    (doom-modeline-buffer-name              . nil) ; Centaur Tabs があるので必要ない
+    (doom-modeline-buffer-modification-icon . nil) ; 同上
+    (doom-modeline-major-mode-icon          . nil) ; 同上
+    ))
+
 (leaf dashboard :ensure t
   :config (dashboard-setup-startup-hook)
   :custom
@@ -998,9 +998,6 @@ NEW-DEFAULT が非 nil のときは、現在のセッションに限りこれを
   (dashboard-items . '((bookmarks . 5) (recents . 3)))
   (dashboard-footer-messages . '("Happy Coding!"))
   (initial-buffer-choice . (lambda () (get-buffer-create "*dashboard*"))))
-
-;; TODO モードライン
-;; - SWM (swiper-migemo-mode) を目立たせる
 
 (put 'narrow-to-region 'disabled nil)
 
