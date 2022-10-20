@@ -799,6 +799,11 @@ ARG is passed to `vterm', so refer to its docstring for exaplanation."
 
 ;; Web
 
+(leaf web-mode :ensure t :mode ("\\.vue\\'")
+  :custom
+  (web-mode-markup-indent-offset . 2)
+  (web-mode-css-indent-offset . 2)
+  (web-mode-code-indent-offset . 2))
 (leaf js-mode :custom (js-indent-level . 2))
 (leaf css-mode :custom (css-indent-offset . 2))
 
