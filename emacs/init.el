@@ -1081,6 +1081,8 @@ _/_: undo      _d_: down        ^ ^
   (LaTeX-electric-left-right-brace . t)
   :hook (LaTeX-mode-hook . TeX-source-correlate-mode)
   :config
+  ;; これがあると end-of-defun でポイントがある一番内側の環境の終わりに移動する
+  (advice-add 'LaTeX-find-matching-end :before #'forward-char)
   (prog1 "LaTeXMk を `TeX-command-list' に追加する。"
     (add-to-list 'TeX-command-list
                  '("LaTeXMk" "latexmk --synctex=1 %T" TeX-run-command nil t))
