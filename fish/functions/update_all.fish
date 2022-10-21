@@ -1,6 +1,7 @@
 function update_all
     update_apt
     update_cs
+    update_emacs_packages
     update_brew
     update_npm
     update_rustup

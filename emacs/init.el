@@ -365,6 +365,38 @@ BINDINGS should be of the form [KEY DEF]..."
   :custom (paradox-github-token . t)
   :config (paradox-enable))
 
+(defmacro with-logging-messages (file &rest form)
+  "FORM を評価し、その間のメッセージを FILE に書き込む。"
+  (declare (indent 1))
+  ;; 一時バッファにメッセージバッファの内容を退避し、後で復元する
+  `(with-temp-buffer
+     (let ((tmp-buf (current-buffer))
+           (msg-buf (messages-buffer)))
+       (buffer-swap-text msg-buf)
+       (unwind-protect (let ((message-log-max t)) ,@form)
+         (buffer-swap-text msg-buf)
+         (write-file ,file)))))
+
+(defcustom paradox-upgrade-log-directory (concat user-emacs-directory "paradox-logs/")
+  "`paradox-upgrade-packages-with-logging' のログの保存先"
+  :type 'string :group 'init)
+
+(defun paradox-upgrade-packages-with-logging ()
+  "`paradox-upgrade-packages' を呼び出し、その間のメッセージをログファイルに書き込む。
+
+ログファイルは `paradox-upgrade-log-directory' の下に呼び出し時の時刻を含む名前で保存される。"
+  (interactive)
+  (unless (file-exists-p paradox-upgrade-log-directory)
+    (make-directory paradox-upgrade-log-directory t))
+  (let ((start-time-string (format-time-string "%Y%m%dT%H%M%S")))
+    (with-logging-messages
+        (concat paradox-upgrade-log-directory start-time-string "_messages.log")
+      (paradox-upgrade-packages)
+      (with-current-buffer (messages-buffer)))
+    (with-current-buffer "*Paradox Report*"
+      (write-file
+       (concat paradox-upgrade-log-directory start-time-string "_report.log")))))
+
 (leaf google-translate :ensure t popup
   :config
   ;; 出典: https://github.com/atykhonov/google-translate/issues/137#issuecomment-723938431
