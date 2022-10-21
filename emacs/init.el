@@ -325,7 +325,7 @@ BINDINGS should be of the form [KEY DEF]..."
              (eq (buffer-major-mode (window-buffer win)) mode))
            windows)))
 
-(leaf imenu
+(leaf imenu-list :ensure t
   :defun imenu-list-toggle
   :init
   (defun imenu-list-toggle ()
