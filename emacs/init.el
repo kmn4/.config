@@ -783,7 +783,11 @@ _/_: undo      _d_: down        ^ ^
     (add-hook 'scala-mode-hook
               (lambda () (lsp-activate-if-already-activated 'metals))))
   :config
-  (leaf lsp-lens :diminish lsp-lens-mode))
+  (leaf lsp-lens :diminish lsp-lens-mode)
+  (leaf lsp-ivy :ensure t
+    :bind
+    (lsp-command-map
+     ("s" . lsp-ivy-workspace-symbol))))
 
 ;; Scala
 
