@@ -14,4 +14,7 @@ for item in "${items[@]}"; do
     ln -sivT $thisdir/${item} $target/${item}
 done
 
+# install fisher & plugins
+fish -c 'curl -sL https://git.io/fisher | source && fisher install jorgebucaran/fisher && fisher update'
+
 cd -
