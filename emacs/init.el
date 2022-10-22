@@ -526,6 +526,37 @@ ELTS の要素の順序は保たれる。"
 
 (leaf winner :config (winner-mode +1))
 
+(leaf *window :after winum winner
+  :defun hydra-window/body
+  :config (set-leader-map "ww" #'hydra-window/body)
+  :hydra
+  (hydra-window
+   (:hint nil)
+   "
+^ ^Mov^e^ to^ ^    ^ ^ Si^z^e  ^ ^    ^A^ction
+^ ^   _k_   ^ ^    ^ ^   _K_   ^ ^    _v_ertical split    _z_oom
+^ ^   ^|^   ^ ^    ^ ^   ^|^   ^ ^    _s_tack split
+_h_ --^ ^-- _l_    _H_ --^ ^-- _L_    _b_alance
+^ ^   ^|^   ^ ^    ^ ^   ^|^   ^ ^    _u_ndo layout
+^ ^   _j_   ^ ^    ^ ^   _J_   ^ ^    _r_edo layout
+^ ^   ^ ^   ^ ^    ^ ^   ^ ^   ^ ^    _o_ther window
+"
+   ("b" balance-windows)
+   ("H" shrink-window-horizontally)
+   ("h" windmove-left)
+   ("J" shrink-window)
+   ("j" windmove-down)
+   ("K" enlarge-window)
+   ("k" windmove-up)
+   ("L" enlarge-window-horizontally)
+   ("l" windmove-right)
+   ("r" winner-redo)
+   ("s" split-window-vertically)
+   ("u" winner-undo)
+   ("v" split-window-horizontally)
+   ("o" other-window)
+   ("z" delete-other-windows)))
+
 (leaf which-key :ensure t :global-minor-mode t :diminish which-key-mode)
 
 (leaf *git
