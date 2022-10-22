@@ -821,6 +821,10 @@ _/_: undo      _d_: down        ^ ^
   :custom-face
   ;; TODO: ピーク時にはむしろ背景をグレーにしたい
   (lsp-ui-peek-peek . '((t (:background "dim gray"))))
+  :setq
+  ;; 参考: https://emacs-lsp.github.io/lsp-mode/page/performance/
+  (gc-cons-threshold . 100000000)               ; 100 MB
+  `(read-process-output-max . ,(* 4 1024 1024)) ; 4 MiB
   :init
   ;; 参考: https://github.com/ncaq/.emacs.d/blob/f1612eeb346974254e893c091901c987003d5e53/init.el#L971-L973
   (eval-and-compile
