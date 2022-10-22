@@ -713,6 +713,10 @@ _/_: undo      _d_: down        ^ ^
     (interactive)
     (if (window-system) (projectile-run-vterm) (suspend-frame))))
 
+;; company が有効だとなぜか `sh-completion-at-point' が異常に遅い。
+;; 無効にして、普通に `completion-at-point' を呼び出す。
+(leaf sh-mode :hook (sh-mode-hook . (lambda () (company-mode -1))))
+
 (leaf fish-mode :when *unix? :ensure t)
 
 ;; 言語設定とMigemo
