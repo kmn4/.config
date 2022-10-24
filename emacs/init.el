@@ -14,8 +14,9 @@
 ;;;; load-path と leaf.
 
 (eval-and-compile
-  (let* ((site-lisp-directory (concat user-emacs-directory "site-lisp/"))
-         (default-directory site-lisp-directory))
+  (let* ((default-directory (concat user-emacs-directory "site-lisp/")))
+    (unless (file-exists-p default-directory)
+      (make-directory default-directory))
     (add-to-list 'load-path default-directory)
     (normal-top-level-add-subdirs-to-load-path)))
 
@@ -632,6 +633,7 @@ _s_, _<tab>_: show    _U_: unstage all    _c_: commit
 (leaf emojify :ensure t :global-minor-mode 'global-emojify-mode
   :custom
   (emojify-display-style . 'image)
+  (emojify-download-emojis-p . t)
   (emojify-emoji-styles . '(unicode))
   :config
   (set-leader-map "ie" #'emojify-insert-emoji))
@@ -771,12 +773,14 @@ _/_: undo      _d_: down        ^ ^
 
 ;; PDF
 
+(defun add-init-hook (function)
+  (let ((hook (if (daemonp) 'server-after-make-frame-hook 'after-init-hook)))
+    (add-hook hook function)))
+
 ;; https://github.com/politza/pdf-tools#server-prerequisites
 (leaf pdf-tools :when *unix? :ensure t
   :bind (pdf-view-mode-map ("C-s" . pdf-occur))
-  :init
-  (if (daemonp) (add-hook 'server-after-make-frame-hook #'pdf-tools-install)
-    (pdf-tools-install))
+  :init (add-init-hook #'pdf-tools-install)
   :hook (pdf-view-mode-hook . auto-revert-mode))
 
 ;; Markdown
@@ -997,7 +1001,7 @@ _/_: undo      _d_: down        ^ ^
   (leaf all-the-icons-ibuffer :ensure t :hook ibuffer-mode-hook))
 
 ;; フォント設定
-(eval-and-compile
+(prog1 "fonts"
   (defconst source-code-pro "Source Han Code JP-13")
   (defcustom default-font-name source-code-pro "Default font name."
     :type 'string :group 'init)
@@ -1008,8 +1012,7 @@ NEW-DEFAULT が非 nil のときは、現在のセッションに限りこれを
     (interactive (list (read-string "font: " default-font-name)))
     (when new-default (customize-set-variable 'default-font-name new-default))
     (set-frame-font default-font-name nil t))
-  (if (daemonp) (add-hook 'server-after-make-frame-hook #'set-font)
-    (add-hook 'after-init-hook #'set-font)))
+  (add-init-hook #'set-font))
 
 (leaf centaur-tabs :ensure t :global-minor-mode centaur-tabs-mode
   :defun centaur-tabs-headline-match
@@ -1059,8 +1062,8 @@ NEW-DEFAULT が非 nil のときは、現在のセッションに限りこれを
       :type 'symbol :group 'init)
     (defun in-light-theme ()
       "現在、ライトテーマが設定されている。"
-      (eq (car custom-enabled-themes) default-light-theme))
-    (load-theme default-dark-theme)))
+      (eq (car custom-enabled-themes) default-light-theme)))
+  (add-init-hook (lambda () (load-theme default-dark-theme))))
 
 (leaf *mode-line
   ;; https://ayatakesi.github.io/emacs/28.1/html/Optional-Mode-Line.html#Optional-Mode-Line
