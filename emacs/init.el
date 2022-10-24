@@ -397,10 +397,7 @@ BINDINGS should be of the form [KEY DEF]..."
       (write-file
        (concat paradox-upgrade-log-directory start-time-string "_report.log")))))
 
-(leaf google-translate :ensure t popup
-  :config
-  ;; 出典: https://github.com/atykhonov/google-translate/issues/137#issuecomment-723938431
-  (defun google-translate--search-tkk () "Search TKK." (list 430675 2721866130)))
+(leaf google-translate :ensure t popup)
 
 (leaf move-text :ensure t
   :config (move-text-default-bindings))
