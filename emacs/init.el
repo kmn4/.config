@@ -20,13 +20,6 @@
     (add-to-list 'load-path default-directory)
     (normal-top-level-add-subdirs-to-load-path)))
 
-;; macOS で pakcage-refresh-contents が失敗するのを直す．
-;; 出典: https://emacs.stackexchange.com/a/68568
-(eval-and-compile
-  (when (and (equal emacs-version "27.2")
-             (eql system-type 'darwin))
-    (custom-set-variables 'gnutls-algorithm-priority "NORMAL:-VERS-TLS1.3")))
-
 ;; leaf
 (eval-and-compile
   (require 'package)
