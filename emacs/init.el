@@ -338,13 +338,14 @@ BINDINGS should be of the form [KEY DEF]..."
 
 ;; 以下は "NOT part of Emacs" なパッケージも使う
 
-(leaf *envvar
-  :config
-  (leaf exec-path-from-shell :unless (eq system-type 'windows-nt)
-    :ensure t
-    :config
-    (exec-path-from-shell-initialize))
-  (setenv "LANG" "ja_JP.utf-8"))
+(leaf exec-path-from-shell :when *unix?
+  :ensure t
+  :custom (exec-path-from-shell-variables . '("PATH" "MANPATH" "INFOPATH" "LANG"))
+  :config (exec-path-from-shell-initialize))
+
+(leaf woman :when *unix?
+  :after exec-path-from-shell
+  :custom `(woman-locale . ,(getenv "LANG")))
 
 (defcustom +dropbox-root (substitute-env-vars "$HOME/Dropbox")
   "Dropbox sync root directory."
