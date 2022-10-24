@@ -1078,8 +1078,11 @@ NEW-DEFAULT が非 nil のときは、現在のセッションに限りこれを
     (doom-modeline-major-mode-icon          . nil) ; 同上
     ))
 
-(leaf dashboard :ensure t
+(leaf dashboard :ensure t :require t
   :config (dashboard-setup-startup-hook)
+  :bind
+  (dashboard-mode-map ("n" . dashboard-next-line)
+                      ("p" . dashboard-previous-line))
   :custom
   (dashboard-startup-banner . 'logo)
   (dashboard-center-content . t)
