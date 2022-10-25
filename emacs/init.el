@@ -612,6 +612,7 @@ _s_, _<tab>_: show    _U_: unstage all    _c_: commit
 ;; 独自 UI よりも `counsel-company' ほうが候補の絞り込みに便利だが、後者ではドキュメント表示ができないので我慢。
 (leaf company :ensure t :global-minor-mode global-company-mode
   :diminish company-mode
+  :defvar company-backends
   :custom
   ;; `company-posframe' があれば `company-echo-metadata-frontend' は不要
   (company-frontends . '(company-pseudo-tooltip-unless-just-one-frontend company-preview-if-just-one-frontend))
@@ -901,34 +902,48 @@ _/_: undo      _d_: down        ^ ^
 
 ;; TeX
 
-(defun tex-installed-p () "TeX がインストールされているか。" (executable-find "tex"))
-
-(leaf latex :when (tex-installed-p)
+(leaf latex :when (executable-find "tex")
   :ensure auctex
-  :defvar TeX-command-list
+  :defvar TeX-command-list TeX-command-default
   :custom
+  (TeX-default-mode . 'japanese-latex-mode)
+  (TeX-view-program-selection . '((output-pdf "PDF Tools")))
   (LaTeX-electric-left-right-brace . t)
-  :hook
-  (LaTeX-mode-hook . (lambda () (reftex-mode +1)))
+  :hook (LaTeX-mode-hook . TeX-source-correlate-mode)
   :config
-  (setq TeX-command-list (-remove (lambda (l) (string-equal (car l) "LaTeX")) TeX-command-list))
-  (push '("LaTeX" "latexmk --synctex=1 %T" TeX-run-command nil t) TeX-command-list)
-
+  (prog1 "LaTeXMk を `TeX-command-list' に追加する。"
+    (add-to-list 'TeX-command-list
+                 '("LaTeXMk" "latexmk --synctex=1 %T" TeX-run-command nil t))
+    (add-hook 'LaTeX-mode-hook (lambda () (setq TeX-command-default "LaTeXMk"))))
+  (leaf pdf-sync :require t
+    :bind (LaTeX-mode-map ("C-c g" . pdf-sync-forward-search)))
   (leaf magic-latex-buffer :ensure t :diminish t
+    :disabled t ; FIXME AUCTeX のバージョンを上げたら壊れた
     :custom
     (magic-latex-enable-block-align . nil)
     (magic-latex-enable-inline-image . nil)
     :hook (LaTeX-mode-hook . (lambda () (when (display-graphic-p) (magic-latex-buffer +1)))))
-  (leaf reftex :diminish t
+  (leaf reftex :diminish t :hook LaTeX-mode-hook
     :custom
-    (reftex-label-alist .
-                        '(("definition" ?d "def:" "~\\ref{%s}" t ("definition" "def.") -3)
-                          ("lemma" ?m "lem:" "~\\ref{%s}" t ("lemma" "lem.") -3)
-                          ("theorem" ?h "thm:" "~\\ref{%s}" t   ("theorem" "th.") -3))))
-  (leaf bibtex
-    :custom
-    (bibtex-files . '(bibtex-file-path)))
-  )
+    (reftex-label-alist
+     . '(
+         ("definition"  ?d  "def:"  "~\\ref{%s}" t (regexp ".*定義") -3)
+         ("lemma"       ?l  "lem:"  "~\\ref{%s}" t (regexp ".*補題") -3)
+         ("theorem"     ?t  "thm:"  "~\\ref{%s}" t (regexp ".*定理") -3)
+         ("proposition" ?p  "prop:" "~\\ref{%s}" t (regexp ".*命題") -3)
+         ("corollary"   ?c  "cor:"  "~\\ref{%s}" t (regexp ".*系")   -3)
+         ("example"     ?e  "ex:"   "~\\ref{%s}" t (regexp ".*例")   -3)
+         ("remark"      ?r  "remk:" "~\\ref{%s}" t (regexp ".*注意") -3)
+         ))
+    :config
+    (leaf company-reftex :ensure t
+      :config
+      (add-to-list 'company-backends 'company-reftex-labels)
+      (add-to-list 'company-backends 'company-reftex-citations))
+    ;; よく C-c RET と間違えて C-c \ を叩くので…
+    (put 'reftex-index-phrase-selection-or-word 'disabled t)
+    )
+  ) ; end of latex block
 
 (leaf satysfi :when (executable-find "satysfi") :require t
   :mode (("\\.saty$" "\\.satyh$" "\\.satyg$") . satysfi-mode)
