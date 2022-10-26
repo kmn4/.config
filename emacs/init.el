@@ -866,7 +866,9 @@ _/_: undo      _d_: down        ^ ^
 
 ;; Scala
 
-(leaf lsp-metals :when (executable-find "scala") :ensure t)
+(leaf lsp-metals :when (executable-find "scala") :ensure t
+  :init (require 'treemacs-extensions) ; HACK: このモジュールは obsolete だが `lsp-metals' が依存している
+  )
 
 ;; SMT-LIB
 
