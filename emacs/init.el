@@ -802,7 +802,10 @@ _/_: undo      _d_: down        ^ ^
   (defun flycheck-toggle-error-list (&optional frame)
     (interactive)
     (if-let ((window (major-mode-window 'flycheck-error-list-mode frame)))
-        (delete-window window)
+        (with-selected-window window
+          (if (window-prev-buffers)
+              (previous-buffer)
+            (delete-window)))
       (flycheck-list-errors)))
   :hydra (hydra-flycheck nil "Flycheck"
           ("e" flycheck-display-error-at-point "explain")
