@@ -851,14 +851,14 @@ _/_: undo      _d_: down        ^ ^
   ;; 既に LSP サーバが既に走っているプロジェクトのファイルを開くときは自動的に接続。
   ;; ただし少しだけファイルを開きたいときにいちいち LSP サーバが起動すると鬱陶しいので、
   ;; LSP を使いたいプロジェクトでは初めに明示的に `lsp' を呼び出す。
-  ;; 出典: https://github.com/kurnevsky/dotfiles/blob/c0049a655a502cd81f1aba7321ff65d178a557c9/.emacs.d/init.el#L1231-L1237
+  ;; 参考: https://github.com/kurnevsky/dotfiles/blob/c0049a655a502cd81f1aba7321ff65d178a557c9/.emacs.d/init.el#L1231-L1237
   (eval-and-compile
-    (defun lsp-activate-if-already-activated (server-id)
-      (when (and (functionp 'lsp-find-workspace)
-                 (lsp-find-workspace server-id (buffer-file-name)))
-        (lsp)))
-    (add-hook 'scala-mode-hook
-              (lambda () (lsp-activate-if-already-activated 'metals))))
+    (defun lsp-hook-activation-in-activated-workspace (hook server-id)
+      (add-hook hook
+       `(lambda ()
+          (when (and (functionp 'lsp-find-workspace)
+                     (lsp-find-workspace (quote ,server-id) (buffer-file-name)))
+            (lsp))))))
   :config
   (leaf lsp-lens :diminish lsp-lens-mode)
   (leaf lsp-ivy :ensure t
@@ -872,6 +872,7 @@ _/_: undo      _d_: down        ^ ^
   :config
   (leaf lsp-metals :ensure t
     :init (require 'treemacs-extensions) ; HACK: このモジュールは obsolete だが `lsp-metals' が依存している
+    :config (lsp-hook-activation-in-activated-workspace 'scala-mode-hook 'metals))
   (leaf bloop :require t :after scala-mode
     :doc "Scalaプロジェクトを素早くコンパイル/実行/テストする"
     :custom (bloop-cli-command-name . "bloop")
@@ -892,7 +893,14 @@ _/_: undo      _d_: down        ^ ^
 
 ;; Rust
 
-(leaf rust-mode :when (executable-find "cargo") :ensure t)
+(leaf rust-mode :when (executable-find "rustup") :ensure t
+  :config
+  (leaf lsp-rust
+    :custom
+    (lsp-rust-server . 'rust-analyzer)
+    ;; https://rust-analyzer.github.io/manual.html#rustup
+    (lsp-rust-analyzer-server-command . '("rustup" "run" "stable" "rust-analyzer"))
+    (lsp-hook-activation-in-activated-workspace 'rust-mode-hook 'rust-analyzer)))
 
 ;; Racket
 
