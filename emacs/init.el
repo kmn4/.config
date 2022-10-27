@@ -606,7 +606,9 @@ _s_, _<tab>_: show    _U_: unstage all    _c_: commit
 
 (setq ring-bell-function 'ignore)
 
-(leaf yasnippet :ensure t :global-minor-mode yas-global-mode :diminish yas-minor-mode)
+(leaf yasnippet :ensure t yasnippet-snippets
+  :global-minor-mode yas-global-mode
+  :diminish yas-minor-mode)
 
 ;; `completion-at-point' を直接利用する場合と比べて、補完中にドキュメントを読めることが company の利点。
 ;; 独自 UI よりも `counsel-company' ほうが候補の絞り込みに便利だが、後者ではドキュメント表示ができないので我慢。
