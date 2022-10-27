@@ -866,9 +866,20 @@ _/_: undo      _d_: down        ^ ^
 
 ;; Scala
 
-(leaf lsp-metals :when (executable-find "scala") :ensure t
-  :init (require 'treemacs-extensions) ; HACK: このモジュールは obsolete だが `lsp-metals' が依存している
-  )
+(leaf scala-mode :when (executable-find "scala")
+  :config
+  (leaf lsp-metals :ensure t
+    :init (require 'treemacs-extensions) ; HACK: このモジュールは obsolete だが `lsp-metals' が依存している
+  (leaf bloop :require t :after scala-mode
+    :doc "Scalaプロジェクトを素早くコンパイル/実行/テストする"
+    :custom (bloop-cli-command-name . "bloop")
+    :bind (scala-mode-map
+           ("C-c C-c" . bloop-do-compile)
+           ("C-c RET" . bloop-do-runMain)
+           ("C-c C-t" . bloop-do-testOnly)
+           ("C-c C-k" . bloop-call-compile)))
+  (leaf sbt-mode :ensure t :require t
+    :custom (sbt:program-name . "sbtn")))
 
 ;; SMT-LIB
 
