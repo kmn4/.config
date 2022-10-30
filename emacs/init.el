@@ -303,6 +303,9 @@ BINDINGS should be of the form [KEY DEF]..."
 ;; 環境判定系
 
 (defconst *linux? (eq system-type 'gnu/linux))
+(defconst *lsb-release-id
+  (when *linux? (s-trim (shell-command-to-string "lsb_release -is"))))
+(defconst *ubuntu? (and *linux? (equal *lsb-release-id "Ubuntu")))
 (defconst *macos? (eq system-type 'darwin))
 (defconst *unix? (or *linux? *macos?))
 (defconst *wsl? (and *unix? (s-contains-p "WSL2" (shell-command-output "uname -a"))))
@@ -722,17 +725,24 @@ _/_: undo      _d_: down        ^ ^
 (prefer-coding-system 'utf-8)
 ;; Ubuntu  -- apt install cmigemo
 ;; Windows -- https://www.kaoriya.net/software/cmigemo/
-;; M-x customize-variable migemo-dictionary
-(leaf migemo :ensure t)
-(leaf swiper-migemo
-  :require t
-  :defvar swiper-migemo-enable-command
-  :defun global-swiper-migemo-mode
+(leaf migemo :when (executable-find "cmigemo") :ensure t
+  :custom (migemo-options . '("--quiet" "--nonewline" "--emacs"))
   :config
-  (set-leader-map "sm" #'global-swiper-migemo-mode)
-  (add-to-list 'swiper-migemo-enable-command 'counsel-recentf)
-  (add-to-list 'swiper-migemo-enable-command 'counsel-rg)
-  :custom (migemo-options . '("--quiet" "--nonewline" "--emacs")))
+  (leaf swiper-migemo
+    :require t
+    :defvar swiper-migemo-enable-command
+    :defun global-swiper-migemo-mode
+    :config
+    (set-leader-map "sm" #'global-swiper-migemo-mode)
+    (add-to-list 'swiper-migemo-enable-command 'counsel-recentf)
+    (add-to-list 'swiper-migemo-enable-command 'counsel-rg))
+  ;; :custom だと `*ubuntu?' が定義されていないと FlyC に言われる
+  (customize-set-variable
+   'migemo-dictionary
+   (cond (*ubuntu? "/usr/share/cmigemo/utf-8/migemo-dict")
+         (*macos?  "/usr/local/share/migemo/utf-8/migemo-dict")
+         (t        ""))))
+
 
 ;; 入力メソッド
 ;; |      | C-\   | <C-henkan> | <c-muhenkan> |
