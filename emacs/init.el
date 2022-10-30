@@ -499,7 +499,9 @@ ELTS の要素の順序は保たれる。"
 (leaf ivy
   :ensure t swiper counsel ivy-hydra ivy-rich
   :global-minor-mode t counsel-mode ivy-rich-mode
-  :bind (("C-s" . swiper))
+  :bind
+  ("C-s" . swiper)
+  ("C-x b" . counsel-switch-buffer)
   :diminish ivy-mode counsel-mode)
 
 (leaf winum
