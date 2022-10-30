@@ -796,6 +796,12 @@ _/_: undo      _d_: down        ^ ^
   :custom (markdown-command . "marked")
   :mode ("\\.md$" . gfm-mode))
 
+(leaf easy-hugo :when (executable-find "hugo") :ensure t
+  :custom
+  (easy-hugo-default-picture-directory . "~/Pictures")
+  (easy-hugo-server-flags . "-D")
+  (easy-hugo-url . ""))
+
 (leaf writeroom-mode :ensure t)
 
 ;;;; プログラミング
@@ -1014,7 +1020,7 @@ _/_: undo      _d_: down        ^ ^
 
 ;; Go
 
-(leaf go-mode :ensure t)
+(leaf go-mode :when (executable-find "go") :ensure t)
 
 ;;;; 見た目
 
