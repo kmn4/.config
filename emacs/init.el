@@ -793,7 +793,10 @@ _/_: undo      _d_: down        ^ ^
 ;; Markdown
 
 (leaf markdown-mode :when *unix? :ensure t
-  :custom (markdown-command . "marked")
+  :custom
+  (markdown-command . "marked")
+  (markdown-fontify-code-blocks-natively . t)
+  :custom-face (markdown-code-face . '((t (:inherit 'default))))
   :mode ("\\.md$" . gfm-mode))
 
 (leaf easy-hugo :when (executable-find "hugo") :ensure t
