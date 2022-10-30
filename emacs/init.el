@@ -925,8 +925,9 @@ _/_: undo      _d_: down        ^ ^
 
 ;; Haskell
 
-(leaf *haskell :when (executable-find "ghc")
-  :ensure haskell-mode lsp-haskell)
+(leaf haskell-mode :when (executable-find "ghc")
+  :ensure t
+  :config (leaf lsp-haskell :ensure t))
 
 ;; Web
 
