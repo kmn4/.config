@@ -462,7 +462,6 @@ ELTS の要素の順序は保たれる。"
 
 (leaf cus-start
   :custom
-  (tool-bar-mode . nil)
   (scroll-conservatively . 1) ; C-n, C-p でポイントが画面外に出たとき一行だけスクロール
   (scroll-preserve-screen-position . t) ; C-v, M-v でポイントのウィンドウ内相対位置を変えない
   )
@@ -473,11 +472,6 @@ ELTS の要素の順序は保たれる。"
 (leaf minimap :ensure t :require t
   :custom (minimap-window-location . 'right)
   :config (set-leader-map "tM" #'minimap-mode))
-
-(leaf menu-bar
-  :config
-  (menu-bar-mode -1)
-  (set-leader-map "tm" #'menu-bar-mode))
 
 (leaf undo-tree
   :ensure t
@@ -1052,6 +1046,13 @@ NEW-DEFAULT が非 nil のときは、現在のセッションに限りこれを
     (when new-default (customize-set-variable 'default-font-name new-default))
     (set-frame-font default-font-name nil t))
   (add-init-hook #'set-font))
+
+(leaf frame
+  :custom
+  (default-frame-alist . '((fullscreen . maximized)))
+  (menu-bar-mode . nil)
+  (tool-bar-mode . nil)
+  :config (set-leader-map "tm" #'menu-bar-mode))
 
 (leaf centaur-tabs :ensure t :global-minor-mode centaur-tabs-mode
   :defun centaur-tabs-headline-match
