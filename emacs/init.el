@@ -1105,6 +1105,7 @@ NEW-DEFAULT が非 nil のときは、現在のセッションに限りこれを
 (leaf volatile-highlights :ensure t :global-minor-mode volatile-highlights-mode
   :diminish volatile-highlights-mode)
 (leaf hi-lock :diminish hi-lock-mode)
+(leaf page-break-lines :ensure t :global-minor-mode global-page-break-lines-mode)
 
 (leaf *theme
   :ensure vscode-dark-plus-theme spacemacs-theme
