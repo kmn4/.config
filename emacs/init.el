@@ -400,8 +400,7 @@ BINDINGS should be of the form [KEY DEF]..."
 (leaf move-text :ensure t
   :config (move-text-default-bindings))
 
-(leaf display-line-numbers
-  :hook ((prog-mode-hook org-mode-hook LaTeX-mode-hook) . display-line-numbers-mode))
+(leaf display-line-numbers :hook prog-mode-hook text-mode-hook)
 
 (defvar delete-trailing-whitespace-modes
   (list 'prog-mode 'tex-mode)
