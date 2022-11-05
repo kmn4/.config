@@ -79,10 +79,13 @@ BINDINGS should be of the form [KEY DEF]..."
    ;; [c]ustomize
    "cv" #'customize-variable-other-window
    "cg" #'customize-group-other-window
+   "cs" #'customize-face-other-window
    ;; visiting [f]ile
    "fr" #'counsel-recentf
    "fi" #'visit-init-file
    "fs" #'revisit-with-sudo
+   ;; [h]elp
+   "h" help-map
    ;; [s]earch
    "sg" #'counsel-git-grep
    "sr" #'counsel-rg
@@ -92,6 +95,7 @@ BINDINGS should be of the form [KEY DEF]..."
    "jv" #'find-variable
    "jf" #'find-function
    "jl" #'find-library
+   "js" #'find-face-definition ; ?s for "style"
    "jm" #'pop-to-mark-command
    ;; [l]sp
    "l" #'lsp
@@ -332,6 +336,12 @@ BINDINGS should be of the form [KEY DEF]..."
           (delete-window window)
         (imenu-list))))
   (set-leader-map "ti" #'imenu-list-toggle))
+
+;; `view-lossage' 用に保存されるキーの個数を増やす
+(leaf help :config (lossage-size 1000))
+(leaf help-fns
+  :bind (help-map ("W" . describe-widget)
+                  ("B" . button-describe)))
 
 ;; 以下は "NOT part of Emacs" なパッケージも使う
 
