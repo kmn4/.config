@@ -116,8 +116,7 @@ BINDINGS should be of the form [KEY DEF]..."
 (defun visit-init-file ()
   "Visit init.el."
   (interactive)
-  (find-file user-init-file)
-  (when (fboundp #'leaf-tree-mode) (leaf-tree-mode)))
+  (find-file user-init-file))
 
 (defun revisit-with-sudo ()
   "Revisit the file of selected buffer with root priviledge."
