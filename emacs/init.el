@@ -455,12 +455,18 @@ ELTS の要素の順序は保たれる。"
   :defun project-root
   :custom (project-vc-merge-submodules . nil)  ; サブモジュールは別プロジェクト扱い
   :config
-  (defun project-counsel-rg ()
-    (interactive)
-    (counsel-rg nil (project-root (project-current t))))
+
   :bind (project-prefix-map ("C-s" . project-counsel-rg)))
 
-(leaf projectile :ensure t :global-minor-mode t)
+(leaf projectile
+  :ensure t counsel-projectile
+  :global-minor-mode t
+  ;; If :bind-keymap is used, then FlyC complains that
+  ;; "Symbol's value as variable is void: projectile-command-map"
+  :config (global-set-key (kbd "C-c p") 'projectile-command-map)
+  :bind
+  (projectile-command-map
+   ("C-s" . counsel-projectile-rg)))
 
 (leaf cus-start
   :custom
