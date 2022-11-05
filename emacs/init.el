@@ -303,6 +303,24 @@ BINDINGS should be of the form [KEY DEF]..."
         (reload (lambda (buf) (with-current-buffer buf (revert-buffer)))))
     (mapc reload dired-buffers)))
 
+;; マウス
+(defmacro defun-with-mouse-posn-set (name &optional docstring &rest body)
+  "クリック位置にポイントをセットしてから BODY を評価するコマンドを定義する。
+
+DOCSTRING は必須。これがないと意図通りに展開されない。"
+  (declare (doc-string 2) (indent 1))
+  (let ((ev (gensym)))
+    `(defun ,name (,ev)
+       ,docstring
+       (interactive "e")
+       (save-excursion
+         (posn-set-point (event-start ,ev))
+         ,@body))))
+
+(defun-with-mouse-posn-set quit-window-mouse
+  "マウスクリックで呼び出され、クリックイベント位置のウィンドウを閉じる。"
+  (quit-window))
+
 ;; 環境判定系
 
 (defconst *linux? (eq system-type 'gnu/linux))
@@ -439,6 +457,63 @@ ELTS の要素の順序は保たれる。"
     (ivy-read "Find XDG User Dir: " xdg-user-dirs-of-interest
               :require-match t
               :action #'find-file)))
+
+(leaf image-dired
+  :defun
+  image-dired-track-original-file
+  image-dired-thumbnail-display-external
+  image-dired-associated-dired-buffer
+  image-dired--with-marked
+  image-dired-thumb-update-marks
+  image-dired-mark-thumb-original-file
+  image-dired-thumbnail-num-marked
+  :bind
+  (image-dired-thumbnail-mode-map
+   ("n" . image-dired-next-line)
+   ("p" . image-dired-previous-line)
+   ("f" . image-dired-forward-image)
+   ("b" . image-dired-backward-image)
+   ("U" . image-dired-thumbnail-unmark-all)
+   ([double-mouse-1] . image-dired-mouse-display-image)
+   ([mouse-3] . image-dired-thumbnail-display-external-mouse)
+   ([double-mouse-3] . image-dired-thumbnail-display-marked-external))
+  (image-dired-display-image-mode-map
+   ([double-mouse-1] . image-dired-display-current-image-sized)
+   ([mouse-3] . quit-window-mouse))
+  :init
+  (defun image-dired-thumbnail-mark-all ()
+    (interactive)
+    "全てのサムネイルをマークする。"
+    (save-excursion
+      (goto-char (point-min))
+      (let (lastpos (currpos (point)))
+        (while (null (eq lastpos currpos))
+          (setq lastpos currpos)
+          (image-dired-mark-thumb-original-file)
+          (setq currpos (point))))))
+  (defun image-dired-thumbnail-narrow ()
+    (interactive)
+    (with-current-buffer (image-dired-associated-dired-buffer)
+      (image-dired-display-thumbs)))
+  (defun image-dired-thumbnail-unmark-all ()
+    (interactive)
+    "全てのマークを解除する。"
+    (with-current-buffer (image-dired-associated-dired-buffer)
+      (dired-unmark-all-marks))
+    (image-dired-thumb-update-marks))
+  (defun-with-mouse-posn-set image-dired-thumbnail-display-external-mouse
+    "クリックされた画像を外部プログラムで開く。"
+    (image-dired-track-original-file)
+    (image-dired-thumbnail-display-external))
+  (defun image-dired-thumbnail-num-marked ()
+    0) ; TODO
+  (defun-with-mouse-posn-set image-dired-thumbnail-display-marked-external
+    "マークされた画像を全て外部プログラムで開く。
+
+マークされた画像が多い時は確認する。"
+    (let ((marked (image-dired-thumbnail-num-marked)))
+      (when (or (< marked 5) (y-or-n-p (format "display %s files?" marked)))
+        (image-dired--with-marked (image-dired-thumbnail-display-external))))))
 
 (leaf info
   :config
