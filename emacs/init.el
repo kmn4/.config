@@ -826,6 +826,8 @@ _/_: undo      _d_: down        ^ ^
 
 ;;;; プログラミング
 
+(leaf indent :custom (indent-tabs-mode . nil))
+
 (leaf flycheck :ensure t :hook prog-mode-hook LaTeX-mode-hook
   :defun flycheck-list-errors hydra-flycheck/body
   :config (set-leader-map "e" #'hydra-flycheck/body)
