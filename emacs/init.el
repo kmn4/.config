@@ -343,6 +343,8 @@ BINDINGS should be of the form [KEY DEF]..."
   :bind (help-map ("W" . describe-widget)
                   ("B" . button-describe)))
 
+(leaf elisp-mode :bind (emacs-lisp-mode-map ("C-c x" . emacs-lisp-macroexpand)))
+
 ;; 以下は "NOT part of Emacs" なパッケージも使う
 
 (leaf exec-path-from-shell :when *unix?
