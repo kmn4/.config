@@ -1201,25 +1201,38 @@ NEW-DEFAULT が非 nil のときは、現在のセッションに限りこれを
 (leaf page-break-lines :ensure t :global-minor-mode global-page-break-lines-mode)
 
 (leaf *theme
-  :ensure vscode-dark-plus-theme spacemacs-theme
+  :ensure vscode-dark-plus-theme spacemacs-theme doom-themes shades-of-purple-theme
+  :defvar doom-themes-enable-bold doom-themes-enable-italic
+  :setq
+  (doom-themes-enable-bold . t)
+  (doom-themes-enable-italic . t)
   :config
   (eval-and-compile
+    (defvar favorite-themes
+      '(
+        shades-of-purple
+        doom-dark+
+        vscode-dark-plus
+        doom-moonlight
+        spacemacs-light
+        ))
+    (defun switch-theme (theme)
+      "`favorite-themes' からテーマを選択して切り替える。"
+      (interactive (list (intern (completing-read "Theme: " favorite-themes))))
+      (mapc #'disable-theme custom-enabled-themes)
+      (load-theme theme))
     (defun toggle-theme ()
       "ライトテーマとダークテーマを切り替える。"
       (interactive)
-      (let ((in-light-theme-tmp (in-light-theme)))
-        (mapc #'disable-theme custom-enabled-themes)
-        (if in-light-theme-tmp
-            (load-theme default-dark-theme)
-          (load-theme default-light-theme))))
+      (switch-theme (if (in-light-theme) default-dark-theme default-light-theme)))
     (defcustom default-light-theme 'spacemacs-light "デフォルトのライトテーマ"
       :type 'symbol :group 'init)
-    (defcustom default-dark-theme 'vscode-dark-plus "デフォルトのダークテーマ"
+    (defcustom default-dark-theme 'shades-of-purple "デフォルトのダークテーマ"
       :type 'symbol :group 'init)
     (defun in-light-theme ()
       "現在、ライトテーマが設定されている。"
       (eq (car custom-enabled-themes) default-light-theme)))
-  (add-init-hook (lambda () (load-theme default-dark-theme))))
+  (customize-set-variable 'custom-enabled-themes (list default-dark-theme)))
 
 (leaf *mode-line
   ;; https://ayatakesi.github.io/emacs/28.1/html/Optional-Mode-Line.html#Optional-Mode-Line
