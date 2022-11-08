@@ -709,6 +709,7 @@ _s_, _<tab>_: show    _U_: unstage all    _c_: commit
   ;; `company-posframe' があれば `company-echo-metadata-frontend' は不要
   (company-frontends . '(company-pseudo-tooltip-unless-just-one-frontend company-preview-if-just-one-frontend))
   (company-idle-delay . 0)
+  (company-tooltip-maximum-width . 120)
   :bind
   (company-mode-map ("C-M-i" . company-complete))
   (company-active-map ("C-h" . backward-delete-char-untabify)
