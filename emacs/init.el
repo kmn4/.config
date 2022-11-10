@@ -373,13 +373,6 @@ DOCSTRING は必須。これがないと意図通りに展開されない。"
   :after exec-path-from-shell
   :custom `(woman-locale . ,(getenv "LANG")))
 
-(defcustom +dropbox-root (substitute-env-vars "$HOME/Dropbox")
-  "Dropbox sync root directory."
-  :type 'string :group 'init)
-(defun +dropbox-root (path)
-  "PATH を Dropbox ディレクトリからの相対パスとみなして絶対パスを作る。"
-  (s-lex-format "${+dropbox-root}/${path}"))
-
 (leaf savehist :global-minor-mode t)
 
 (leaf convenience
@@ -1100,7 +1093,6 @@ _/_: undo      _d_: down        ^ ^
 (leaf org
   :custom
   (org-adapt-indentation . nil)
-  (org-agenda-files . `(,(+dropbox-root "org")))
   (org-agenda-span . 'month)
   (org-export-use-babel . nil)
   (org-export-with-broken-link . t)
