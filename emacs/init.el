@@ -508,10 +508,7 @@ ELTS の要素の順序は保たれる。"
       (when (or (< marked 5) (y-or-n-p (format "display %s files?" marked)))
         (image-dired--with-marked (image-dired-thumbnail-display-external))))))
 
-(leaf info
-  :config
-  (setq Info-directory-list (-union Info-directory-list Info-default-directory-list))
-  (add-to-list 'Info-directory-list (concat (xdg-data-home) "/info")))
+(leaf info :config (nconc Info-directory-list Info-default-directory-list))
 
 (leaf show-paren-mode :hook prog-mode-hook)
 (leaf hideshow :hook (prog-mode-hook . hs-minor-mode) :diminish hs-minor-mode
@@ -805,45 +802,20 @@ _/_: undo      _d_: down        ^ ^
 
 ;; 言語設定とMigemo
 
-(set-language-environment "Japanese")
-(prefer-coding-system 'utf-8)
-;; Ubuntu  -- apt install cmigemo
-;; Windows -- https://www.kaoriya.net/software/cmigemo/
-(leaf migemo :when (executable-find "cmigemo") :ensure t
-  :custom (migemo-options . '("--quiet" "--nonewline" "--emacs"))
-  :config
-  (leaf swiper-migemo
-    :require t
-    :defvar swiper-migemo-enable-command
-    :defun global-swiper-migemo-mode
-    :config
-    (set-leader-map "sm" #'global-swiper-migemo-mode)
-    (add-to-list 'swiper-migemo-enable-command 'counsel-recentf)
-    (add-to-list 'swiper-migemo-enable-command 'counsel-rg))
-  ;; :custom だと `*ubuntu?' が定義されていないと FlyC に言われる
-  (customize-set-variable
-   'migemo-dictionary
-   (cond (*ubuntu? "/usr/share/cmigemo/utf-8/migemo-dict")
-         (*macos?  "/usr/local/share/migemo/utf-8/migemo-dict")
-         (t        ""))))
-
-
-;; 入力メソッド
-;; |      | C-\   | <C-henkan> | <c-muhenkan> |
-;; |------+-------+------------+--------------|
-;; | NoIM | Agda  | Mozc       | NoIM         |
-;; | Agda | NoIME | Mozc       | NoIM         |
-;; | Mozc | Agda  | Mozc       | NoIM         |
-(leaf *input-method
-  :init (defcustom use-mozc *wsl? "Mozc" :type 'bool :group 'init)
-  :defvar use-mozc
-  :config
+(prog1 "言語、文字コード、入力メソッド"
+  (set-language-environment "Japanese")
+  (prefer-coding-system 'utf-8)
+  ;; |      | C-\   | <C-henkan> | <c-muhenkan> |
+  ;; |------+-------+------------+--------------|
+  ;; | NoIM | Agda  | Mozc       | NoIM         |
+  ;; | Agda | NoIME | Mozc       | NoIM         |
+  ;; | Mozc | Agda  | Mozc       | NoIM         |
   (leaf agda-input :require t
     :custom (default-input-method . "Agda"))
-  (leaf mozc :when use-mozc
+  (leaf mozc :when *wsl?
     :ensure t
-    :custom (mozc-candidate-style . 'echo-area))
-  (when use-mozc
+    :custom (mozc-candidate-style . 'echo-area)
+    :config
     (eval-and-compile
       (defun im-mozc-on () (interactive) (set-input-method "japanese-mozc"))
       (defun im-agda-on () (interactive) (set-input-method "Agda"))
@@ -861,6 +833,26 @@ _/_: undo      _d_: down        ^ ^
       (define-key mozc-mode-map (kbd "C-\\") #'im-C-backslash)
       (global-set-key (kbd "<C-henkan>") #'im-C-henkan)
       (global-set-key (kbd "<C-muhenkan>") #'im-C-muhenkan))))
+
+(leaf migemo :when (executable-find "cmigemo") :ensure t
+  ;; Ubuntu  -- apt install cmigemo
+  ;; Windows -- https://www.kaoriya.net/software/cmigemo/
+  :custom (migemo-options . '("--quiet" "--nonewline" "--emacs"))
+  :config
+  (leaf swiper-migemo
+    :require t
+    :defvar swiper-migemo-enable-command
+    :defun global-swiper-migemo-mode
+    :config
+    (set-leader-map "sm" #'global-swiper-migemo-mode)
+    (add-to-list 'swiper-migemo-enable-command 'counsel-recentf)
+    (add-to-list 'swiper-migemo-enable-command 'counsel-rg))
+  ;; :custom だと `*ubuntu?' が定義されていないと FlyC に言われる
+  (customize-set-variable
+   'migemo-dictionary
+   (cond (*ubuntu? "/usr/share/cmigemo/utf-8/migemo-dict")
+         (*macos?  "/usr/local/share/migemo/utf-8/migemo-dict")
+         (t        ""))))
 
 ;; PDF
 
