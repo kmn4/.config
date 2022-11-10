@@ -567,13 +567,12 @@ ELTS の要素の順序は保たれる。"
   :custom (minimap-window-location . 'right)
   :config (set-leader-map "tM" #'minimap-mode))
 
-(leaf undo-tree
-  :ensure t
-  :global-minor-mode global-undo-tree-mode
+(leaf undo-tree :ensure t :global-minor-mode global-undo-tree-mode
+  :diminish undo-tree-mode
   :custom
-  (undo-tree-history-directory-alist . `((".*\.gpg" . ,dev-null)
-                                         (".*" . ,(concat user-emacs-directory ".cache/undo-tree"))))
-  :diminish undo-tree-mode)
+  (undo-tree-auto-save-history . nil)
+  (undo-tree-history-directory-alist
+   . `((".*" . ,(concat user-emacs-directory ".cache/undo-tree")))))
 
 (leaf eldoc :diminish eldoc-mode :custom (eldoc-idle-delay . 0.2))
 
