@@ -786,6 +786,10 @@ _/_: undo      _d_: down        ^ ^
     ("C-v" . scroll-up-command)
     ("M-v" . scroll-down-command)
     ("C-z" . previous-buffer))
+  :defvar vterm-eval-cmds
+  :push
+  ((vterm-eval-cmds . '("dired" dired))
+   (vterm-eval-cmds . '("ediff-files" ediff-files)))
   :custom
   (vterm-exit-functions . '((lambda (_ _) (previous-buffer))))
   :init
