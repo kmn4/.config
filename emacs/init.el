@@ -579,8 +579,7 @@ ELTS の要素の順序は保たれる。"
   :hook prog-mode-hook org-mode-hook LaTeX-mode-hook
   :defvar hl-todo-keyword-faces
   :config
-  (add-to-list 'hl-todo-keyword-faces '("WARN" . "#ff0000"))
-  (add-to-list 'hl-todo-keyword-faces '("\?\?\?" . "#cc9393")))
+  (add-to-list 'hl-todo-keyword-faces '("WARN" . "#ff0000")))
 
 (leaf ivy
   :ensure t swiper counsel ivy-hydra ivy-rich
