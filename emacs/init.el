@@ -438,7 +438,7 @@ DOCSTRING は必須。これがないと意図通りに展開されない。"
 ELTS の要素の順序は保たれる。"
   (mapc (lambda (elt) (push elt (symbol-value list-var))) (seq-reverse elts)))
 
-(leaf xdg :require t
+(leaf xdg :when *unix? :require t
   :defun ivy-find-xdg-user-dirs xdg-user-dir xdg-data-home
   :config
   (set-leader-map "jd" #'ivy-find-xdg-user-dirs)
