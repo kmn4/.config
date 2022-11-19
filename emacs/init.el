@@ -546,6 +546,17 @@ ELTS の要素の順序は保たれる。"
   (projectile-command-map
    ("C-s" . counsel-projectile-rg)))
 
+(prog1 "プロジェクトルートで TODO の一覧を表示する関数を定義。"
+  (defcustom projectile-rg-todo-regex-list
+    (list "\\?{3}" "TODO")
+    "`projectile-rg-todo-keywords' でマッチすべき正規表現のリスト。"
+    :type '(repeat regexp)
+    :group 'init)
+  (defun projectile-rg-todo-keywords ()
+    (interactive)
+    (projectile-ripgrep (s-join "|" projectile-rg-todo-regex-list) t))
+  (define-key projectile-command-map (kbd "st") #'projectile-rg-todo-keywords))
+
 (leaf cus-start
   :custom
   (scroll-conservatively . 1) ; C-n, C-p でポイントが画面外に出たとき一行だけスクロール
