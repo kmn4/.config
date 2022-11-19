@@ -27,8 +27,9 @@
   (if (package-installed-p 'leaf) (package-refresh-contents t) ;; 非同期
     (package-refresh-contents)
     (package-install 'leaf))
-  (leaf leaf-keywords :ensure t diminish hydra :config (leaf-keywords-init))
-  (leaf leaf-tree :ensure t :diminish t))
+  (leaf leaf-keywords :ensure t diminish hydra :config (leaf-keywords-init)))
+
+(leaf el-get :ensure t :custom (el-get-notify-type . 'message))
 
 ;;;; キーマップ。
 ;; init.el に問題があってすべてを読み込めないときでも
@@ -814,7 +815,9 @@ _/_: undo      _d_: down        ^ ^
   ;; | NoIM | Agda  | Mozc       | NoIM         |
   ;; | Agda | NoIME | Mozc       | NoIM         |
   ;; | Mozc | Agda  | Mozc       | NoIM         |
-  (leaf agda-input :require t
+  (leaf agda-input
+    :el-get (agda-input :url "https://raw.githubusercontent.com/agda/agda/master/src/data/emacs-mode/agda-input.el")
+    :require t
     :custom (default-input-method . "Agda"))
   (leaf mozc :when *wsl?
     :ensure t
@@ -844,6 +847,7 @@ _/_: undo      _d_: down        ^ ^
   :custom (migemo-options . '("--quiet" "--nonewline" "--emacs"))
   :config
   (leaf swiper-migemo
+    :el-get tam17aki/swiper-migemo
     :require t
     :defvar swiper-migemo-enable-command
     :defun global-swiper-migemo-mode
@@ -983,7 +987,7 @@ _/_: undo      _d_: down        ^ ^
 
 ;; SMT-LIB
 
-(leaf smtlib-mode :require t)
+(leaf smtlib-mode :el-get kmn4/smtlib-mode :require t)
 
 ;; CUDA
 (leaf *cuda :mode ("\\.cu$" . c-mode))
@@ -1069,7 +1073,8 @@ _/_: undo      _d_: down        ^ ^
     )
   ) ; end of latex block
 
-(leaf satysfi :when (executable-find "satysfi") :require t
+(leaf satysfi :when (executable-find "satysfi")
+  :el-get gfngfn/satysfi.el :require t
   :mode (("\\.saty$" "\\.satyh$" "\\.satyg$") . satysfi-mode)
   :hook
   (satysfi-mode-hook . (lambda () (indent-tabs-mode -1)))

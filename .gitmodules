@@ -1,9 +1,0 @@
-[submodule "emacs/site-lisp/swiper-migemo"]
-	path = emacs/site-lisp/swiper-migemo
-	url = https://github.com/tam17aki/swiper-migemo
-[submodule "emacs/site-lisp/smtlib-mode"]
-	path = emacs/site-lisp/smtlib-mode
-	url = git@github.com:kmn4/smtlib-mode
-[submodule "emacs/site-lisp/satysfi"]
-	path = emacs/site-lisp/satysfi
-	url = https://github.com/gfngfn/satysfi.el
