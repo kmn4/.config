@@ -1252,14 +1252,16 @@ _/_: undo      _d_: down        ^ ^
     ))
 
 (leaf dashboard :ensure t :require t
-  :config (dashboard-setup-startup-hook)
+  :config
+  (dashboard-setup-startup-hook)
+  (set-leader-map "fd" (lambda () (interactive) (switch-to-buffer "*dashboard*")))
   :bind
   (dashboard-mode-map ("n" . dashboard-next-line)
                       ("p" . dashboard-previous-line))
   :custom
   (dashboard-startup-banner . 'logo)
   (dashboard-center-content . t)
-  (dashboard-items . '((bookmarks . 5) (recents . 3)))
+  (dashboard-items . '((bookmarks . 10) (recents . 3)))
   (dashboard-footer-messages . '("Happy Coding!"))
   (initial-buffer-choice . (lambda () (get-buffer-create "*dashboard*"))))
 
