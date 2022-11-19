@@ -537,6 +537,7 @@ ELTS の要素の順序は保たれる。"
 
 (leaf projectile
   :ensure t counsel-projectile
+  :custom (projectile-globally-ignored-directories . nil) ; quick fix for bbatsov/projectile#1777
   :global-minor-mode t
   ;; If :bind-keymap is used, then FlyC complains that
   ;; "Symbol's value as variable is void: projectile-command-map"
