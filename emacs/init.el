@@ -568,7 +568,9 @@ ELTS の要素の順序は保たれる。"
 (leaf eldoc :diminish eldoc-mode :custom (eldoc-idle-delay . 0.2))
 
 (leaf files :custom
-  (backup-directory-alist . `(("." . ,(concat user-emacs-directory ".cache/backup")))))
+  (backup-directory-alist
+   . `((,tramp-file-name-regexp . nil) ; https://www.gnu.org/software/emacs/manual/html_node/tramp/Auto_002dsave-File-Lock-and-Backup.html
+       ("." . ,(concat user-emacs-directory ".cache/backup")))))
 
 ;; auto-revert-mode is enabled on all Git-managed files due to magit-auto-revert-mode
 (leaf autorevert :diminish auto-revert-mode)
