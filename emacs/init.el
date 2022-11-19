@@ -1136,19 +1136,27 @@ _/_: undo      _d_: down        ^ ^
     (all-the-icons-ivy-rich-mode +1))
   (leaf all-the-icons-ibuffer :ensure t :hook ibuffer-mode-hook))
 
-;; フォント設定
-(prog1 "fonts"
-  (defconst source-code-pro "Source Han Code JP-13")
-  (defcustom default-font-name source-code-pro "Default font name."
-    :type 'string :group 'init)
-  (defun set-font (&optional new-default)
-    "フォントを `default-font-name' に設定する。
+(prog1 "フォント"
+  (defcustom default-face-family "Source Han Code JP"
+    "`default' フェイスのファミリ。" :type 'string :group 'init)
+  (defcustom default-face-height 110
+    "`default' フェイスの高さ。" :type 'number :group 'init)
+  (custom-set-faces
+   `(default ((t (:family ,default-face-family :height ,default-face-height))))
+   '(variable-pitch ((t (:family "Noto Sans JP"))))))
 
-NEW-DEFAULT が非 nil のときは、現在のセッションに限りこれを新たなデフォルトとする。"
-    (interactive (list (read-string "font: " default-font-name)))
-    (when new-default (customize-set-variable 'default-font-name new-default))
-    (set-frame-font default-font-name nil t))
-  (add-init-hook #'set-font))
+(prog1 "文字サイズ変更用の関数 (Emacs 29 で追加予定のものの簡易版)"
+  (defun default-face-font-height () (face-attribute 'default :height))
+  (defun global-text-scale-increment ()
+    (interactive)
+    (set-face-attribute 'default nil
+     :height (+ (default-face-font-height) 5)))
+  (defun global-text-scale-decrement ()
+    (interactive)
+    (set-face-attribute 'default nil
+     :height (- (default-face-font-height) 5)))
+  (global-set-key (kbd "C-M-+") #'global-text-scale-increment)
+  (global-set-key (kbd "C-M--") #'global-text-scale-decrement))
 
 (leaf frame
   :custom
