@@ -711,7 +711,6 @@ _s_, _<tab>_: show    _U_: unstage all    _c_: commit
     :custom (company-posframe-quickhelp-delay . nil)
     :diminish company-posframe-mode))
 
-;; Emoji ✨
 (leaf emojify :ensure t :global-minor-mode 'global-emojify-mode
   :custom
   (emojify-display-style . 'image)
