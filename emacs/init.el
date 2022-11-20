@@ -557,14 +557,11 @@ ELTS の要素の順序は保たれる。"
     (projectile-ripgrep (s-join "|" projectile-rg-todo-regex-list) t))
   (define-key projectile-command-map (kbd "st") #'projectile-rg-todo-keywords))
 
-(leaf cus-start
-  :custom
-  (scroll-conservatively . 1) ; C-n, C-p でポイントが画面外に出たとき一行だけスクロール
+(leaf *scroll :custom
+  (scroll-conservatively . 1)           ; C-n, C-p でポイントが画面外に出たとき一行だけスクロール
   (scroll-preserve-screen-position . t) ; C-v, M-v でポイントのウィンドウ内相対位置を変えない
+  (mouse-wheel-progressive-speed . nil) ; 目で追いやすくするために、マウススクロールを遅く保つ
   )
-
-;; 目で追いやすくするために、マウススクロールを遅く保つ
-(leaf mwheel :custom (mouse-wheel-progressive-speed . nil))
 
 (leaf minimap :ensure t :require t
   :custom (minimap-window-location . 'right)
