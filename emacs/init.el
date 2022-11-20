@@ -1230,11 +1230,11 @@ _/_: undo      _d_: down        ^ ^
         doom-moonlight
         spacemacs-light
         ))
-    (defun switch-theme (theme)
+    (defun switch-theme (theme &optional no-confirm)
       "`favorite-themes' からテーマを選択して切り替える。"
       (interactive (list (intern (completing-read "Theme: " favorite-themes))))
       (mapc #'disable-theme custom-enabled-themes)
-      (load-theme theme))
+      (load-theme theme no-confirm))
     (defun toggle-theme ()
       "ライトテーマとダークテーマを切り替える。"
       (interactive)
@@ -1246,7 +1246,7 @@ _/_: undo      _d_: down        ^ ^
     (defun in-light-theme ()
       "現在、ライトテーマが設定されている。"
       (eq (car custom-enabled-themes) default-light-theme)))
-  (customize-set-variable 'custom-enabled-themes (list default-dark-theme)))
+  (switch-theme default-dark-theme t))
 
 (leaf *mode-line
   ;; https://ayatakesi.github.io/emacs/28.1/html/Optional-Mode-Line.html#Optional-Mode-Line
