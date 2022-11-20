@@ -1281,7 +1281,18 @@ _/_: undo      _d_: down        ^ ^
   (dashboard-footer-messages . '("Happy Coding!"))
   (initial-buffer-choice . (lambda () (get-buffer-create "*dashboard*"))))
 
-(put 'narrow-to-region 'disabled nil)
+(prog1 "いくつかの関数の 'disabled プロパティを `nil' にする。"
+  (put 'narrow-to-region 'disabled nil)
+  (put 'list-timers 'disabled nil)
+  (put 'list-threads 'disabled nil)
+  (put 'dired-find-alternate-file 'disabled nil)
+  (put 'LaTeX-narrow-to-environment 'disabled nil)
+  (defun disabled-function-list ()
+    (let* ((disabled-syms . nil)
+           (filt (lambda (sym)
+                   (when (get sym 'disabled) (add-to-list 'disabled-syms sym)))))
+      (mapatoms filt)
+      disabled-syms)))
 
 (provide 'init)
 
