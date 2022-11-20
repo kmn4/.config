@@ -111,6 +111,23 @@
 	     " -p " project
 	     " -m " (bloop--select-main-class)))))
 
+(defun enclosed-filename-linum-pair ()
+  (save-excursion
+    (beginning-of-line)
+    (search-forward-regexp "(\\(.*\.scala\\):\\([[:digit:]]+\\)" (forward-line-point))
+    (cons (buffer-substring (match-beginning 1) (match-end 1))
+          (string-to-number
+           (buffer-substring (match-beginning 2) (match-end 2))))
+    ))
+
+;;;###autoload
+(defun bloop-find-file-other-window ()
+  (interactive)
+  (let* ((fname-line (enclosed-filename-linum-pair))
+         (filepath (projectile-completing-read "Find file: " (projectile-project-files (projectile-acquire-root)) :initial-input (car fname-line))))
+    (find-file-other-window filepath)
+    (goto-line (cdr fname-line))))
+
 (provide 'bloop)
 ;;; bloop.el ends here
 
