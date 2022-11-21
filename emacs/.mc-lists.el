@@ -3,12 +3,15 @@
 
 (setq mc/cmds-to-run-for-all
       '(
+        LaTeX-insert-left-brace
+        TeX-insert-backslash
         TeX-insert-sub-or-superscript
-        forward-sexp
         backward-sexp
         backward-up-list
         delete-horizontal-space
         down-list
+        forward-sexp
+        kill-region
         kill-sexp
         mark-sexp
         markdown-outdent-or-delete
