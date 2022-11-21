@@ -994,7 +994,7 @@ _/_: undo      _d_: down        ^ ^
            ("C-c RET" . bloop-do-runMain)
            ("C-c C-t" . bloop-do-testOnly)
            ("C-c C-k" . bloop-call-compile))
-    (comint-mode ("C-c j" . bloop-find-file-other-window)))
+    (comint-mode-map ("C-c j" . bloop-find-file-other-window)))
   (leaf bloop-metals :after bloop lsp-metals
     :commands bloop-metals-query-analyze-stacktrace
     :bind (comint-mode-map ("C-c a" . bloop-metals-query-analyze-stacktrace)))
