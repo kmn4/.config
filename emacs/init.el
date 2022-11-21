@@ -46,11 +46,6 @@
   ;; 独自のキーマップ。Spacemacs のスペースキーにバインドされたマップみたいに使う。
   (defconst leader-map (make-sparse-keymap) "My keymap.")
 
-  ;; leaf の :bind で leader-map を設定しようして
-  ;;   (leaf NAME :bind (:leader-map BIND...))
-  ;; のように書くと、leaf は leader-map が NAME というパッケージに定義されていると想定して
-  ;; 展開する。しかし実際には独自のキーマップであるため、期待と異なる挙動を示す。
-  ;; そのため、leader-map の設定には次の関数を使うことにする。
   (defun set-leader-map (key def &rest bindings)
     "Add KEY and DEF to my keymap.
 
@@ -347,14 +342,14 @@ DOCSTRING は必須。これがないと意図通りに展開されない。"
            windows)))
 
 (leaf imenu-list :ensure t
+  :bind (leader-map :package init ("ti" . imenu-list-toggle))
   :init
   (defun imenu-list-toggle ()
     (interactive)
     (save-selected-window
       (if-let ((window (major-mode-window 'imenu-list-major-mode)))
           (delete-window window)
-        (imenu-list))))
-  (set-leader-map "ti" #'imenu-list-toggle))
+        (imenu-list)))))
 
 ;; `view-lossage' 用に保存されるキーの個数を増やす
 (leaf help :config (lossage-size 1000))
@@ -363,7 +358,9 @@ DOCSTRING は必須。これがないと意図通りに展開されない。"
                   ("B" . button-describe)))
 
 (leaf elisp-mode :bind (emacs-lisp-mode-map ("C-c x" . emacs-lisp-macroexpand)))
-(leaf macrostep :ensure t :bind (emacs-lisp-mode-map ("C-c e" . macrostep-expand)))
+(leaf macrostep :ensure t
+  :bind (emacs-lisp-mode-map :package init ("C-c e" . macrostep-expand)))
+(leaf simple :custom (eval-expression-print-length . nil))
 
 ;; 以下は "NOT part of Emacs" なパッケージも使う
 
@@ -442,8 +439,8 @@ ELTS の要素の順序は保たれる。"
 
 (leaf xdg :when *unix? :require t
   :defun xdg-user-dir xdg-data-home
+  :bind (leader-map :package init ("jd" . ivy-find-xdg-user-dirs))
   :config
-  (set-leader-map "jd" #'ivy-find-xdg-user-dirs)
   ;; Documents, Downloads, Desktop をすぐに開けるようにする
   (defvar xdg-user-dirs-of-interest
     (mapcar (-compose (lambda (s) (s-concat s "/")) #'xdg-user-dir)
@@ -566,7 +563,7 @@ ELTS の要素の順序は保たれる。"
 
 (leaf minimap :ensure t :require t
   :custom (minimap-window-location . 'right)
-  :config (set-leader-map "tM" #'minimap-mode))
+  :bind (leader-map :package init ("tM" . minimap-mode)))
 
 (leaf undo-tree :ensure t :global-minor-mode global-undo-tree-mode
   :diminish undo-tree-mode
@@ -610,7 +607,7 @@ ELTS の要素の順序は保たれる。"
 (leaf winner :config (winner-mode +1))
 
 (leaf *window :after winum winner
-  :config (set-leader-map "ww" #'hydra-window/body)
+  :bind (leader-map :package init ("ww" . hydra-window/body))
   :hydra
   (hydra-window
    (:hint nil)
@@ -642,7 +639,7 @@ _h_ --^ ^-- _l_    _H_ --^ ^-- _L_    _b_alance
 (leaf which-key :ensure t :global-minor-mode t :diminish which-key-mode)
 
 (leaf *git
-  :config
+  :init
   (leaf magit :ensure t :require t)
   (leaf git-gutter+ :ensure t :global-minor-mode global-git-gutter+-mode
     :diminish git-gutter+-mode
@@ -655,7 +652,7 @@ _h_ --^ ^-- _l_    _H_ --^ ^-- _L_    _b_alance
       ;;       試行される場合がある。エラーメッセージがエコーエリアに出てしまうので上手く回避したい。
       (in-all-buffers-where (-const git-gutter+-mode) (git-gutter+-refresh))))
   (leaf git-modes :ensure t)
-  (set-leader-map "g" #'hydra-git/body)
+  :bind (leader-map :package init ("g" . hydra-git/body))
   :hydra (hydra-git
           (:hint nil)
           "
@@ -681,8 +678,8 @@ _s_, _<tab>_: show    _U_: unstage all    _c_: commit
 
 (leaf dockerfile-mode :ensure t)
 (leaf docker :ensure t :when (executable-find "docker")
-  :custom (docker-run-async-with-buffer-function . 'docker-run-async-with-buffer-vterm)
-  :config (set-leader-map "d" #'docker))
+  :bind (leader-map :package init ("d" . docker))
+  :custom (docker-run-async-with-buffer-function . 'docker-run-async-with-buffer-vterm))
 (leaf counsel-tramp :ensure t) ; Docker コンテナを簡単に選択
 
 (leaf yaml-mode :ensure t)
@@ -720,12 +717,11 @@ _s_, _<tab>_: show    _U_: unstage all    _c_: commit
     :diminish company-posframe-mode))
 
 (leaf emojify :ensure t :global-minor-mode 'global-emojify-mode
+  :bind (leader-map :package init ("ie" . emojify-insert-emoji))
   :custom
   (emojify-display-style . 'image)
   (emojify-download-emojis-p . t)
-  (emojify-emoji-styles . '(unicode))
-  :config
-  (set-leader-map "ie" #'emojify-insert-emoji))
+  (emojify-emoji-styles . '(unicode)))
 
 (leaf smartparens :ensure t
   :require t smartparens-config
@@ -754,7 +750,11 @@ _/_: undo      _d_: down        ^ ^
 
           ("k" sp-kill-sexp)
           ("y" yank))
-  :config (set-leader-map "pr" #'sp-rewrap-sexp "pu" #'sp-unwrap-sexp "pp" #'hydra-parens/body))
+  :bind (leader-map
+         :package init
+         ("pr" . sp-rewrap-sexp)
+         ("pu" . sp-unwrap-sexp)
+         ("pp" . hydra-parens/body)))
 
 (leaf multiple-cursors :ensure t
   :bind
@@ -771,10 +771,10 @@ _/_: undo      _d_: down        ^ ^
   (grugru-default-setup))
 
 (leaf expand-region :ensure t
+  :bind (leader-map :package init ("x" . er/expand-region))
   :custom
   (expand-region-contract-fast-key . "c")
-  (expand-region-show-usage-message . nil)
-  :config (set-leader-map "x" #'er/expand-region))
+  (expand-region-show-usage-message . nil))
 
 ;;;; 外部ツールインテグレーション
 
@@ -858,8 +858,8 @@ _/_: undo      _d_: down        ^ ^
     :require t
     :defvar swiper-migemo-enable-command
     :defun global-swiper-migemo-mode
+    :bind (leader-map :package init ("sm" . global-swiper-migemo-mode))
     :config
-    (set-leader-map "sm" #'global-swiper-migemo-mode)
     (add-to-list 'swiper-migemo-enable-command 'counsel-recentf)
     (add-to-list 'swiper-migemo-enable-command 'counsel-rg))
   ;; :custom だと `*ubuntu?' が定義されていないと FlyC に言われる
@@ -904,7 +904,7 @@ _/_: undo      _d_: down        ^ ^
 
 (leaf flycheck :ensure t :hook prog-mode-hook LaTeX-mode-hook
   :defun flycheck-list-errors
-  :config (set-leader-map "e" #'hydra-flycheck/body)
+  :bind (leader-map :package init ("e" . hydra-flycheck/body))
   :custom
   (flycheck-display-errors-delay . 0)  ; HACK: あえて即表示させると ElDoc が上書きできる
   (flycheck-disabled-checkers . '(scala))
@@ -1132,7 +1132,7 @@ _/_: undo      _d_: down        ^ ^
   (treemacs-mode-map
    ("k" . #'treemacs-previous-line)
    ("j" . #'treemacs-next-line))
-  :config (set-leader-map "0" #'treemacs))
+  (leader-map :package init ("0" . treemacs)))
 
 (leaf all-the-icons :ensure t
   :config
@@ -1180,7 +1180,7 @@ _/_: undo      _d_: down        ^ ^
   (default-frame-alist . '((fullscreen . maximized)))
   (menu-bar-mode . nil)
   (tool-bar-mode . nil)
-  :config (set-leader-map "tm" #'menu-bar-mode))
+  :bind (leader-map :package init ("tm" . menu-bar-mode)))
 
 (leaf centaur-tabs :ensure t :global-minor-mode centaur-tabs-mode
   :defun centaur-tabs-headline-match
@@ -1188,15 +1188,13 @@ _/_: undo      _d_: down        ^ ^
   (centaur-tabs-mode-map
    ("C-<next>" . centaur-tabs-forward)
    ("C-<prior>" . centaur-tabs-backward))
+  (leader-map :package init ("tt" . centaur-tabs-mode))
   :hook
   ((imenu-list-major-mode-hook) . centaur-tabs-local-mode)
   :custom
   (centaur-tabs-set-icons . t)
   (centaur-tabs-set-modified-marker . t)
-  :config
-  (set-leader-map "tt" #'centaur-tabs-mode)
-  :defer-config
-  (centaur-tabs-headline-match))
+  :defer-config (centaur-tabs-headline-match))
 
 (leaf rainbow-delimiters :ensure t :hook prog-mode-hook TeX-mode-hook)
 (leaf highlight-thing :ensure t :hook (prog-mode-hook . highlight-thing-mode)
@@ -1265,10 +1263,12 @@ _/_: undo      _d_: down        ^ ^
 (leaf dashboard :ensure t :require t
   :config
   (dashboard-setup-startup-hook)
-  (set-leader-map "fd" (lambda () (interactive) (switch-to-buffer "*dashboard*")))
   :bind
   (dashboard-mode-map ("n" . dashboard-next-line)
                       ("p" . dashboard-previous-line))
+  (leader-map
+   :package init
+   ("fd" . (lambda () (interactive) (switch-to-buffer "*dashboard*"))))
   :custom
   (dashboard-startup-banner . 'logo)
   (dashboard-center-content . t)
