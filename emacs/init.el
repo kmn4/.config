@@ -684,7 +684,6 @@ _s_, _<tab>_: show    _U_: unstage all    _c_: commit
 (leaf docker :ensure t :when (executable-find "docker")
   :custom (docker-run-async-with-buffer-function . 'docker-run-async-with-buffer-vterm)
   :config (set-leader-map "d" #'docker))
-(leaf docker-tramp :ensure t)  ; コンテナ内のファイルを Emacs で編集
 (leaf counsel-tramp :ensure t) ; Docker コンテナを簡単に選択
 
 (leaf yaml-mode :ensure t)
