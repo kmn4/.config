@@ -362,6 +362,7 @@ DOCSTRING は必須。これがないと意図通りに展開されない。"
                   ("B" . button-describe)))
 
 (leaf elisp-mode :bind (emacs-lisp-mode-map ("C-c x" . emacs-lisp-macroexpand)))
+(leaf macrostep :ensure t :bind (emacs-lisp-mode-map ("C-c e" . macrostep-expand)))
 
 ;; 以下は "NOT part of Emacs" なパッケージも使う
 
