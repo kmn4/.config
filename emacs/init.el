@@ -6,15 +6,15 @@
 
 ;; init.el は GitHub を使って複数の環境から取得・更新するので、
 ;; 公開したくない情報や環境特有の設定はカスタマイズ変数にして別ファイルに追い出す。
-(eval-and-compile
+(prog1 "カスタムファイルを設定"
   (setq custom-file (locate-user-emacs-file "emacs-custom-settings.el"))
   (unless (file-exists-p custom-file) (with-temp-buffer (write-file custom-file)))
   (load custom-file))
 
 ;;;; load-path と leaf.
 
-(eval-and-compile
-  (let* ((default-directory (concat user-emacs-directory "site-lisp/")))
+(prog1 "site-lisp/ 以下をロードパスに追加"
+  (let ((default-directory (concat user-emacs-directory "site-lisp/")))
     (unless (file-exists-p default-directory)
       (make-directory default-directory))
     (add-to-list 'load-path default-directory)
@@ -35,7 +35,7 @@
 ;; init.el に問題があってすべてを読み込めないときでも
 ;; ある程度バインドされていたほうが便利なので初めに設定してしまう。
 
-(eval-and-compile
+(prog1 "キーマップ"
   ;; 主に macOS で円記号をバックスラッシュに読み替える．
   ;; 出典: https://tsuu32.hatenablog.com/entry/2019/08/27/122459
   (define-key local-function-key-map (kbd "¥") (kbd "\\"))
@@ -107,10 +107,12 @@ BINDINGS should be of the form [KEY DEF]..."
    ;; mizc
    "M-w" #'win-clip))
 
-(eval-and-compile
-  (leaf dash :ensure t :require t)
-  (leaf s :ensure t :require t)
-  (leaf f :ensure t :require t))
+(leaf dash :ensure t)
+(leaf s :ensure t)
+(leaf f :ensure t)
+(require 'dash)
+(require 's)
+(require 'f)
 
 ;;;; Emacs や基本的なライブラリにしか依存しない関数など
 
@@ -345,7 +347,6 @@ DOCSTRING は必須。これがないと意図通りに展開されない。"
            windows)))
 
 (leaf imenu-list :ensure t
-  :defun imenu-list-toggle
   :init
   (defun imenu-list-toggle ()
     (interactive)
@@ -440,7 +441,7 @@ ELTS の要素の順序は保たれる。"
   (mapc (lambda (elt) (push elt (symbol-value list-var))) (seq-reverse elts)))
 
 (leaf xdg :when *unix? :require t
-  :defun ivy-find-xdg-user-dirs xdg-user-dir xdg-data-home
+  :defun xdg-user-dir xdg-data-home
   :config
   (set-leader-map "jd" #'ivy-find-xdg-user-dirs)
   ;; Documents, Downloads, Desktop をすぐに開けるようにする
@@ -461,7 +462,6 @@ ELTS の要素の順序は保たれる。"
   image-dired--with-marked
   image-dired-thumb-update-marks
   image-dired-mark-thumb-original-file
-  image-dired-thumbnail-num-marked
   :bind
   (image-dired-thumbnail-mode-map
    ("n" . image-dired-next-line)
@@ -610,7 +610,6 @@ ELTS の要素の順序は保たれる。"
 (leaf winner :config (winner-mode +1))
 
 (leaf *window :after winum winner
-  :defun hydra-window/body
   :config (set-leader-map "ww" #'hydra-window/body)
   :hydra
   (hydra-window
@@ -643,7 +642,6 @@ _h_ --^ ^-- _l_    _H_ --^ ^-- _L_    _b_alance
 (leaf which-key :ensure t :global-minor-mode t :diminish which-key-mode)
 
 (leaf *git
-  :defun hydra-git/body
   :config
   (leaf magit :ensure t :require t)
   (leaf git-gutter+ :ensure t :global-minor-mode global-git-gutter+-mode
@@ -733,7 +731,7 @@ _s_, _<tab>_: show    _U_: unstage all    _c_: commit
   :require t smartparens-config
   :hook prog-mode-hook TeX-mode-hook
   :diminish smartparens-mode
-  :defun sp-rewrap-sexp sp-unwrap-sexp hydra-parens/body
+  :defun sp-rewrap-sexp sp-unwrap-sexp
   :hydra (hydra-parens
           (:hint nil)
           "
@@ -905,7 +903,7 @@ _/_: undo      _d_: down        ^ ^
 (leaf indent :custom (indent-tabs-mode . nil))
 
 (leaf flycheck :ensure t :hook prog-mode-hook LaTeX-mode-hook
-  :defun flycheck-list-errors hydra-flycheck/body
+  :defun flycheck-list-errors
   :config (set-leader-map "e" #'hydra-flycheck/body)
   :custom
   (flycheck-display-errors-delay . 0)  ; HACK: あえて即表示させると ElDoc が上書きできる
@@ -930,7 +928,6 @@ _/_: undo      _d_: down        ^ ^
   :ensure lsp-mode lsp-ui
   :defun lsp-format-buffer
   :custom
-  `(lsp-keymap-prefix . ,(concat leader-key " l"))
   (lsp-idle-delay . 0.2)
   (lsp-auto-execute-action . nil)
   (lsp-modeline-code-actions-segments . '(count icon name))
@@ -942,8 +939,9 @@ _/_: undo      _d_: down        ^ ^
   (gc-cons-threshold . 100000000)               ; 100 MB
   `(read-process-output-max . ,(* 4 1024 1024)) ; 4 MiB
   :init
-  ;; 参考: https://github.com/ncaq/.emacs.d/blob/f1612eeb346974254e893c091901c987003d5e53/init.el#L971-L973
-  (eval-and-compile
+  (customize-set-variable 'lsp-keymap-prefix (concat leader-key " l"))
+  (prog1 "lsp-mode バッファ保存時の自動フォーマット"
+    ;; 参考: https://github.com/ncaq/.emacs.d/blob/f1612eeb346974254e893c091901c987003d5e53/init.el#L971-L973
     (defvar lsp-format-before-save t "LSPモードが入っているバッファを保存するときにフォーマットするかどうか。")
     (defun lsp-toggle-format-before-save ()
       "`lsp-format-before-save' をトグルする。"
@@ -962,13 +960,12 @@ _/_: undo      _d_: down        ^ ^
   ;; ただし少しだけファイルを開きたいときにいちいち LSP サーバが起動すると鬱陶しいので、
   ;; LSP を使いたいプロジェクトでは初めに明示的に `lsp' を呼び出す。
   ;; 参考: https://github.com/kurnevsky/dotfiles/blob/c0049a655a502cd81f1aba7321ff65d178a557c9/.emacs.d/init.el#L1231-L1237
-  (eval-and-compile
-    (defun lsp-hook-activation-in-activated-workspace (hook server-id)
-      (add-hook hook
-       `(lambda ()
-          (when (and (functionp 'lsp-find-workspace)
-                     (lsp-find-workspace (quote ,server-id) (buffer-file-name)))
-            (lsp))))))
+  (defun lsp-hook-activation-in-activated-workspace (hook server-id)
+    (add-hook hook
+              `(lambda ()
+                 (when (and (functionp 'lsp-find-workspace)
+                            (lsp-find-workspace (quote ,server-id) (buffer-file-name)))
+                   (lsp)))))
   :config
   (leaf lsp-lens :diminish lsp-lens-mode)
   (leaf lsp-ivy :ensure t
@@ -1223,31 +1220,30 @@ _/_: undo      _d_: down        ^ ^
   (doom-themes-enable-bold . t)
   (doom-themes-enable-italic . t)
   :config
-  (eval-and-compile
-    (defvar favorite-themes
-      '(
-        shades-of-purple
-        doom-dark+
-        vscode-dark-plus
-        doom-moonlight
-        spacemacs-light
-        ))
-    (defun switch-theme (theme &optional no-confirm)
-      "`favorite-themes' からテーマを選択して切り替える。"
-      (interactive (list (intern (completing-read "Theme: " favorite-themes))))
-      (mapc #'disable-theme custom-enabled-themes)
-      (load-theme theme no-confirm))
-    (defun toggle-theme ()
-      "ライトテーマとダークテーマを切り替える。"
-      (interactive)
-      (switch-theme (if (in-light-theme) default-dark-theme default-light-theme)))
-    (defcustom default-light-theme 'spacemacs-light "デフォルトのライトテーマ"
-      :type 'symbol :group 'init)
-    (defcustom default-dark-theme 'shades-of-purple "デフォルトのダークテーマ"
-      :type 'symbol :group 'init)
-    (defun in-light-theme ()
-      "現在、ライトテーマが設定されている。"
-      (eq (car custom-enabled-themes) default-light-theme)))
+  (defvar favorite-themes
+    '(
+      shades-of-purple
+      doom-dark+
+      vscode-dark-plus
+      doom-moonlight
+      spacemacs-light
+      ))
+  (defun switch-theme (theme &optional no-confirm)
+    "`favorite-themes' からテーマを選択して切り替える。"
+    (interactive (list (intern (completing-read "Theme: " favorite-themes))))
+    (mapc #'disable-theme custom-enabled-themes)
+    (load-theme theme no-confirm))
+  (defun toggle-theme ()
+    "ライトテーマとダークテーマを切り替える。"
+    (interactive)
+    (switch-theme (if (in-light-theme) default-dark-theme default-light-theme)))
+  (defcustom default-light-theme 'spacemacs-light "デフォルトのライトテーマ"
+    :type 'symbol :group 'init)
+  (defcustom default-dark-theme 'shades-of-purple "デフォルトのダークテーマ"
+    :type 'symbol :group 'init)
+  (defun in-light-theme ()
+    "現在、ライトテーマが設定されている。"
+    (eq (car custom-enabled-themes) default-light-theme))
   (switch-theme default-dark-theme t))
 
 (leaf *mode-line
