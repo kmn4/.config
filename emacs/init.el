@@ -390,12 +390,14 @@ DOCSTRING は必須。これがないと意図通りに展開されない。"
   (declare (indent 1))
   ;; 一時バッファにメッセージバッファの内容を退避し、後で復元する
   `(with-temp-buffer
-     (let ((tmp-buf (current-buffer))
-           (msg-buf (messages-buffer)))
-       (buffer-swap-text msg-buf)
+     (let ((tmp-buf (current-buffer)))
+       (buffer-swap-text (messages-buffer))
+       (switch-to-buffer (messages-buffer))
        (unwind-protect (let ((message-log-max t)) ,@form)
-         (buffer-swap-text msg-buf)
-         (write-file ,file)))))
+         ;; write new messages to file and take old message back to msg-buf
+         (write-file ,file)
+         (switch-to-buffer (messages-buffer))
+         (buffer-swap-text tmp-buf)))))
 
 (defcustom paradox-upgrade-log-directory (concat user-emacs-directory "paradox-logs/")
   "`paradox-upgrade-packages-with-logging' のログの保存先"
@@ -411,8 +413,7 @@ DOCSTRING は必須。これがないと意図通りに展開されない。"
   (let ((start-time-string (format-time-string "%Y%m%dT%H%M%S")))
     (with-logging-messages
         (concat paradox-upgrade-log-directory start-time-string "_messages.log")
-      (paradox-upgrade-packages)
-      (with-current-buffer (messages-buffer)))
+      (paradox-upgrade-packages))
     (with-current-buffer "*Paradox Report*"
       (write-file
        (concat paradox-upgrade-log-directory start-time-string "_report.log")))))
