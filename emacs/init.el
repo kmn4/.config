@@ -221,29 +221,27 @@ BINDINGS should be of the form [KEY DEF]..."
   "BUF のメジャーモードを返す。"
   (with-current-buffer buf major-mode))
 
-(defun duplicate-line-stay ()
-  "カーソルのある行を下に複製する。カーソルは動かさない。"
-  (interactive)
-  ;; save-excursion だとなぜか行頭に移動してしまう
-  (let ((pos (point)))
-    (kill-whole-line) (yank) (yank)
-    (goto-char pos)))
-
-(defun forward-line-same-col (&optional n)
-  "次の行の同じ列にカーソルを移動する。
-オプション引数 N が与えられた時は N 行先に移動する。"
-  (let ((col (current-column)))
-    (forward-line n)
-    (move-to-column col)))
-
-(defun duplicate-line-down ()
-  "カーソルのある行を下に複製し、カーソルを下へ移動する。"
-  (interactive)
-  (duplicate-line-stay)
-  (forward-line-same-col +1))
-
-(global-set-key (kbd "M-S-<down>") #'duplicate-line-down)
-(global-set-key (kbd "M-S-<up>") #'duplicate-line-stay)
+(leaf duplicate-line :el-get manateelazycat/duplicate-line
+  :require t
+  :defun
+  duplicate-line-or-region-above
+  duplicate-line-or-region-below
+  duplicate-line-above-comment
+  duplicate-line-below-comment
+  :bind
+  ("M-S-<up>" . duplicate-line-above)
+  ("M-S-<down>" . duplicate-line-below)
+  :init
+  (defun duplicate-line-above (comment)
+    (interactive "P")
+    (if comment
+        (duplicate-line-above-comment)
+      (duplicate-line-or-region-above)))
+  (defun duplicate-line-below (comment)
+    (interactive "P")
+    (if comment
+        (duplicate-line-below-comment)
+      (duplicate-line-or-region-below))))
 
 ;; `add-to-list' と grugru したい
 (defun delete-from-list (list-var element)
