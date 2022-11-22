@@ -1,4 +1,4 @@
-;;; init.el --- Emacs initialization script
+;;; init.el --- Emacs initialization script  -*- lexical-binding: t; -*-
 
 ;;; Commentary:
 
@@ -950,7 +950,7 @@ _/_: undo      _d_: down        ^ ^
       (setq lsp-format-before-save (null lsp-format-before-save)))
     (defun lsp-format-buffer-no-error ()
       ;; エラーを握りつぶす
-      (condition-case err (lsp-format-buffer)
+      (condition-case _ (lsp-format-buffer)
         (lsp-capability-not-supported nil)))
     (defun lsp-format-before-save ()
       "LSPモードが有効かつ `lsp-format-before-save' が非 nil なら、`lsp-format-buffer' を呼び出す。"
@@ -1096,14 +1096,12 @@ _/_: undo      _d_: down        ^ ^
   (satysfi-mode-hook . (lambda () (indent-tabs-mode -1)))
   (satysfi-mode-hook . (lambda () (display-line-numbers-mode +1)))
   :config
-  (eval-and-compile
-    (defun satysfi-find-pdf-other-window ()
-      "Visit PDF for visiting SATySFi source in other window."
-      (interactive)
-      (let ((pdf-name (s-replace-regexp "\\.saty$" ".pdf" (buffer-file-name))))
-        (let ((buf (current-buffer)))
-          (find-file-other-window pdf-name))))
-    (defalias 'satysfi-mode/open-pdf #'satysfi-find-pdf-other-window)))
+  (defun satysfi-find-pdf-other-window ()
+    "Visit PDF for visiting SATySFi source in other window."
+    (interactive)
+    (let ((pdf-name (s-replace-regexp "\\.saty$" ".pdf" (buffer-file-name))))
+      (find-file-other-window pdf-name)))
+  (defalias 'satysfi-mode/open-pdf #'satysfi-find-pdf-other-window))
 
 ;; Org
 
