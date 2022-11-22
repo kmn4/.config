@@ -454,12 +454,15 @@ ELTS の要素の順序は保たれる。"
 
 (leaf image-dired
   :defun
+  ;; defined in image-dired
   image-dired-track-original-file
   image-dired-thumbnail-display-external
   image-dired-associated-dired-buffer
   image-dired--with-marked
   image-dired-thumb-update-marks
   image-dired-mark-thumb-original-file
+  ;; defined within this block
+  image-dired-thumbnail-num-marked
   :bind
   (image-dired-thumbnail-mode-map
    ("n" . image-dired-next-line)
@@ -927,7 +930,12 @@ _/_: undo      _d_: down        ^ ^
 
 (leaf lsp
   :ensure lsp-mode lsp-ui
-  :defun lsp-format-buffer
+  :defun
+  lsp-format-buffer ; defined in lsp-mode
+  ;; defined within this block
+  lsp-format-buffer-no-error
+  lsp-format-before-save
+  lsp-hook-activation-in-activated-workspace
   :custom
   (lsp-idle-delay . 0.2)
   (lsp-auto-execute-action . nil)
@@ -1091,6 +1099,7 @@ _/_: undo      _d_: down        ^ ^
 (leaf satysfi :when (executable-find "satysfi")
   :el-get gfngfn/satysfi.el :require t
   :mode (("\\.saty$" "\\.satyh$" "\\.satyg$") . satysfi-mode)
+  :defun satysfi-find-pdf-other-window ; defined within this block
   :hook
   (satysfi-mode-hook . (lambda () (indent-tabs-mode -1)))
   (satysfi-mode-hook . (lambda () (display-line-numbers-mode +1)))
@@ -1214,7 +1223,12 @@ _/_: undo      _d_: down        ^ ^
 
 (leaf *theme
   :ensure vscode-dark-plus-theme spacemacs-theme doom-themes shades-of-purple-theme
-  :defvar doom-themes-enable-bold doom-themes-enable-italic
+  :defvar
+  ;; defined in ensured packages
+  doom-themes-enable-bold doom-themes-enable-italic
+  ;; defined within this block
+  default-dark-theme default-light-theme
+  :defun switch-theme in-light-theme ; defined within this block
   :setq
   (doom-themes-enable-bold . t)
   (doom-themes-enable-italic . t)
