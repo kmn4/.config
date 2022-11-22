@@ -677,6 +677,12 @@ _s_, _<tab>_: show    _U_: unstage all    _c_: commit
           ("R" git-gutter+-refresh-all-buffers "refresh gutter in all buffers" :exit t)))
 
 (leaf rg :ensure t)
+(leaf visual-regexp :ensure t :bind ("C-M-%" . vr/query-replace))
+(leaf color-rg :el-get manateelazycat/color-rg :require t
+  :custom (color-rg-search-no-ignore-file . nil)
+  :bind
+  ("C-c '." . color-rg-search-symbol-in-project)
+  ("C-c ''" . color-rg-search-input-in-project))
 
 (leaf dockerfile-mode :ensure t)
 (leaf docker :ensure t :when (executable-find "docker")
