@@ -877,8 +877,6 @@ _/_: undo      _d_: down        ^ ^
          (*macos?  "/usr/local/share/migemo/utf-8/migemo-dict")
          (t        ""))))
 
-;; PDF
-
 (defun add-init-hook (function)
   (let ((hook (if (daemonp) 'server-after-make-frame-hook 'after-init-hook)))
     (add-hook hook function)))
@@ -889,7 +887,22 @@ _/_: undo      _d_: down        ^ ^
   :init (add-init-hook #'pdf-tools-install)
   :hook (pdf-view-mode-hook . auto-revert-mode))
 
-;; Markdown
+(leaf org
+  :custom
+  (org-adapt-indentation . nil)
+  (org-agenda-span . 'month)
+  (org-export-use-babel . nil)
+  (org-export-with-broken-link . t)
+  :init (defvar org-indent-mode-on-automatically t)
+  :defvar org-indent-mode-on-automatically
+  :defun org-indent-mode
+  :bind
+  (:org-mode-map
+   ("M-p" . org-move-subtree-up)
+   ("M-n" . org-move-subtree-down))
+  :hook
+  (org-mode-hook . (lambda () (when org-indent-mode-on-automatically (org-indent-mode +1))))
+  )
 
 (leaf markdown-mode :when *unix? :ensure t
   :custom
@@ -986,8 +999,6 @@ _/_: undo      _d_: down        ^ ^
     (lsp-command-map
      ("s" . lsp-ivy-workspace-symbol))))
 
-;; Scala
-
 (leaf scala-mode :when (executable-find "scala")
   :config
   (leaf lsp-metals :ensure t
@@ -1012,14 +1023,9 @@ _/_: undo      _d_: down        ^ ^
   (leaf sbt-mode :ensure t :require t
     :custom (sbt:program-name . "sbtn")))
 
-;; SMT-LIB
-
 (leaf smtlib-mode :el-get kmn4/smtlib-mode :require t)
 
-;; CUDA
 (leaf *cuda :mode ("\\.cu$" . c-mode))
-
-;; Rust
 
 (leaf rust-mode :when (executable-find "rustup") :ensure t
   :config
@@ -1030,8 +1036,6 @@ _/_: undo      _d_: down        ^ ^
     (lsp-rust-analyzer-server-command . '("rustup" "run" "stable" "rust-analyzer"))
     (lsp-hook-activation-in-activated-workspace 'rust-mode-hook 'rust-analyzer)))
 
-;; Racket
-
 (leaf racket-mode :when (executable-find "raco")
   :ensure t
   :config
@@ -1039,13 +1043,9 @@ _/_: undo      _d_: down        ^ ^
     :require t
     :hook (racket-mode-hook . racket-xp-mode)))
 
-;; Haskell
-
 (leaf haskell-mode :when (executable-find "ghc")
   :ensure t
   :config (leaf lsp-haskell :ensure t))
-
-;; Web
 
 (leaf web-mode :ensure t :mode ("\\.vue\\'")
   :custom
@@ -1054,8 +1054,6 @@ _/_: undo      _d_: down        ^ ^
   (web-mode-code-indent-offset . 2))
 (leaf js-mode :custom (js-indent-level . 2))
 (leaf css-mode :custom (css-indent-offset . 2))
-
-;; TeX
 
 (leaf latex :when (executable-find "tex")
   :ensure auctex
@@ -1114,27 +1112,6 @@ _/_: undo      _d_: down        ^ ^
     (let ((pdf-name (s-replace-regexp "\\.saty$" ".pdf" (buffer-file-name))))
       (find-file-other-window pdf-name)))
   (defalias 'satysfi-mode/open-pdf #'satysfi-find-pdf-other-window))
-
-;; Org
-
-(leaf org
-  :custom
-  (org-adapt-indentation . nil)
-  (org-agenda-span . 'month)
-  (org-export-use-babel . nil)
-  (org-export-with-broken-link . t)
-  :init (defvar org-indent-mode-on-automatically t)
-  :defvar org-indent-mode-on-automatically
-  :defun org-indent-mode
-  :bind
-  (:org-mode-map
-   ("M-p" . org-move-subtree-up)
-   ("M-n" . org-move-subtree-down))
-  :hook
-  (org-mode-hook . (lambda () (when org-indent-mode-on-automatically (org-indent-mode +1))))
-  )
-
-;; Go
 
 (leaf go-mode :when (executable-find "go") :ensure t)
 
