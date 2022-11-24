@@ -25,11 +25,14 @@
 (defun bloop-find-root ()
   ".bloop/ を含んでいる最も近い祖先を返す。"
   (nearest-directory-containing ".bloop/"))
+(defvar bloop-command-history nil)
+(defvar bloop-main-history nil)
+(defvar bloop-test-history nil)
 
 ;;;###autoload
 (defun bloop-call-compile (command)
   "bloop コマンド COMMAND を `compile' で呼び出す。"
-  (interactive "sbloop: ")
+  (interactive (list (read-from-minibuffer "bloop: " nil nil nil 'bloop-command-history)))
   (let ((default-directory (bloop-find-root)))
     (compile (concat bloop-cli-command-name " " command) t)))
 
@@ -58,7 +61,7 @@
 (defun completing-read-if-multiple (prompt collection)
   (if (length= collection 1)
       (car collection)
-    (completing-read prompt collection)))
+    (completing-read prompt collection nil t)))
 
 (defun bloop-select-main-project ()
   (interactive)
@@ -78,14 +81,16 @@
    "test class: "
    (bloop--command-to-lines
     (concat "autocomplete --mode testsfqcn --format bash --project "
-	    (bloop-select-test-project)))))
+	    (bloop-select-test-project)))
+   nil t nil 'bloop-test-history))
 
 (defun bloop--select-main-class ()
   (completing-read
    "main class: "
    (bloop--command-to-lines
     (concat "autocomplete --mode mainsfqcn --format bash --project "
-	    (bloop-select-main-project)))))
+	    (bloop-select-main-project)))
+   nil t nil 'bloop-main-history))
 
 ;;;###autoload
 (defun bloop-do-compile ()
