@@ -7,24 +7,16 @@
 (require 'comint)
 (require 's)
 (require 'seq)
+(require 'project)
 
 (defcustom bloop-cli-command-name "bloop"
   "bloop CLI のコマンド名。"
   :type 'string :group 'bloop)
 
-(defun nearest-directory-containing (file)
-  "FILE を含んでいる直近の祖先を返す。見つからなかったらエラー。"
-  (cl-labels
-      ((root-directory (dir) (equal dir "/"))
-       (search () (cond ((file-exists-p file) default-directory)
-			   ((root-directory default-directory)
-			    (error "%s was not found" file))
-			   (t (cd "..") (search)))))
-    (with-temp-buffer (search))))
-
 (defun bloop-find-root ()
   ".bloop/ を含んでいる最も近い祖先を返す。"
-  (nearest-directory-containing ".bloop/"))
+  (locate-dominating-file default-directory ".bloop/"))
+
 (defvar bloop-command-history nil)
 (defvar bloop-main-history nil)
 (defvar bloop-test-history nil)
@@ -119,19 +111,27 @@
 (defun enclosed-filename-linum-pair ()
   (save-excursion
     (beginning-of-line)
-    (search-forward-regexp "(\\(.*\.scala\\):\\([[:digit:]]+\\)" (forward-line-point))
-    (cons (buffer-substring (match-beginning 1) (match-end 1))
-          (string-to-number
-           (buffer-substring (match-beginning 2) (match-end 2))))
-    ))
+    (let ((line (buffer-substring
+                 (line-beginning-position)
+                 (line-end-position)))
+          (regexp ".*(\\(.*\.scala\\):\\([[:digit:]]+\\))"))
+      (save-match-data
+        (and (string-match regexp line)
+             (cons (match-string 1 line)
+                   (string-to-number (match-string 2 line))))))))
 
 ;;;###autoload
 (defun bloop-find-file-other-window ()
   (interactive)
-  (let* ((fname-line (enclosed-filename-linum-pair))
-         (filepath (projectile-completing-read "Find file: " (projectile-project-files (projectile-acquire-root)) :initial-input (car fname-line))))
-    (find-file-other-window filepath)
-    (goto-line (cdr fname-line))))
+  (if-let* ((fname-line (enclosed-filename-linum-pair))
+            (files (project-files (project-current)))
+            (filepath (completing-read "Find file: " files
+                                       nil t (car fname-line))))
+      (progn
+        (find-file-other-window filepath)
+        (goto-char (point-min))
+        (forward-line (1- (cdr fname-line))))
+    (user-error "No Scala file found on this line.")))
 
 (provide 'bloop)
 ;;; bloop.el ends here
