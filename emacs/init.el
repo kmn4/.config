@@ -250,18 +250,6 @@ BINDINGS should be of the form [KEY DEF]..."
 
 ;; シェルとターミナル
 
-(defcustom terminal-emulator "gnome-terminal" "Terminal enulator."
-  :type 'string :group 'init)
-
-(defun open-shell-here ()
-  "visit 中のファイルが存在するディレクトリでターミナルを開く。"
-  (interactive)
-  (open-shell default-directory))
-
-(defun open-shell (dir)
-  "DIR でシェルを開く。"
-  (just-run-shell-command (s-concat terminal-emulator " " dir)))
-
 (defun just-run-shell-command (command)
   "出力のキャプチャや通信を一切せずに COMMAND を実行する。"
   (call-process-shell-command command nil 0))
@@ -331,6 +319,21 @@ DOCSTRING は必須。これがないと意図通りに展開されない。"
   (cond (*unix? "/dev/null")
         (t nil))
   "/dev/null のようなファイルへのパス。")
+
+(defcustom terminal-emulator
+  (cond (*wsl? "wt.exe nt -d ")
+        (t "gnome-terminal"))
+  "Terminal enulator."
+  :type 'string :group 'init)
+
+(defun open-shell-here ()
+  "visit 中のファイルが存在するディレクトリでターミナルを開く。"
+  (interactive)
+  (open-shell default-directory))
+
+(defun open-shell (dir)
+  "DIR でシェルを開く。"
+  (just-run-shell-command (s-concat terminal-emulator " " dir)))
 
 (defun major-mode-window (mode &optional frame)
   "メジャーモードが MODE であるようなウィンドウが FRAME に存在するならそれを返す。"
