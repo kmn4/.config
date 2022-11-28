@@ -363,6 +363,8 @@ DOCSTRING は必須。これがないと意図通りに展開されない。"
   :bind (emacs-lisp-mode-map :package init ("C-c e" . macrostep-expand)))
 (leaf simple :custom (eval-expression-print-length . nil))
 
+(leaf ibuffer :custom (ibuffer-default-sorting-mode . 'filename/process))
+
 ;; 以下は "NOT part of Emacs" なパッケージも使う
 
 (leaf exec-path-from-shell :when *unix?
