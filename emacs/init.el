@@ -827,6 +827,17 @@ _/_: undo      _d_: down        ^ ^
 
 ;; 言語設定とMigemo
 
+(leaf untitled-new-buffer :ensure t
+  :bind (leader-map
+         :package init
+         ("fn" . *untitled-new-buffer))
+  :init
+  (defun *untitled-new-buffer (arg)
+    (interactive "P")
+    (if arg
+        (call-interactively #'untitled-new-buffer-with-select-major-mode)
+      (untitled-new-buffer))))
+
 (prog1 "言語、文字コード、入力メソッド"
   (set-language-environment "Japanese")
   (prefer-coding-system 'utf-8)
