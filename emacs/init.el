@@ -841,36 +841,18 @@ _/_: undo      _d_: down        ^ ^
 (prog1 "言語、文字コード、入力メソッド"
   (set-language-environment "Japanese")
   (prefer-coding-system 'utf-8)
-  ;; |      | C-\   | <C-henkan> | <c-muhenkan> |
-  ;; |------+-------+------------+--------------|
-  ;; | NoIM | Agda  | Mozc       | NoIM         |
-  ;; | Agda | NoIME | Mozc       | NoIM         |
-  ;; | Mozc | Agda  | Mozc       | NoIM         |
-  (leaf agda-input
-    :el-get (agda-input :url "https://raw.githubusercontent.com/agda/agda/master/src/data/emacs-mode/agda-input.el")
-    :require t
-    :custom (default-input-method . "Agda"))
-  (leaf mozc :when *wsl?
-    :ensure t
-    :defvar mozc-mode-map
-    :custom (mozc-candidate-style . 'echo-area)
+  (leaf ddskk :ensure t
+    :defvar skk-get-jisyo-directory skk-large-jisyo
+    :setq
+    `(skk-get-jisyo-directory
+      . ,(concat user-emacs-directory "skk-get-jisyo"))
+    `(skk-large-jisyo
+      . ,(concat user-emacs-directory "skk-get-jisyo/SKK-JISYO.L"))
     :config
-    (cl-flet* ((im-mozc-on () (interactive) (set-input-method "japanese-mozc"))
-               (im-agda-on () (interactive) (set-input-method "Agda"))
-               (im-off () (interactive) (set-input-method nil))
-               (im-off? () (null current-input-method))
-               (im-mozc? () (equal current-input-method "japanese-mozc"))
-               (im-agda? () (equal current-input-method "Agda"))
-               (im-C-backslash ()
-                               (interactive)
-                               (cond ((im-agda?) (im-off))
-                                     (t (im-agda-on))))
-               (im-C-henkan () (interactive) (im-mozc-on))
-               (im-C-muhenkan () (interactive) (im-off)))
-      (global-set-key (kbd "C-\\") #'im-C-backslash)
-      (define-key mozc-mode-map (kbd "C-\\") #'im-C-backslash)
-      (global-set-key (kbd "<C-henkan>") #'im-C-henkan)
-      (global-set-key (kbd "<C-muhenkan>") #'im-C-muhenkan))))
+    (cl-flet* ((im-skk-on () (interactive) (set-input-method "japanese-skk"))
+               (im-off () (interactive) (set-input-method nil)))
+      (global-set-key (kbd "<C-henkan>") #'im-skk-on)
+      (global-set-key (kbd "<C-muhenkan>") #'im-off))))
 
 (leaf migemo :when (executable-find "cmigemo") :ensure t
   ;; Ubuntu  -- apt install cmigemo
