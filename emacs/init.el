@@ -1182,7 +1182,7 @@ _/_: undo      _d_: down        ^ ^
 (leaf frame
   :custom
   (default-frame-alist . '((fullscreen . maximized)))
-  (menu-bar-mode . nil)
+  `(menu-bar-mode . ,(if (eq system-type 'darwin) t nil))
   (tool-bar-mode . nil)
   :bind (leader-map :package init ("tm" . menu-bar-mode)))
 
