@@ -659,6 +659,7 @@ _h_ --^ ^-- _l_    _H_ --^ ^-- _L_    _b_alance
       ;;       試行される場合がある。エラーメッセージがエコーエリアに出てしまうので上手く回避したい。
       (in-all-buffers-where (-const git-gutter+-mode) (git-gutter+-refresh))))
   (leaf git-modes :ensure t)
+  (leaf git-link :ensure t)
   :bind (leader-map :package init ("g" . hydra-git/body))
   :hydra (hydra-git
           (:hint nil)
