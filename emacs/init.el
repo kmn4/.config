@@ -911,16 +911,7 @@ _/_: undo      _d_: down        ^ ^
   (org-agenda-span . 'month)
   (org-export-use-babel . nil)
   (org-export-with-broken-link . t)
-  :init (defvar org-indent-mode-on-automatically t)
-  :defvar org-indent-mode-on-automatically
-  :defun org-indent-mode
-  :bind
-  (:org-mode-map
-   ("M-p" . org-move-subtree-up)
-   ("M-n" . org-move-subtree-down))
-  :hook
-  (org-mode-hook . (lambda () (when org-indent-mode-on-automatically (org-indent-mode +1))))
-  )
+  :hook (org-mode-hook . org-indent-mode))
 
 (leaf markdown-mode :when *unix? :ensure t
   :custom
