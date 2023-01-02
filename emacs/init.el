@@ -4,6 +4,14 @@
 
 ;;; Code:
 
+(defun report-time (&optional msg)
+  (message "%s\t%s" (format-time-string "%H:%M:%S.%3N") msg))
+(defun advice-leaf-report-time (&rest arg)
+  (report-time (car arg)))
+(advice-add 'leaf :before #'advice-leaf-report-time)
+
+(report-time "init.el 読み込み開始")
+
 ;; init.el は GitHub を使って複数の環境から取得・更新するので、
 ;; 公開したくない情報や環境特有の設定はカスタマイズ変数にして別ファイルに追い出す。
 (prog1 "カスタムファイルを設定"
@@ -1283,6 +1291,9 @@ _/_: undo      _d_: down        ^ ^
                    (when (get sym 'disabled) (add-to-list 'disabled-syms sym)))))
       (mapatoms filt)
       disabled-syms)))
+
+(report-time "init.el 読み込み完了")
+(advice-remove 'leaf #'advice-leaf-report-time)
 
 (provide 'init)
 
