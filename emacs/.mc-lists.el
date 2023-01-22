@@ -3,8 +3,10 @@
 
 (setq mc/cmds-to-run-for-all
       '(
+        LaTeX-babel-insert-hyphen
         LaTeX-insert-left-brace
         TeX-insert-backslash
+        TeX-insert-dollar
         TeX-insert-sub-or-superscript
         backward-sexp
         backward-up-list
@@ -19,6 +21,7 @@
         kill-sexp
         mark-sexp
         markdown-outdent-or-delete
+        org-beginning-of-line
         org-delete-char
         org-end-of-line
         org-force-self-insert

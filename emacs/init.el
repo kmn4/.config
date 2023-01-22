@@ -1082,6 +1082,7 @@ _/_: undo      _d_: down        ^ ^
     :bind (LaTeX-mode-map ("C-c g" . pdf-sync-forward-search)))
   (leaf reftex :diminish t :hook LaTeX-mode-hook
     :custom
+    (reftex-toc-split-windows-fraction . 0.8)
     (reftex-label-alist
      . '(
          ("definition"  ?d  "def:"  "~\\ref{%s}" t (regexp ".*定義") -3)
@@ -1288,6 +1289,10 @@ _/_: undo      _d_: down        ^ ^
                    (when (get sym 'disabled) (add-to-list 'disabled-syms sym)))))
       (mapatoms filt)
       disabled-syms)))
+
+(leaf server
+  :defun server-running-p
+  :config (unless (server-running-p) (server-start)))
 
 (report-time "init.el 読み込み完了")
 (advice-remove 'leaf #'advice-leaf-report-time)
