@@ -19,6 +19,21 @@
   (unless (file-exists-p custom-file) (with-temp-buffer (write-file custom-file)))
   (load custom-file))
 
+;; ネイティブコンパイル
+(defun number-of-cpu-cores ()
+  (or (and (executable-find "grep") (file-exists-p "/proc/cpuinfo")
+           (string-to-number
+            (shell-command-to-string
+             "grep -c ^processor /proc/cpuinfo")))
+      0))
+(require 'comp)
+(setq package-native-compile t)
+(setq native-comp-async-jobs-number (/ (number-of-cpu-cores) 2))
+(defun native-comp-async-elpa ()
+  "/elpa 以下のファイルをネイティブコンパイルする。"
+  (interactive)
+  (native-compile-async (concat user-emacs-directory "elpa") 'recursively))
+
 ;;;; load-path と leaf.
 
 (prog1 "site-lisp/ 以下をロードパスに追加"
@@ -262,11 +277,7 @@ BINDINGS should be of the form [KEY DEF]..."
   "出力のキャプチャや通信を一切せずに COMMAND を実行する。"
   (call-process-shell-command command nil 0))
 
-(defun shell-command-output (command)
-  "COMMAND を実行し、その標準出力を文字列として返す。"
-  (with-temp-buffer
-    (shell-command command (current-buffer))
-    (buffer-string)))
+(defalias 'shell-command-output #'shell-command-to-string)
 
 ;; バッファリスト
 
