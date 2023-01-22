@@ -428,7 +428,7 @@ DOCSTRING は必須。これがないと意図通りに展開されない。"
   (package-menu-execute t))
 
 (defun package-upgrade-packages-with-logging ()
-  "`paradox-upgrade-packages' を呼び出し、その間のメッセージをログファイルに書き込む。
+  "`package-upgrade-packages' を呼び出し、その間のメッセージをログファイルに書き込む。
 
 ログファイルは `package-upgrade-log-directory' の下に呼び出し時の時刻を含む名前で保存される。"
   (interactive)
@@ -437,7 +437,7 @@ DOCSTRING は必須。これがないと意図通りに展開されない。"
   (let ((start-time-string (format-time-string "%Y%m%dT%H%M%S")))
     (with-logging-messages
         (concat package-upgrade-log-directory start-time-string "_messages.log")
-      (paradox-upgrade-packages))))
+      (package-upgrade-packages))))
 
 (leaf google-translate :ensure t popup)
 
