@@ -47,7 +47,7 @@
 (eval-and-compile
   (require 'package)
   (add-to-list 'package-archives '("melpa" . "https://melpa.org/packages/"))
-  (if (package-installed-p 'leaf) (package-refresh-contents t) ;; 非同期
+  (unless (package-installed-p 'leaf)
     (package-refresh-contents)
     (package-install 'leaf))
   (leaf leaf-keywords :ensure t diminish hydra :config (leaf-keywords-init)))
@@ -559,15 +559,16 @@ ELTS の要素の順序は保たれる。"
   :bind (project-prefix-map ("C-s" . project-counsel-rg)))
 
 (leaf projectile
-  :ensure t counsel-projectile
+  :ensure t
   :custom (projectile-globally-ignored-directories . nil) ; quick fix for bbatsov/projectile#1777
   :global-minor-mode t
   ;; If :bind-keymap is used, then FlyC complains that
   ;; "Symbol's value as variable is void: projectile-command-map"
   :config (global-set-key (kbd "C-c p") 'projectile-command-map)
-  :bind
-  (projectile-command-map
-   ("C-s" . counsel-projectile-rg)))
+  (leaf counsel-projectile :ensure t
+    :bind
+    (projectile-command-map :package projectile
+     ("C-s" . counsel-projectile-rg))))
 
 (prog1 "プロジェクトルートで TODO の一覧を表示する関数を定義。"
   (defcustom projectile-rg-todo-regex-list
@@ -936,6 +937,8 @@ _/_: undo      _d_: down        ^ ^
 
 (leaf writeroom-mode :ensure t)
 
+(leaf csv-mode :ensure t)
+
 ;;;; プログラミング
 
 (leaf indent :custom (indent-tabs-mode . nil))
@@ -1040,6 +1043,7 @@ _/_: undo      _d_: down        ^ ^
 (leaf *cuda :mode ("\\.cu$" . c-mode))
 
 (leaf rust-mode :when (executable-find "rustup") :ensure t
+  :mode ("\\.rs$" . rust-mode)
   :config
   (leaf lsp-rust
     :custom
@@ -1049,6 +1053,7 @@ _/_: undo      _d_: down        ^ ^
     (lsp-hook-activation-in-activated-workspace 'rust-mode-hook 'rust-analyzer)))
 
 (leaf racket-mode :when (executable-find "raco")
+  :mode ("\\.rkt$" . racket-mode)
   :ensure t
   :config
   (leaf racket-xp
