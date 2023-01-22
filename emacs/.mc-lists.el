@@ -8,21 +8,32 @@
         TeX-insert-sub-or-superscript
         backward-sexp
         backward-up-list
+        c-electric-delete-forward
         delete-horizontal-space
         down-list
+        duplicate-line-below
+        duplicate-line-or-region-below
         forward-sexp
+        indent-for-tab-command
         kill-region
         kill-sexp
         mark-sexp
         markdown-outdent-or-delete
         org-delete-char
+        org-end-of-line
+        org-force-self-insert
         org-self-insert-command
+        skk-insert
+        sp-remove-active-pair-overlay
+        sp-rewrap-sexp
         sp-unwrap-sexp
         ))
 
 (setq mc/cmds-to-run-once
       '(
+        compilation-next-error
         counsel-M-x
+        counsel-switch-buffer
         handle-switch-frame
         ignore
         kmacro-end-or-call-macro
@@ -31,5 +42,6 @@
         lsp-ui-doc--handle-mouse-movement
         mc/mark-next-lines
         mc/mark-previous-lines
+        org-cycle
         vterm-or-suspend
         ))
