@@ -1076,12 +1076,6 @@ _/_: undo      _d_: down        ^ ^
     (add-hook 'LaTeX-mode-hook (lambda () (setq TeX-command-default "LaTeXMk"))))
   (leaf pdf-sync :require t
     :bind (LaTeX-mode-map ("C-c g" . pdf-sync-forward-search)))
-  (leaf magic-latex-buffer :ensure t :diminish t
-    :disabled t ; FIXME AUCTeX のバージョンを上げたら壊れた
-    :custom
-    (magic-latex-enable-block-align . nil)
-    (magic-latex-enable-inline-image . nil)
-    :hook (LaTeX-mode-hook . (lambda () (when (display-graphic-p) (magic-latex-buffer +1)))))
   (leaf reftex :diminish t :hook LaTeX-mode-hook
     :custom
     (reftex-label-alist
