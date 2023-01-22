@@ -1008,12 +1008,7 @@ _/_: undo      _d_: down        ^ ^
 (leaf scala-mode :when (executable-find "scala")
   :config
   (leaf lsp-metals :ensure t
-    :init (require 'treemacs-extensions) ; HACK: このモジュールは obsolete だが `lsp-metals' が依存している
-    :config (lsp-hook-activation-in-activated-workspace 'scala-mode-hook 'metals)
-    :defer-config
-    ;; HACK: `lsp-treemacs-render' を完全に無効化する。
-    ;; Metals 使用中、1文字タイプするごとに動いていてめちゃくちゃ重いので。
-    (advice-add 'lsp-treemacs-render :override (lambda (&rest _) nil)))
+    :config (lsp-hook-activation-in-activated-workspace 'scala-mode-hook 'metals))
   (leaf bloop :require t :after scala-mode
     :doc "Scalaプロジェクトを素早くコンパイル/実行/テストする"
     :custom (bloop-cli-command-name . "bloop")
