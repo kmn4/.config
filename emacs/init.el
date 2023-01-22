@@ -956,6 +956,8 @@ _/_: undo      _d_: down        ^ ^
           ("l" flycheck-toggle-error-list "list")
           ("?" flycheck-describe-checker "help" :exit t)))
 
+(leaf quickrun :ensure t :bind (prog-mode-map ("C-c RET" . quickrun)))
+
 (leaf lsp
   :ensure lsp-mode lsp-ui
   :defun
