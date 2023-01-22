@@ -392,10 +392,6 @@ DOCSTRING は必須。これがないと意図通りに展開されない。"
 
 (leaf restart-emacs :ensure t)
 
-(leaf paradox :ensure t async
-  :custom (paradox-github-token . t)
-  :config (paradox-enable))
-
 (defmacro with-logging-messages (file &rest form)
   "FORM を評価し、その間のメッセージを FILE に書き込む。"
   (declare (indent 1))
@@ -410,24 +406,27 @@ DOCSTRING は必須。これがないと意図通りに展開されない。"
          (switch-to-buffer (messages-buffer))
          (buffer-swap-text tmp-buf)))))
 
-(defcustom paradox-upgrade-log-directory (concat user-emacs-directory "paradox-logs/")
-  "`paradox-upgrade-packages-with-logging' のログの保存先"
+(defcustom package-upgrade-log-directory (concat user-emacs-directory "package-logs/")
+  "`package-upgrade-packages-with-logging' のログの保存先"
   :type 'string :group 'init)
 
-(defun paradox-upgrade-packages-with-logging ()
+(defun package-upgrade-packages ()
+  (interactive)
+  (package-refresh-contents)
+  (package-menu-mark-upgrades)
+  (package-menu-execute t))
+
+(defun package-upgrade-packages-with-logging ()
   "`paradox-upgrade-packages' を呼び出し、その間のメッセージをログファイルに書き込む。
 
-ログファイルは `paradox-upgrade-log-directory' の下に呼び出し時の時刻を含む名前で保存される。"
+ログファイルは `package-upgrade-log-directory' の下に呼び出し時の時刻を含む名前で保存される。"
   (interactive)
-  (unless (file-exists-p paradox-upgrade-log-directory)
-    (make-directory paradox-upgrade-log-directory t))
+  (unless (file-exists-p package-upgrade-log-directory)
+    (make-directory package-upgrade-log-directory t))
   (let ((start-time-string (format-time-string "%Y%m%dT%H%M%S")))
     (with-logging-messages
-        (concat paradox-upgrade-log-directory start-time-string "_messages.log")
-      (paradox-upgrade-packages))
-    (with-current-buffer "*Paradox Report*"
-      (write-file
-       (concat paradox-upgrade-log-directory start-time-string "_report.log")))))
+        (concat package-upgrade-log-directory start-time-string "_messages.log")
+      (paradox-upgrade-packages))))
 
 (leaf google-translate :ensure t popup)
 
