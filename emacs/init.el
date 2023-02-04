@@ -149,6 +149,12 @@ BINDINGS should be of the form [KEY DEF]..."
   (interactive "suser@host: ")
   (find-file (format "/ssh:%s:~" userhost)))
 
+(defun map-frame-parameter (fn param &optional frame)
+  (unless frame (setq frame (selected-frame)))
+  (set-frame-parameter
+   frame param
+   (funcall fn (frame-parameter frame param))))
+
 ;; 出典: https://stackoverflow.com/a/33456622
 (defun toggle-window-split ()
   "フレームにウィンドウが2つだけのとき、分割の方向を変える。"
@@ -395,7 +401,8 @@ DOCSTRING は必須。これがないと意図通りに展開されない。"
   :after exec-path-from-shell
   :custom `(woman-locale . ,(getenv "LANG")))
 
-(leaf savehist :global-minor-mode t)
+(leaf savehist :global-minor-mode t
+  :custom (history-length . 2000))
 
 (leaf convenience
   :custom
@@ -423,9 +430,11 @@ DOCSTRING は必須。これがないと意図通りに展開されない。"
 
 (defun package-upgrade-packages ()
   (interactive)
-  (package-refresh-contents)
-  (package-menu-mark-upgrades)
-  (package-menu-execute t))
+  (save-window-excursion
+    (package-refresh-contents)
+    (list-packages 'no-fetch)
+    (package-menu-mark-upgrades)
+    (package-menu-execute t)))
 
 (defun package-upgrade-packages-with-logging ()
   "`package-upgrade-packages' を呼び出し、その間のメッセージをログファイルに書き込む。
