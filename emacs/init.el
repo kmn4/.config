@@ -508,8 +508,8 @@ ELTS の要素の順序は保たれる。"
    ([mouse-3] . quit-window-mouse))
   :init
   (defun image-dired-thumbnail-mark-all ()
-    (interactive)
     "全てのサムネイルをマークする。"
+    (interactive)
     (save-excursion
       (goto-char (point-min))
       (let (lastpos (currpos (point)))
@@ -522,8 +522,8 @@ ELTS の要素の順序は保たれる。"
     (with-current-buffer (image-dired-associated-dired-buffer)
       (image-dired-display-thumbs)))
   (defun image-dired-thumbnail-unmark-all ()
-    (interactive)
     "全てのマークを解除する。"
+    (interactive)
     (with-current-buffer (image-dired-associated-dired-buffer)
       (dired-unmark-all-marks))
     (image-dired-thumb-update-marks))
@@ -625,7 +625,7 @@ ELTS の要素の順序は保たれる。"
 
 (leaf ivy
   :ensure t swiper counsel ivy-hydra ivy-rich
-  :global-minor-mode t counsel-mode ivy-rich-mode
+  :global-minor-mode t counsel-mode ; ivy-rich-mode ; ivy-rich slow on NTFS on WSL
   :bind
   ("C-s" . swiper)
   ("C-x b" . counsel-switch-buffer)
@@ -949,6 +949,8 @@ _/_: undo      _d_: down        ^ ^
   :custom
   (flycheck-display-errors-delay . 0)  ; HACK: あえて即表示させると ElDoc が上書きできる
   (flycheck-disabled-checkers . '(scala))
+  :hook
+  (flycheck-error-list-mode-hook . (lambda () (toggle-truncate-lines -1)))
   :init
   (defun flycheck-toggle-error-list (&optional frame)
     (interactive)
@@ -1039,6 +1041,11 @@ _/_: undo      _d_: down        ^ ^
     :bind (comint-mode-map ("C-c a" . bloop-metals-query-analyze-stacktrace)))
   (leaf sbt-mode :ensure t :require t
     :custom (sbt:program-name . "sbtn")))
+
+(leaf java-mode :when (executable-find "mvn")
+  :config
+  (leaf lsp-java :ensure t
+    :config (lsp-hook-activation-in-activated-workspace 'java-mode-hook 'jdtls)))
 
 (leaf smtlib-mode :el-get kmn4/smtlib-mode :require t)
 
@@ -1134,12 +1141,16 @@ _/_: undo      _d_: down        ^ ^
 ;;;; 見た目
 
 (leaf treemacs :ensure t
+  :custom
+  (treemacs-hide-gitignored-files-mode . t)
   :bind
   ("M-0" . #'treemacs)
   (treemacs-mode-map
    ("k" . #'treemacs-previous-line)
    ("j" . #'treemacs-next-line))
   (leader-map :package init ("0" . treemacs)))
+
+(leaf nerd-icons :ensure t :require t)
 
 (leaf all-the-icons :ensure t
   :config

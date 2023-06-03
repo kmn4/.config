@@ -11,10 +11,15 @@
         backward-sexp
         backward-up-list
         c-electric-delete-forward
+        c-electric-paren
+        c-electric-semi&comma
+        c-electric-star
+        dabbrev-expand
         delete-horizontal-space
         down-list
         duplicate-line-below
         duplicate-line-or-region-below
+        end-of-buffer
         forward-sexp
         indent-for-tab-command
         kill-region
@@ -25,7 +30,9 @@
         org-delete-char
         org-end-of-line
         org-force-self-insert
+        org-kill-line
         org-self-insert-command
+        org-yank
         skk-insert
         sp-remove-active-pair-overlay
         sp-rewrap-sexp

@@ -4,6 +4,7 @@
 /abbrev_defs
 /auto-save-list/
 /bookmarks
+/eclipse.jdt.ls/
 /el-get/
 /eln-cache/
 /elpa/
@@ -22,3 +23,4 @@
 /tramp
 /transient/
 /url/
+/workspace/

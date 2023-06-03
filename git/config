@@ -1,6 +1,6 @@
 [user]
 	name = Masaki Kamano
-	email = kamano.m.aa@m.titech.ac.jp
+	email = kamano@kamasaki.net
 [push]
 	default = simple
 [alias]
@@ -12,3 +12,5 @@
 	editor = vim
 	autocrlf = input
 	safecrlf = true
+[init]
+	defaultBranchName = main
