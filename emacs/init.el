@@ -456,7 +456,7 @@ DOCSTRING は必須。これがないと意図通りに展開されない。"
 (leaf display-line-numbers :hook prog-mode-hook text-mode-hook)
 
 (defvar delete-trailing-whitespace-modes
-  (list 'prog-mode 'tex-mode)
+  (list 'prog-mode 'tex-mode 'conf-mode)
   "保存前に `delete-trailing-whitespace' を呼び出すモードのリスト。")
 (add-hook 'before-save-hook
           (lambda ()
@@ -676,6 +676,10 @@ _h_ --^ ^-- _l_    _H_ --^ ^-- _L_    _b_alance
 (leaf *git
   :init
   (leaf magit :ensure t :require t)
+  ;; TODO TRAMP でファイルを開くとエラーになる。
+  ;; これは git-gutter+ の実装が悪いためなので、git-gutter+ の使用をやめるか、
+  ;; バッファ作成時にそのバッファが TRAMP モードになるかどうか判定して git-gutter+
+  ;; の有効化を決定するように変更する。
   (leaf git-gutter+ :ensure t :global-minor-mode global-git-gutter+-mode
     :diminish git-gutter+-mode
     :defvar git-gutter+-mode
@@ -725,6 +729,8 @@ _s_, _<tab>_: show    _U_: unstage all    _c_: commit
 (leaf counsel-tramp :ensure t) ; Docker コンテナを簡単に選択
 
 (leaf yaml-mode :ensure t)
+
+(leaf ansible :ensure t)
 
 (leaf systemd :when (executable-find "systemctl") :ensure t)
 
@@ -1214,6 +1220,7 @@ _/_: undo      _d_: down        ^ ^
   (centaur-tabs-set-modified-marker . t)
   :defer-config (centaur-tabs-headline-match))
 
+(leaf whitespace :hook (conf-mode-hook . whitespace-mode))
 (leaf rainbow-delimiters :ensure t :hook prog-mode-hook TeX-mode-hook)
 (leaf highlight-thing :ensure t :hook (prog-mode-hook . highlight-thing-mode)
   :diminish highlight-thing-mode
