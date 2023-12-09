@@ -1,14 +1,25 @@
 [user]
 	name = Masaki Kamano
-	email = kamano.m.aa@m.titech.ac.jp
+	email = kamano@kamasaki.net
+	signingkey = 12F4D328E94C40E3
 [push]
 	default = simple
+[log]
+	date = relative
 [alias]
-	cm = commit -m
-	lg = log --graph --date=short-local --pretty=format:'%h %ad %s'
-	st = status --short
+	oneline = log --graph --format=\"%C(auto)%h%d %G? %C(cyan)[%ad] %C(auto)%s\"
+	stat = status --short
 	ignore = "!gi() { curl -sL https://www.toptal.com/developers/gitignore/api/$@ ;}; gi"
+	verify = log --show-signature
 [core]
 	editor = vim
 	autocrlf = input
 	safecrlf = true
+[init]
+	defaultBranch = main
+[credential]
+	helper = /mnt/c/Program\\ Files/Git/mingw64/bin/git-credential-manager.exe
+[merge]
+	ff = false
+[pull]
+	ff = only
