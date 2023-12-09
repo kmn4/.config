@@ -1,6 +1,7 @@
 [user]
 	name = Masaki Kamano
 	email = kamano@kamasaki.net
+	signingkey = 12F4D328E94C40E3
 [push]
 	default = simple
 [log]
