@@ -1,7 +1,5 @@
 function ekill
-set -l sig INT
-if set -q argv[1]
-set sig $argv[1]
-end
-kill -s$sig (ps -e | awk '{ if ($4 == "emacs") print $1; }')
+    set -l sig INT
+    not set -q argv[1] || set sig $argv[1]
+    pgrep -x "emacs" | xargs kill -s$sig
 end
