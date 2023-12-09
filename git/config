@@ -16,7 +16,6 @@
 	autocrlf = input
 	safecrlf = true
 [init]
-	defaultBranchName = main
 	defaultBranch = main
 [credential]
 	helper = /mnt/c/Program\\ Files/Git/mingw64/bin/git-credential-manager.exe

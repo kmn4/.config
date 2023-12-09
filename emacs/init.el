@@ -80,7 +80,7 @@ BINDINGS should be of the form [KEY DEF]..."
   ;; leader-map をバインドするキー。
   ;; キーボードや OS によって異なるキーを使いたいのでカスタマイズ変数とする。
   (defcustom leader-key
-    (cond ((eq system-type 'gnu/linux) "<henkan>")
+    (cond ((eq system-type 'gnu/linux) "C-<henkan>")
           ;; Karabiner-Elements を使って Caps Lock を <help> にリマップして使う．
           ((eq system-type 'darwin) "<help>")
           ((eq system-type 'windows-nt) "<convert>"))
@@ -886,8 +886,8 @@ _/_: undo      _d_: down        ^ ^
     :config
     (cl-flet* ((im-skk-on () (interactive) (set-input-method "japanese-skk"))
                (im-off () (interactive) (set-input-method nil)))
-      (global-set-key (kbd "<C-henkan>") #'im-skk-on)
-      (global-set-key (kbd "<C-muhenkan>") #'im-off))))
+      (global-set-key (kbd "<henkan>") #'im-skk-on)
+      (global-set-key (kbd "<muhenkan>") #'im-off))))
 
 (leaf migemo :when (executable-find "cmigemo") :ensure t
   ;; Ubuntu  -- apt install cmigemo
@@ -1187,17 +1187,18 @@ _/_: undo      _d_: down        ^ ^
    '(variable-pitch ((t (:family "Noto Sans JP"))))))
 
 (prog1 "文字サイズ変更用の関数 (Emacs 29 で追加予定のものの簡易版)"
-  (defun default-face-font-height () (face-attribute 'default :height))
-  (defun global-text-scale-increment ()
-    (interactive)
-    (set-face-attribute 'default nil
-     :height (+ (default-face-font-height) 5)))
-  (defun global-text-scale-decrement ()
-    (interactive)
-    (set-face-attribute 'default nil
-     :height (- (default-face-font-height) 5)))
-  (global-set-key (kbd "C-M-+") #'global-text-scale-increment)
-  (global-set-key (kbd "C-M--") #'global-text-scale-decrement))
+  (when (version< emacs-version "29")
+    (defun default-face-font-height () (face-attribute 'default :height))
+    (defun global-text-scale-increment ()
+      (interactive)
+      (set-face-attribute 'default nil
+                          :height (+ (default-face-font-height) 5)))
+    (defun global-text-scale-decrement ()
+      (interactive)
+      (set-face-attribute 'default nil
+                          :height (- (default-face-font-height) 5)))
+    (global-set-key (kbd "C-M-+") #'global-text-scale-increment)
+    (global-set-key (kbd "C-M--") #'global-text-scale-decrement)))
 
 (leaf frame
   :custom
