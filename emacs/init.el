@@ -279,9 +279,15 @@ BINDINGS should be of the form [KEY DEF]..."
 
 ;; シェルとターミナル
 
-(defun just-run-shell-command (command)
+(defun start-shell-command (command)
   "出力のキャプチャや通信を一切せずに COMMAND を実行する。"
   (call-process-shell-command command nil 0))
+
+(defun run-shell-command (command)
+  (call-process-shell-command command nil nil))
+
+(defun test-shell-command (command)
+  (eq (run-shell-command command) 0))
 
 (defalias 'shell-command-output #'shell-command-to-string)
 
@@ -340,6 +346,14 @@ DOCSTRING は必須。これがないと意図通りに展開されない。"
 (defconst *unix? (or *linux? *macos?))
 (defconst *wsl? (and *unix? (s-contains-p "WSL2" (shell-command-output "uname -a"))))
 
+(prog1 "check requirements"
+  (defun check-executable (bin)
+    (unless (executable-find bin)
+      (warn "!!! REQUIREMENT NOT INSTALLED !!! %s" bin)))
+  (when *wsl?
+    (check-executable "mozc_emacs_helper")
+    (check-executable "cmigemo")))
+
 (defconst dev-null
   (cond (*unix? "/dev/null")
         (t nil))
@@ -358,7 +372,7 @@ DOCSTRING は必須。これがないと意図通りに展開されない。"
 
 (defun open-shell (dir)
   "DIR でシェルを開く。"
-  (just-run-shell-command (s-concat terminal-emulator " " dir)))
+  (start-shell-command (s-concat terminal-emulator " " dir)))
 
 (defun major-mode-window (mode &optional frame)
   "メジャーモードが MODE であるようなウィンドウが FRAME に存在するならそれを返す。"
@@ -876,17 +890,13 @@ _/_: undo      _d_: down        ^ ^
 (prog1 "言語、文字コード、入力メソッド"
   (set-language-environment "Japanese")
   (prefer-coding-system 'utf-8)
-  (leaf ddskk :ensure t
-    :defvar skk-get-jisyo-directory skk-large-jisyo
-    :setq
-    `(skk-get-jisyo-directory
-      . ,(concat user-emacs-directory "skk-get-jisyo"))
-    `(skk-large-jisyo
-      . ,(concat user-emacs-directory "skk-get-jisyo/SKK-JISYO.L"))
+  (leaf mozc :when *wsl? :ensure t
+    :defvar mozc-mode-map
+    :custom (mozc-candidate-style . 'echo-area)
     :config
-    (cl-flet* ((im-skk-on () (interactive) (set-input-method "japanese-skk"))
+    (cl-flet* ((im-mozc-on () (interactive) (set-input-method "japanese-mozc"))
                (im-off () (interactive) (set-input-method nil)))
-      (global-set-key (kbd "<henkan>") #'im-skk-on)
+      (global-set-key (kbd "<henkan>") #'im-mozc-on)
       (global-set-key (kbd "<muhenkan>") #'im-off))))
 
 (leaf migemo :when (executable-find "cmigemo") :ensure t
@@ -1178,7 +1188,22 @@ _/_: undo      _d_: down        ^ ^
   (leaf all-the-icons-ibuffer :ensure t :hook ibuffer-mode-hook))
 
 (prog1 "フォント"
-  (defcustom default-face-family "Source Han Code JP"
+  (defun linux-install-hackgen ()
+    "HackGen NF をインストールします。"
+    (interactive)
+    (unless (test-shell-command "fc-list | grep -i 'hackgen'")
+      (if (not (test-shell-command "which unzip"))
+          (message "install unzip")
+        (run-shell-command "curl -sSLo /tmp/HackGen_NF_v2.9.0.zip https://github.com/yuru7/HackGen/releases/download/v2.9.0/HackGen_NF_v2.9.0.zip")
+        (run-shell-command "unzip /tmp/HackGen_NF_v2.9.0.zip -d /tmp")
+        (run-shell-command "mkdir -p ~/.local/share/fonts")
+        (run-shell-command "cp /tmp/HackGen_NF_v2.9.0/*.ttf ~/.local/share/fonts")
+        (run-shell-command "fc-cache -f")
+        (if (test-shell-command "fc-list | grep -i 'hackgen'")
+            (message "succeeded to install HackGen")
+          (message "failed to install HackGen")))
+      ))
+  (defcustom default-face-family "HackGen Console NF"
     "`default' フェイスのファミリ。" :type 'string :group 'init)
   (defcustom default-face-height 110
     "`default' フェイスの高さ。" :type 'number :group 'init)
