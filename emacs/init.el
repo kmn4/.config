@@ -897,7 +897,8 @@ _/_: undo      _d_: down        ^ ^
     (cl-flet* ((im-mozc-on () (interactive) (set-input-method "japanese-mozc"))
                (im-off () (interactive) (set-input-method nil)))
       (global-set-key (kbd "<henkan>") #'im-mozc-on)
-      (global-set-key (kbd "<muhenkan>") #'im-off))))
+      (global-set-key (kbd "<muhenkan>") #'im-off)
+      (define-key mozc-mode-map (kbd "<muhenkan>") #'im-off))))
 
 (leaf migemo :when (executable-find "cmigemo") :ensure t
   ;; Ubuntu  -- apt install cmigemo
