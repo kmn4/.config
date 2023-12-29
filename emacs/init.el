@@ -778,6 +778,11 @@ _s_, _<tab>_: show    _U_: unstage all    _c_: commit
     :custom (company-posframe-quickhelp-delay . nil)
     :diminish company-posframe-mode))
 
+(leaf dumb-jump :ensure t
+  :config
+  (add-hook 'xref-backend-functions #'dumb-jump-xref-activate)
+  )
+
 (leaf emojify :ensure t :global-minor-mode 'global-emojify-mode
   :bind (leader-map :package init ("ie" . emojify-insert-emoji))
   :custom
@@ -1154,6 +1159,15 @@ _/_: undo      _d_: down        ^ ^
   (defalias 'satysfi-mode/open-pdf #'satysfi-find-pdf-other-window))
 
 (leaf go-mode :when (executable-find "go") :ensure t)
+
+(leaf cperl-mode :when *unix?
+  :defvar cperl-mode-map
+  :custom
+  (cperl-indent-level . 4)
+  :config
+  (add-to-list 'major-mode-remap-alist '(perl-mode . cperl-mode))
+  ;; smartparens との衝突を解決
+  (define-key cperl-mode-map "{" nil))
 
 ;;;; 見た目
 
