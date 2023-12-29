@@ -1204,6 +1204,7 @@ _/_: undo      _d_: down        ^ ^
             (message "succeeded to install HackGen")
           (message "failed to install HackGen")))
       ))
+  (when *wsl? (linux-install-hackgen))
   (defcustom default-face-family "HackGen Console NF"
     "`default' フェイスのファミリ。" :type 'string :group 'init)
   (defcustom default-face-height 110
