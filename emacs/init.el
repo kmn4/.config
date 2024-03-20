@@ -277,6 +277,10 @@ BINDINGS should be of the form [KEY DEF]..."
   "`add-to-list' の逆操作のつもり。"
   (set list-var (delete element (symbol-value list-var))))
 
+(defun version>= (v1 v2) (version<= v2 v1))
+
+(defun version> (v1 v2) (version< v2 v1))
+
 ;; シェルとターミナル
 
 (defun start-shell-command (command)
@@ -403,6 +407,14 @@ DOCSTRING は必須。これがないと意図通りに展開されない。"
 (leaf simple :custom (eval-expression-print-length . nil))
 
 (leaf ibuffer :custom (ibuffer-default-sorting-mode . 'filename/process))
+
+(defun kill-buffer-dwim (other-buffer)
+  (interactive "P")
+  (if other-buffer
+      (call-interactively #'kill-buffer)
+    (kill-this-buffer)))
+
+(global-set-key (kbd "C-x k") #'kill-buffer-dwim)
 
 ;; 以下は "NOT part of Emacs" なパッケージも使う
 
@@ -1166,6 +1178,7 @@ _/_: undo      _d_: down        ^ ^
   (cperl-indent-level . 4)
   :config
   (add-to-list 'major-mode-remap-alist '(perl-mode . cperl-mode))
+  :defer-config
   ;; smartparens との衝突を解決
   (define-key cperl-mode-map "{" nil))
 
@@ -1227,7 +1240,7 @@ _/_: undo      _d_: down        ^ ^
    `(default ((t (:family ,default-face-family :height ,default-face-height))))
    '(variable-pitch ((t (:family "Noto Sans JP"))))))
 
-(prog1 "文字サイズ変更用の関数 (Emacs 29 で追加予定のものの簡易版)"
+(prog1 "文字サイズ変更"
   (when (version< emacs-version "29")
     (defun default-face-font-height () (face-attribute 'default :height))
     (defun global-text-scale-increment ()
@@ -1237,9 +1250,16 @@ _/_: undo      _d_: down        ^ ^
     (defun global-text-scale-decrement ()
       (interactive)
       (set-face-attribute 'default nil
-                          :height (- (default-face-font-height) 5)))
-    (global-set-key (kbd "C-M-+") #'global-text-scale-increment)
-    (global-set-key (kbd "C-M--") #'global-text-scale-decrement)))
+                          :height (- (default-face-font-height) 5))))
+  (when (version>= emacs-version "29")
+    (defun global-text-scale-increment ()
+      (interactive)
+      (global-text-scale-adjust 1))
+    (defun global-text-scale-decrement ()
+      (interactive)
+      (global-text-scale-adjust -1)))
+  (global-set-key (kbd "C-M-+") #'global-text-scale-increment)
+  (global-set-key (kbd "C-M--") #'global-text-scale-decrement))
 
 (leaf frame
   :custom
