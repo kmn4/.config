@@ -1,6 +1,6 @@
-#!/bin/bash -x
+#!/bin/bash
 
-target=$HOME/.config
+target="$XDG_CONFIG_HOME"
 thisdir=$(readlink -f $(dirname $0))
 items=("bat" "emacs" "fish" "git" "latexmk")
 
@@ -11,10 +11,17 @@ cd $thisdir
 git submodule update --init --recursive
 
 for item in "${items[@]}"; do
-    ln -sivT $thisdir/${item} $target/${item}
+    [ "$(readlink -f "$target/$item")" = "$thisdir/$item" ] || ln -sivT "$thisdir/$item" "$target/$item"
 done
 
-# install fisher & plugins
-fish -c 'curl -sL https://git.io/fisher | source && fisher install jorgebucaran/fisher && fisher update'
+declare -A files
+while IFS= read -r -d '' file; do
+    files["$(basename "$file")"]="$file"
+done < <(find "$thisdir/home" -maxdepth 1 -type f -print0)
+for item in "${!files[@]}"; do
+    file="${files["$item"]}"
+    [ "$(readlink -f "$HOME/$item")" = "$file" ] || ln -sivT "$file" "$HOME/$item"
+done
 
-cd -
+#which fish >/dev/null && fish -c 'curl -sL https://git.io/fisher | source && fisher install jorgebucaran/fisher && fisher update'
+
