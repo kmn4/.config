@@ -1,4 +1,3 @@
-set mouse=
 set encoding=utf-8
 scriptencoding utf-8
 set nocompatible
@@ -36,8 +35,7 @@ set hlsearch
 " go back to the top of file after searching the bottom
 set wrapscan
 
-" use mouse
-set mouse=a
+set mouse=
 " in terminal
 if !has("gui_running")
     set term=xterm
