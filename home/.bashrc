@@ -147,8 +147,8 @@ bind '"\C-n": history-search-forward'
 
 alias ssh="ssh.exe"
 alias ssh-add="ssh-add.exe"
-alias egui="emacsclient -cn -a '' $@"
-alias ecui="emacsclient -nw -a '' $@"
+alias egui="emacsclient -cn -a ''"
+alias ecui="emacsclient -nw -a ''"
 alias firefox.exe="'/mnt/c/Program Files/Mozilla Firefox/firefox.exe'"
 which firefox > /dev/null || alias firefox="firefox.exe"
 
