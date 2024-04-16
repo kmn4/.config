@@ -1,12 +1,10 @@
 #!/bin/bash
 
-target="$XDG_CONFIG_HOME"
-thisdir=$(readlink -f $(dirname $0))
+target="${XDG_CONFIG_HOME:-"$HOME/.config"}"
+thisdir="$(readlink -f "$(dirname "$0")")"
 items=("bat" "emacs" "fish" "git" "latexmk")
 
-mkdir -p $target
-
-cd $thisdir
+mkdir -p "$target"
 
 for item in "${items[@]}"; do
     [ "$(readlink -f "$target/$item")" = "$thisdir/$item" ] || ln -sivT "$thisdir/$item" "$target/$item"
