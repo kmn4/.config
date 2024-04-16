@@ -2,7 +2,7 @@
 
 target="${XDG_CONFIG_HOME:-"$HOME/.config"}"
 thisdir="$(readlink -f "$(dirname "$0")")"
-items=("bat" "emacs" "fish" "git" "latexmk")
+. "$thisdir/install.conf" || exit 1
 
 mkdir -p "$target"
 

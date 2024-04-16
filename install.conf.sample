@@ -1,0 +1,3 @@
+#!/bin/bash
+items=("bat" "emacs" "fish" "git" "latexmk")
+
