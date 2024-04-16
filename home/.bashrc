@@ -143,19 +143,19 @@ alias ssh-add="ssh-add.exe"
 alias egui="emacsclient -cn -a ''"
 alias ecui="emacsclient -nw -a ''"
 alias firefox.exe="'/mnt/c/Program Files/Mozilla Firefox/firefox.exe'"
-which firefox > /dev/null || alias firefox="firefox.exe"
+command -v firefox &> /dev/null || alias firefox="firefox.exe"
 # apt install libterm-readline-perl-perl
-which perlsh > /dev/null || alias perlsh="rlwrap perl -Mstrict -Mwarnings -Mutf8 -MData::Dumper -d -e1"
+command -v perlsh &> /dev/null || alias perlsh="rlwrap perl -Mstrict -Mwarnings -Mutf8 -MData::Dumper -d -e1"
 
-alias update_apt='which apt > /dev/null && sudo apt update && sudo apt upgrade && sudo apt autoremove'
-alias update_winget='which powershell.exe > /dev/null && powershell.exe -Command "winget upgrade"'
-alias update_emacs_packages='which emacs > /dev/null && emacsclient -e "(package-upgrade-packages-with-logging)"'
-alias update_cs='which cs > /dev/null && cs update'
-alias update_brew='which brew > /dev/null && brew update && brew upgrade && brew autoremove'
-alias update_npm='which npm > /dev/null && sudo npm update -g'
-alias update_rustup='which rustup > /dev/null && rustup update'
-alias update_ghcup='which ghcup > /dev/null && ghcup update'
-alias update_stack='which stack > /dev/null && stack update && stack upgrade'
+alias update_apt='command -v apt &> /dev/null && sudo apt update && sudo apt upgrade && sudo apt autoremove'
+alias update_winget='command -v powershell.exe &> /dev/null && powershell.exe -Command "winget upgrade"'
+alias update_emacs_packages='command -v emacs &> /dev/null && emacsclient -e "(package-upgrade-packages-with-logging)"'
+alias update_cs='command -v cs &> /dev/null && cs update'
+alias update_brew='command -v brew &> /dev/null && brew update && brew upgrade && brew autoremove'
+alias update_npm='command -v npm &> /dev/null && sudo npm update -g'
+alias update_rustup='command -v rustup &> /dev/null && rustup update'
+alias update_ghcup='command -v ghcup &> /dev/null && ghcup update'
+alias update_stack='command -v stack &> /dev/null && stack update && stack upgrade'
 
 update_all() {
     update_apt

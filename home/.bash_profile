@@ -16,7 +16,7 @@ export XDG_STATE_HOME="$HOME/.local/state"
 export MANPATH="$(manpath 2> /dev/null)"
 export WIN_HOME="$(wslpath $(wslvar USERPROFILE))"
 
-which hugo > /dev/null  && eval "$(hugo completion bash)"
+command -v hugo &> /dev/null  && eval "$(hugo completion bash)"
 
 # history
 export HISTSIZE=
