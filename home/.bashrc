@@ -144,6 +144,8 @@ alias egui="emacsclient -cn -a ''"
 alias ecui="emacsclient -nw -a ''"
 alias firefox.exe="'/mnt/c/Program Files/Mozilla Firefox/firefox.exe'"
 which firefox > /dev/null || alias firefox="firefox.exe"
+# apt install libterm-readline-perl-perl
+which perlsh > /dev/null || alias perlsh="rlwrap perl -Mstrict -Mwarnings -Mutf8 -MData::Dumper -d -e1"
 
 alias update_apt='which apt > /dev/null && sudo apt update && sudo apt upgrade && sudo apt autoremove'
 alias update_winget='which powershell.exe > /dev/null && powershell.exe -Command "winget upgrade"'
