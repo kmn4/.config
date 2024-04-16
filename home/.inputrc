@@ -1,0 +1,7 @@
+set completion-ignore-case on
+set colored-stats on
+set colored-completion-prefix on
+set show-all-if-ambiguous on
+"\ei": menu-complete
+"\C-p": history-search-backward
+"\C-n": history-search-forward

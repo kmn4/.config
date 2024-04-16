@@ -137,13 +137,6 @@ fi
 [ -x /usr/bin/terraform ] && complete -C /usr/bin/terraform terraform
 
 stty werase undef; bind '"\C-w": unix-filename-rubout'
-bind 'set completion-ignore-case on'
-bind 'set colored-stats on'
-bind 'set colored-completion-prefix on'
-bind 'set show-all-if-ambiguous on'
-bind '"\ei": menu-complete'
-bind '"\C-p": history-search-backward'
-bind '"\C-n": history-search-forward'
 
 alias ssh="ssh.exe"
 alias ssh-add="ssh-add.exe"
