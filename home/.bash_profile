@@ -7,6 +7,8 @@ if [ -n "$BASH_VERSION" ]; then
 fi
 
 export GPG_TTY="$(tty)"
+eval "$(ssh-agent -s)"
+trap 'kill $SSH_AGENT_PID' EXIT
 setxkbmap jp
 export LANG=ja_JP.UTF-8
 export XDG_DATA_HOME="$HOME/.local/share"

@@ -138,8 +138,6 @@ fi
 
 stty werase undef; bind '"\C-w": unix-filename-rubout'
 
-alias ssh="ssh.exe"
-alias ssh-add="ssh-add.exe"
 alias egui="emacsclient -cn -a ''"
 alias ecui="emacsclient -nw -a ''"
 alias firefox.exe="'/mnt/c/Program Files/Mozilla Firefox/firefox.exe'"
