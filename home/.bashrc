@@ -138,6 +138,8 @@ fi
 
 stty werase undef; bind '"\C-w": unix-filename-rubout'
 
+export GPG_TTY="$(tty)"
+
 alias egui="emacsclient -cn -a ''"
 alias ecui="emacsclient -nw -a ''"
 alias firefox.exe="'/mnt/c/Program Files/Mozilla Firefox/firefox.exe'"

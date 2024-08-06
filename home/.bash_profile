@@ -6,7 +6,6 @@ if [ -n "$BASH_VERSION" ]; then
     fi
 fi
 
-export GPG_TTY="$(tty)"
 eval "$(ssh-agent -s)"
 trap 'kill $SSH_AGENT_PID' EXIT
 setxkbmap jp
