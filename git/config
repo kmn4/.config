@@ -13,6 +13,8 @@
 	verify = log --show-signature
 	df = diff
 	dfs = diff --staged
+	ap = add -p
+	root = rev-parse --show-toplevel
 [core]
 	editor = vim
 	autocrlf = input
