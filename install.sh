@@ -19,3 +19,8 @@ for item in "${!files[@]}"; do
     [ "$(readlink -f "$HOME/$item")" = "$file" ] || ln -sivT "$file" "$HOME/$item"
 done
 
+# other files
+[ -d ~/.gnupg ] || mkdir ~/.gnupg
+[ -f ~/.gnupg/gpg-agent.conf ] || touch ~/.gnupg/gpg-agent.conf
+grep '^pinentry-program' ~/.gnupg/gpg-agent.conf >/dev/null 2>&1 || \
+echo 'pinentry-program /mnt/c/Program Files (x86)/Gpg4win/bin/pinentry.exe' >> ~/.gnupg/gpg-agent.conf
