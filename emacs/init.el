@@ -604,7 +604,9 @@ ELTS の要素の順序は保たれる。"
 
 (leaf projectile
   :ensure t
-  :custom (projectile-globally-ignored-directories . nil) ; quick fix for bbatsov/projectile#1777
+  :custom
+  (projectile-globally-ignored-directories . nil) ; quick fix for bbatsov/projectile#1777
+  (projectile-use-git-grep . t)
   :global-minor-mode t
   ;; If :bind-keymap is used, then FlyC complains that
   ;; "Symbol's value as variable is void: projectile-command-map"
