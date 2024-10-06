@@ -860,7 +860,10 @@ _/_: undo      _d_: down        ^ ^
   ("C-M-<down>" . mc/mark-next-lines)
   ("C-M-<up>" . mc/mark-previous-lines)
   ("M-N" . mc/mark-next-like-this-symbol)
-  ("M-P" . mc/mark-previous-like-this-symbol))
+  ("M-P" . mc/mark-previous-like-this-symbol)
+  ("M-<down-mouse-1>" . nil) ; https://github.com/magnars/multiple-cursors.el/blob/c870c18462461df19382ecd2f9374c8b902cd804/README.md?plain=1#L168
+  ("M-<mouse-1>" . mc/add-cursor-on-click)
+  )
 
 (leaf grugru :ensure t
   :bind ("C-;" . grugru)
