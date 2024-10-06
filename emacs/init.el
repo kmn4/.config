@@ -1028,6 +1028,7 @@ _/_: undo      _d_: down        ^ ^
   (lsp-idle-delay . 0.2)
   (lsp-auto-execute-action . nil)
   (lsp-modeline-code-actions-segments . '(count icon name))
+  (lsp-disabled-clients . '(perl-language-server)) ; prefer PerlNavigator
   :custom-face
   ;; TODO: ピーク時にはむしろ背景をグレーにしたい
   (lsp-ui-peek-peek . '((t (:background "dim gray"))))
