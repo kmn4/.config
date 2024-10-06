@@ -1198,11 +1198,15 @@ _/_: undo      _d_: down        ^ ^
   :defvar cperl-mode-map
   :custom
   (cperl-indent-level . 4)
+  (cperl-electric-backspace-untabify . nil)
   :config
   (add-to-list 'major-mode-remap-alist '(perl-mode . cperl-mode))
+  (add-hook 'cperl-mode-hook #'indent-tabs-mode)
+  (add-hook 'cperl-mode-hook (lambda () (setq tab-width 4)))
   :defer-config
   ;; smartparens との衝突を解決
-  (define-key cperl-mode-map "{" nil))
+  (define-key cperl-mode-map "{" nil)
+  (define-key cperl-mode-map (kbd "C-h") #'cperl-electric-backspace))
 
 ;;;; 見た目
 
