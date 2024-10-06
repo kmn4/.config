@@ -416,6 +416,15 @@ DOCSTRING は必須。これがないと意図通りに展開されない。"
 
 (global-set-key (kbd "C-x k") #'kill-buffer-dwim)
 
+(defun shell-like-C-w ()
+  (interactive)
+  (call-interactively
+   (if (region-active-p)
+       #'kill-region
+     #'backward-kill-word)))
+
+(global-set-key (kbd "C-w") #'shell-like-C-w)
+
 ;; 以下は "NOT part of Emacs" なパッケージも使う
 
 (leaf exec-path-from-shell :when *unix?
