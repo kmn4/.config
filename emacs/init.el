@@ -149,6 +149,14 @@ BINDINGS should be of the form [KEY DEF]..."
   (interactive "suser@host: ")
   (find-file (format "/ssh:%s:~" userhost)))
 
+(defcustom ssh-hosts '() "SSH hosts and users."
+  :type '(repeat string))
+
+(defun ssh-connect ()
+  (interactive)
+  (ivy-read "connect to: " ssh-hosts
+            :action #'ssh-find-home))
+
 (defun map-frame-parameter (fn param &optional frame)
   (unless frame (setq frame (selected-frame)))
   (set-frame-parameter
