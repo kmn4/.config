@@ -725,7 +725,7 @@ _h_ --^ ^-- _l_    _H_ --^ ^-- _L_    _b_alance
   ;; これは git-gutter+ の実装が悪いためなので、git-gutter+ の使用をやめるか、
   ;; バッファ作成時にそのバッファが TRAMP モードになるかどうか判定して git-gutter+
   ;; の有効化を決定するように変更する。
-  (leaf git-gutter+ :ensure t :global-minor-mode global-git-gutter+-mode
+  (leaf git-gutter+ :ensure t :global-minor-mode global-git-gutter+-mode :disabled t
     :diminish git-gutter+-mode
     :defvar git-gutter+-mode
     :defun git-gutter+-refresh
