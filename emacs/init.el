@@ -761,6 +761,7 @@ _s_, _<tab>_: show    _U_: unstage all    _c_: commit
 (leaf docker :ensure t :when (executable-find "docker")
   :bind (leader-map :package init ("d" . docker))
   :custom (docker-run-async-with-buffer-function . 'docker-run-async-with-buffer-vterm))
+(leaf docker-tramp :ensure t)
 (leaf counsel-tramp :ensure t) ; Docker コンテナを簡単に選択
 
 (leaf yaml-mode :ensure t)
