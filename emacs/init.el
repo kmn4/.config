@@ -781,7 +781,6 @@ _s_, _<tab>_: show    _U_: unstage all    _c_: commit
   (docker-run-async-with-buffer-function . 'docker-run-async-with-buffer-vterm)
   (docker-compose-command . "docker compose")
   )
-(leaf docker-tramp :ensure t)
 (leaf counsel-tramp :ensure t) ; Docker コンテナを簡単に選択
 
 (leaf yaml-mode :ensure t)
