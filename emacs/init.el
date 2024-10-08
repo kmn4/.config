@@ -905,6 +905,7 @@ _/_: undo      _d_: down        ^ ^
     ("C-v" . scroll-up-command)
     ("M-v" . scroll-down-command)
     ("C-z" . previous-buffer))
+  (leader-map :package init ("@" . vterm))
   :defvar vterm-eval-cmds
   :push
   ((vterm-eval-cmds . '("dired" dired))
