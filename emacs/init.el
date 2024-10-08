@@ -891,6 +891,21 @@ _/_: undo      _d_: down        ^ ^
 
 ;; シェル周り
 
+(defface color-royal-blue
+  '((t :foreground "royal blue" :background "royal blue"))
+  "royal blue"
+  :group 'init)
+
+(defface color-dodger-blue
+  '((t :foreground "dodger blue" :background "dodger blue"))
+  "dodger blue"
+  :group 'init)
+
+(leaf term
+  :custom-face
+  (term-color-blue . '((t :inherit color-royal-blue)))
+  (term-color-bright-blue . '((t :inherit color-dodger-blue))))
+
 ;; vterm (https://github.com/akermu/emacs-libvterm)
 ;; Ubuntu では `libtool', `libtool-bin', `cmake', `libvterm-dev' が必要。
 ;; シェル側の設定も必要なので注意 (https://github.com/akermu/emacs-libvterm#shell-side-configuration)
