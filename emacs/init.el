@@ -917,6 +917,8 @@ _/_: undo      _d_: down        ^ ^
   `(vterm-mode-map
     ,@(mapcar (lambda (c) (cons (concat "C-c C-" (string c)) 'vterm--self-insert))
               (seq-difference "abcdefghijklmnopqrstuvwxyz" "t"))
+    (,leader-key . nil)
+    ("<f1>" . nil)
     ("C-c RET" . vterm-send-next-key)
     ("C-h" . vterm--self-insert)
     ("C-v" . scroll-up-command)
