@@ -442,6 +442,25 @@ DOCSTRING は必須。これがないと意図通りに展開されない。"
 
 (global-set-key (kbd "C-w") #'shell-like-C-w)
 
+
+(leaf browse-url
+  :custom
+  (browse-url-default-scheme . "https")
+  :config
+  (defun browse-url-at-mouse-strict-url (event)
+    (interactive "e")
+    (save-excursion
+      (mouse-set-point event)
+      (let ((url (thing-at-point 'url t)))
+        (when url (browse-url url browse-url-new-window-flag)))))
+  (defun mouse-browse-or-menu (event)
+    (interactive "e")
+    (when (or current-prefix-arg (not (browse-url-at-mouse-strict-url event)))
+      (mouse-buffer-menu event)))
+  :bind
+  ("C-<down-mouse-1>" . nil)
+  ("C-<mouse-1>" . mouse-browse-or-menu))
+
 ;; 以下は "NOT part of Emacs" なパッケージも使う
 
 (leaf exec-path-from-shell :when *unix?
