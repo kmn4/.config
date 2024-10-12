@@ -157,6 +157,8 @@ BINDINGS should be of the form [KEY DEF]..."
   (ivy-read "connect to: " ssh-hosts
             :action #'ssh-find-home))
 
+(defun default-directory (buf) (with-current-buffer buf default-directory))
+
 (defun map-frame-parameter (fn param &optional frame)
   (unless frame (setq frame (selected-frame)))
   (set-frame-parameter
@@ -920,7 +922,6 @@ _/_: undo      _d_: down        ^ ^
     ("C-v" . scroll-up-command)
     ("M-v" . scroll-down-command)
     ("C-z" . previous-buffer))
-  (leader-map :package init ("@" . vterm))
   :defvar vterm-eval-cmds
   :push
   ((vterm-eval-cmds . '("dired" dired))
@@ -929,10 +930,27 @@ _/_: undo      _d_: down        ^ ^
   (vterm-exit-functions . '((lambda (_ _) (previous-buffer))))
   (vterm-tramp-shells . '(("ssh" "/bin/bash")))
   :init
-  (defun vterm-or-suspend ()
-    "GUI フレームでは `projectile-run-vterm' を、ターミナルでは `suspend-frame' を呼ぶ。"
-    (interactive)
-    (if (window-system) (projectile-run-vterm) (suspend-frame))))
+  (defun vterm-or-suspend (arg)
+    "GUI フレームでは `vterm-select' を、ターミナルでは `suspend-frame' を呼ぶ。"
+    (interactive "P")
+    (if (window-system) (vterm-select arg) (suspend-frame)))
+  (defun vterm-select (arg)
+    "リポジトリごとにvtermバッファがあったら選択、なかったら作る。C-uで強制的に新規作成。"
+    (interactive "P")
+    (let* ((vterm-buffers (buffer-list-major-mode 'vterm-mode))
+           (vc-root (vc-root-dir))
+           (filter (lambda (buf)
+                     (if vc-root (file-equal-p (default-directory buf) vc-root)
+                       (string-match-p "^\\*vterm\\(< [0-9]+>\\)?\\*$" (buffer-name buf)))))
+           (candidates (-filter filter vterm-buffers)))
+      (if (or arg (not candidates)) (funcall (if vc-root 'projectile-run-vterm 'vterm) arg)
+        (let ((names (mapcar #'buffer-name candidates)))
+          (switch-to-buffer
+           (if (length= names 1) (car names)
+             (ivy-read "open: " names
+                       :require-match t)))))
+      ))
+  )
 
 ;; company が有効だとなぜか `sh-completion-at-point' が異常に遅い。
 ;; 無効にして、普通に `completion-at-point' を呼び出す。
