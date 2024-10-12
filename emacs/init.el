@@ -749,20 +749,9 @@ _h_ --^ ^-- _l_    _H_ --^ ^-- _L_    _b_alance
 (leaf *git
   :init
   (leaf magit :ensure t :require t)
-  ;; TODO TRAMP でファイルを開くとエラーになる。
-  ;; これは git-gutter+ の実装が悪いためなので、git-gutter+ の使用をやめるか、
-  ;; バッファ作成時にそのバッファが TRAMP モードになるかどうか判定して git-gutter+
-  ;; の有効化を決定するように変更する。
-  (leaf git-gutter+ :ensure t :global-minor-mode global-git-gutter+-mode :disabled t
-    :diminish git-gutter+-mode
-    :defvar git-gutter+-mode
-    :defun git-gutter+-refresh
-    :init
-    (defun git-gutter+-refresh-all-buffers ()
-      (interactive)
-      ;; TODO: .gitignore されているファイルなど、Git 管理外のファイルでもリフレッシュが
-      ;;       試行される場合がある。エラーメッセージがエコーエリアに出てしまうので上手く回避したい。
-      (in-all-buffers-where (-const git-gutter+-mode) (git-gutter+-refresh))))
+  (leaf git-gutter :ensure t :global-minor-mode global-git-gutter-mode
+    :diminish git-gutter-mode
+    :defvar git-gutter-mode)
   (leaf git-modes :ensure t)
   (leaf git-link :ensure t)
   :bind (leader-map :package init ("g" . hydra-git/body))
@@ -773,19 +762,19 @@ _h_ --^ ^-- _l_    _H_ --^ ^-- _L_    _b_alance
 ^^^--------------------------------------------------
 _n_: next^^           _a_: stage          _g_: magit
 _p_: prev^^           _r_: revert         _b_: blame
-_s_, _<tab>_: show    _U_: unstage all    _c_: commit
+_s_: show^^           _U_: unstage all    _c_: commit
 "
-          ("n" git-gutter+-next-hunk)
-          ("p" git-gutter+-previous-hunk)
-          ("s" git-gutter+-show-hunk-inline-at-point)
-          ("<tab>" git-gutter+-show-hunk-inline-at-point)
-          ("a" git-gutter+-stage-hunks)
-          ("r" git-gutter+-revert-hunks)
-          ("U" git-gutter+-unstage-whole-buffer)
+          ("n" git-gutter:next-hunk)
+          ("p" git-gutter:previous-hunk)
+          ("s" git-gutter:popup-hunk)
+          ("a" git-gutter:stage-hunk)
+          ("r" git-gutter:revert-hunk)
+          ("U" magit-unstage-buffer-file)
           ("g" magit-status :exit t)
           ("b" magit-blame :exit t)
           ("c" magit-commit :exit t)
-          ("R" git-gutter+-refresh-all-buffers "refresh gutter in all buffers" :exit t)))
+          ("R" git-gutter:update-all-windows "refresh gutter in all buffers" :exit t)
+          ))
 
 (leaf rg :ensure t)
 (leaf visual-regexp :ensure t :bind ("C-M-%" . vr/query-replace))
