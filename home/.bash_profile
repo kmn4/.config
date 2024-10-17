@@ -19,6 +19,7 @@ export WIN_HOME="$(wslpath $(wslvar USERPROFILE))"
 
 command -v hugo &> /dev/null  && eval "$(hugo completion bash)"
 test -d "$XDG_DATA_HOME/coursier/bin" && export PATH="$XDG_DATA_HOME/coursier/bin:$PATH"
+test -d "$HOME/.local/bin" && export PATH="$HOME/.local/bin:$PATH"
 
 # history
 export HISTSIZE=
