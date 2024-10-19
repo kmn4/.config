@@ -169,4 +169,3 @@ update_all() {
     update_ghcup && update_stack
     update_winget
 }
-
