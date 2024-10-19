@@ -8,7 +8,6 @@ fi
 
 eval "$(ssh-agent -s)"
 trap 'kill $SSH_AGENT_PID' EXIT
-setxkbmap jp
 export LANG=ja_JP.UTF-8
 export XDG_DATA_HOME="$HOME/.local/share"
 export XDG_CONFIG_HOME="$HOME/.config"
