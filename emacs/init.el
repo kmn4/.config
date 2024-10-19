@@ -953,7 +953,7 @@ _/_: undo      _d_: down        ^ ^
     "リポジトリごとにvtermバッファがあったら選択、なかったら作る。C-uで強制的に新規作成。"
     (interactive "P")
     (let* ((vterm-buffers (buffer-list-major-mode 'vterm-mode))
-           (vc-root (vc-root-dir))
+           (vc-root (projectile-project-root))
            (filter (lambda (buf)
                      (if vc-root (file-equal-p (default-directory buf) vc-root)
                        (string-match-p "^\\*vterm\\(< [0-9]+>\\)?\\*$" (buffer-name buf)))))
