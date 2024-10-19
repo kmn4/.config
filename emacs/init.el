@@ -80,7 +80,7 @@ BINDINGS should be of the form [KEY DEF]..."
   ;; leader-map をバインドするキー。
   ;; キーボードや OS によって異なるキーを使いたいのでカスタマイズ変数とする。
   (defcustom leader-key
-    (cond ((eq system-type 'gnu/linux) "C-<henkan>")
+    (cond ((eq system-type 'gnu/linux) "C-SPC")
           ;; Karabiner-Elements を使って Caps Lock を <help> にリマップして使う．
           ((eq system-type 'darwin) "<help>")
           ((eq system-type 'windows-nt) "<convert>"))
