@@ -140,6 +140,8 @@ stty werase undef; bind '"\C-w": unix-filename-rubout'
 
 export GPG_TTY="$(tty)"
 
+[ -d "$XDG_STATE_HOME/emacs" ] || mkdir -p "$XDG_STATE_HOME/emacs"
+alias emacsclient='emacsclient >> "$XDG_STATE_HOME/emacs/emacs.log" 2>&1'
 alias egui="emacsclient -cn -a ''"
 alias ecui="emacsclient -nw -a ''"
 alias firefox.exe="'/mnt/c/Program Files/Mozilla Firefox/firefox.exe'"
