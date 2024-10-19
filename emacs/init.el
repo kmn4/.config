@@ -461,6 +461,11 @@ DOCSTRING は必須。これがないと意図通りに展開されない。"
   ("C-<down-mouse-1>" . nil)
   ("C-<mouse-1>" . mouse-browse-or-menu))
 
+(defun ivy-ghq ()
+  (interactive)
+  (ivy-read "open: " (string-split (shell-command-to-string "ghq list -p") "\n")
+            :action (lambda (dir) (let ((default-directory dir)) (projectile-run-vterm)))))
+
 ;; 以下は "NOT part of Emacs" なパッケージも使う
 
 (leaf exec-path-from-shell :when *unix?
