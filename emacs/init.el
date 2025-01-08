@@ -452,7 +452,9 @@ DOCSTRING は必須。これがないと意図通りに展開されない。"
     (save-excursion
       (mouse-set-point event)
       (let ((url (thing-at-point 'url t)))
-        (when url (browse-url url browse-url-new-window-flag)))))
+        (when url
+          (browse-url url browse-url-new-window-flag)
+          (message "opened: %s" url)))))
   (defun mouse-browse-or-menu (event)
     (interactive "e")
     (when (or current-prefix-arg (not (browse-url-at-mouse-strict-url event)))
