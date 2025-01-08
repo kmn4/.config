@@ -148,6 +148,7 @@ alias firefox.exe="'/mnt/c/Program Files/Mozilla Firefox/firefox.exe'"
 command -v firefox &> /dev/null || alias firefox="firefox.exe"
 # apt install libterm-readline-perl-perl
 command -v perlsh &> /dev/null || alias perlsh="rlwrap perl -Mstrict -Mwarnings -Mutf8 -MData::Dumper -d -e1"
+eww(){ emacs -q -nw --eval "(eww \"$1\")";}
 
 alias update_apt='command -v apt &> /dev/null && sudo apt update && sudo apt upgrade && sudo apt autoremove'
 alias update_winget='command -v powershell.exe &> /dev/null && powershell.exe -Command "winget upgrade"'
