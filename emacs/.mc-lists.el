@@ -33,6 +33,7 @@
         org-kill-line
         org-self-insert-command
         org-yank
+        shell-like-C-w
         skk-insert
         sp-remove-active-pair-overlay
         sp-rewrap-sexp
