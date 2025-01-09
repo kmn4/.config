@@ -10,17 +10,18 @@ thisdir="$(readlink -f "$(dirname "$0")")"
 
 mkdir -p "$target"
 
+symlink() {
+    local realpath="$1"
+    local linkpath="$2"
+    [ "$(readlink -f "$linkpath")" = "$realpath" ] || ln -sbvT "$realpath" "$linkpath"
+}
+
 for item in "${items[@]}"; do
-    [ "$(readlink -f "$target/$item")" = "$thisdir/$item" ] || ln -sbvT "$thisdir/$item" "$target/$item"
+    symlink "$thisdir/$item" "$target/$item"
 done
 
-declare -A files
-while IFS= read -r -d '' file; do
-    files["$(basename "$file")"]="$file"
-done < <(find "$thisdir/home" -maxdepth 1 -type f -print0)
-for item in "${!files[@]}"; do
-    file="${files["$item"]}"
-    [ "$(readlink -f "$HOME/$item")" = "$file" ] || ln -sbvT "$file" "$HOME/$item"
+for item in $(ls -A "$thisdir/home"); do
+    symlink "$thisdir/home/$item" "$HOME/$item"
 done
 
 # other files
