@@ -1,3 +1,6 @@
+# shellcheck shell=bash
+# shellcheck disable=SC2155
+
 # ~/.bashrc: executed by bash(1) for non-login shells.
 # see /usr/share/doc/bash/examples/startup-files (in the package bash-doc)
 # for examples
@@ -60,7 +63,7 @@ parse_git_branch() {
     git branch --no-color 2> /dev/null | sed -e '/^[^*]/d' -e "s/* \(.*\)/ (\1$(parse_git_dirty))/"
 }
 __prompt_command() {
-    local pipestatus="${PIPESTATUS[@]}"
+    local pipestatus="${PIPESTATUS[*]}"
     local exitcode="$(echo "$pipestatus" | tr " " "\n" | tail -1)"
     local pipecode="$(echo -n "$pipestatus" | tr ' ' '|')"
     [ "$exitcode" != 0 ] && local promptcode=" \[\e[31m\][$pipecode]\[\e[0m\]"
