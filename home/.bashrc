@@ -157,7 +157,7 @@ alias update_cs='command -v cs &> /dev/null && cs update'
 alias update_brew='command -v brew &> /dev/null && brew update && brew upgrade && brew autoremove'
 alias update_npm='command -v npm &> /dev/null && sudo npm update -g'
 alias update_rustup='command -v rustup &> /dev/null && rustup update'
-alias update_ghcup='command -v ghcup &> /dev/null && ghcup update'
+alias update_ghcup='command -v ghcup &> /dev/null && ghcup upgrade'
 alias update_stack='command -v stack &> /dev/null && stack update && stack upgrade'
 
 update_all() {
