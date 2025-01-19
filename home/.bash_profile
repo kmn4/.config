@@ -1,4 +1,4 @@
-eval "$(ssh-agent -s)"
+eval "$(ssh-agent -s)" > /dev/null 2>&1
 trap 'kill $SSH_AGENT_PID' EXIT
 export LANG=ja_JP.UTF-8
 export XDG_DATA_HOME="$HOME/.local/share"
