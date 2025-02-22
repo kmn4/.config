@@ -19,6 +19,10 @@ if [ -n "$BASH_VERSION" ]; then
     if [ -f "$HOME/.bashrc" ]; then
         . "$HOME/.bashrc"
     fi
+    if test -f "$HOME/.bash_profile.local"
+    then
+        . "$HOME/.bash_profile.local"
+    fi
 fi
 
 # history
