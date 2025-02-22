@@ -76,7 +76,7 @@ __prompt_command() {
 
 if [ "$color_prompt" = yes ]; then
     PROMPT_COMMAND=__prompt_command
-    PROMPT_COMMAND="$PROMPT_COMMAND; history -a"
+    PROMPT_COMMAND="$PROMPT_COMMAND; history -n; history -a"
 else
     PS1='${debian_chroot:+($debian_chroot)}\u@\h:\w\$ '
 fi
