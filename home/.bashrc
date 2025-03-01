@@ -75,8 +75,12 @@ __prompt_command() {
 }
 
 if [ "$color_prompt" = yes ]; then
-    PROMPT_COMMAND=__prompt_command
-    PROMPT_COMMAND="$PROMPT_COMMAND; history -n; history -a"
+    declare -a PROMPT_COMMAND
+    PROMPT_COMMAND+=(
+        __prompt_command
+        'history -n'
+        'history -a'
+    )
 else
     PS1='${debian_chroot:+($debian_chroot)}\u@\h:\w\$ '
 fi
@@ -173,3 +177,10 @@ update_all() {
     update_ghcup && update_stack
     update_winget
 }
+
+if [[ "$INSIDE_EMACS" = 'vterm' ]] \
+  && [[ -n "${EMACS_VTERM_PATH}" ]] \
+  && [[ -f "${EMACS_VTERM_PATH}/etc/emacs-vterm-bash.sh" ]]; then
+    source "${EMACS_VTERM_PATH}/etc/emacs-vterm-bash.sh"
+    PROMPT_COMMAND+=("PS1+='\[\$(vterm_prompt_end)\]'")
+fi
