@@ -38,6 +38,8 @@
         sp-remove-active-pair-overlay
         sp-rewrap-sexp
         sp-unwrap-sexp
+        yaml-electric-backspace
+        yaml-electric-dash-and-dot
         ))
 
 (setq mc/cmds-to-run-once
