@@ -945,7 +945,7 @@ _/_: undo      _d_: down        ^ ^
    (vterm-eval-cmds . '("ediff-files" ediff-files)))
   :custom
   (vterm-exit-functions . '((lambda (_ _) (previous-buffer))))
-  (vterm-tramp-shells . '(("ssh" "/bin/bash")))
+  (vterm-tramp-shells . '(("ssh" "/bin/bash") ("sudo" "/bin/bash")))
   :init
   (defun vterm-or-suspend (arg)
     "GUI フレームでは `vterm-select' を、ターミナルでは `suspend-frame' を呼ぶ。"
