@@ -1302,7 +1302,12 @@ _/_: undo      _d_: down        ^ ^
    ("j" . #'treemacs-next-line))
   (leader-map :package init ("0" . treemacs)))
 
-(leaf nerd-icons :ensure t :require t)
+(leaf nerd-icons :ensure t :require t
+  :defer-config
+  (unless (seq-every-p
+           (lambda (font) (file-exists-p (concat "~/.local/share/fonts/" font)))
+           nerd-icons-font-names)
+    (nerd-icons-install-fonts t)))
 
 (leaf all-the-icons :ensure t
   :config
@@ -1321,7 +1326,12 @@ _/_: undo      _d_: down        ^ ^
         :delimiter "\t")))
     ;; push-list したあとで有効化
     (all-the-icons-ivy-rich-mode +1))
-  (leaf all-the-icons-ibuffer :ensure t :hook ibuffer-mode-hook))
+  (leaf all-the-icons-ibuffer :ensure t :hook ibuffer-mode-hook)
+  :defer-config
+  (unless (seq-every-p
+           (lambda (font) (file-exists-p (concat "~/.local/share/fonts/" font)))
+           all-the-icons-font-names)
+    (all-the-icons-install-fonts t)))
 
 (prog1 "フォント"
   (defun linux-install-hackgen ()
