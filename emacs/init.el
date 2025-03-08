@@ -776,7 +776,8 @@ _h_ --^ ^-- _l_    _H_ --^ ^-- _L_    _b_alance
       (advice-add 'magit-status :around #'advice)))
   (leaf git-gutter :ensure t :global-minor-mode global-git-gutter-mode
     :diminish git-gutter-mode
-    :defvar git-gutter-mode)
+    :defvar git-gutter-mode
+    :advice (:before hydra-git/body git-gutter:update-all-windows))
   (leaf git-modes :ensure t)
   (leaf git-link :ensure t)
   :bind (leader-map :package init ("g" . hydra-git/body))
