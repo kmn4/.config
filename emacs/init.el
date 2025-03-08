@@ -765,7 +765,15 @@ _h_ --^ ^-- _l_    _H_ --^ ^-- _L_    _b_alance
 
 (leaf *git
   :init
-  (leaf magit :ensure t :require t)
+  (leaf magit :ensure t :require t
+    :config
+    ;; `magit-status' を新しいフレームで開く
+    (cl-flet*
+        ((advice (orig-fun &rest args)
+           (with-selected-frame (make-frame)
+             (apply orig-fun args)
+             (delete-other-windows))))
+      (advice-add 'magit-status :around #'advice)))
   (leaf git-gutter :ensure t :global-minor-mode global-git-gutter-mode
     :diminish git-gutter-mode
     :defvar git-gutter-mode)
