@@ -1334,22 +1334,6 @@ _/_: undo      _d_: down        ^ ^
     (all-the-icons-install-fonts t)))
 
 (prog1 "フォント"
-  (defun linux-install-hackgen ()
-    "HackGen NF をインストールします。"
-    (interactive)
-    (unless (test-shell-command "fc-list | grep -i 'hackgen'")
-      (if (not (test-shell-command "which unzip"))
-          (message "install unzip")
-        (run-shell-command "curl -sSLo /tmp/HackGen_NF_v2.9.0.zip https://github.com/yuru7/HackGen/releases/download/v2.9.0/HackGen_NF_v2.9.0.zip")
-        (run-shell-command "unzip /tmp/HackGen_NF_v2.9.0.zip -d /tmp")
-        (run-shell-command "mkdir -p ~/.local/share/fonts")
-        (run-shell-command "cp /tmp/HackGen_NF_v2.9.0/*.ttf ~/.local/share/fonts")
-        (run-shell-command "fc-cache -f")
-        (if (test-shell-command "fc-list | grep -i 'hackgen'")
-            (message "succeeded to install HackGen")
-          (message "failed to install HackGen")))
-      ))
-  (when *wsl? (linux-install-hackgen))
   (defcustom default-face-family "HackGen Console NF"
     "`default' フェイスのファミリ。" :type 'string :group 'init)
   (defcustom default-face-height 110
