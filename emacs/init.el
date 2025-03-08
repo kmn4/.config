@@ -418,6 +418,10 @@ DOCSTRING は必須。これがないと意図通りに展開されない。"
 
 (leaf ibuffer :custom (ibuffer-default-sorting-mode . 'filename/process))
 
+(leaf minibuffer
+  :custom
+  (enable-recursive-minibuffers . t))
+
 ;; kill-buffer を interactive に呼ぶと保存するかどうか訊かれるが、それはファイルを visit しているときだけ。
 ;; Untitled バッファは問答無用で kill されてしまうので、それを防ぐために独自の関数を定義する。
 (defun kill-buffer--possibly-save-if-modified (buffer)
