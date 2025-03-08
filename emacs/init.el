@@ -704,12 +704,22 @@ ELTS の要素の順序は保たれる。"
   (add-to-list 'hl-todo-keyword-faces '("WARN" . "#ff0000")))
 
 (leaf ivy
-  :ensure t swiper counsel ivy-hydra ivy-rich
+  :ensure t counsel ivy-hydra ivy-rich
   :global-minor-mode t counsel-mode ; ivy-rich-mode ; ivy-rich slow on NTFS on WSL
   :bind
-  ("C-s" . swiper)
   ("C-x b" . counsel-switch-buffer)
   :diminish ivy-mode counsel-mode)
+
+(leaf swiper
+  :ensure t
+  :bind
+  ("C-s" . swiper)
+  (swiper-map ("C-s" . *swiper-C-s))
+  :config
+  (defun *swiper-C-s ()
+    (interactive)
+    (ivy-exit-with-action
+     (lambda (_) (call-interactively #'swiper-thing-at-point)))))
 
 (leaf winum
   :ensure t
