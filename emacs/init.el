@@ -1309,29 +1309,28 @@ _/_: undo      _d_: down        ^ ^
            nerd-icons-font-names)
     (nerd-icons-install-fonts t)))
 
-(leaf all-the-icons :ensure t
+(leaf nerd-icons-dired :ensure t :hook dired-mode-hook)
+
+(leaf treemacs-nerd-icons :ensure t
+  :after treemacs
   :config
-  (leaf all-the-icons-dired :ensure t :hook dired-mode-hook
-    :custom (all-the-icons-dired-monochrome . nil))
-  (leaf all-the-icons-ivy-rich :ensure t :require t :after ivy ivy-rich
-    :config
-    ;; XDG User Dir は D から始まるディレクトリが多くて識別しづらいので
-    ;; アイコンを表示してわかりやすくする。
-    (push-list
-     'all-the-icons-ivy-rich-display-transformers-list
-     '(ivy-find-xdg-user-dirs
-       (:columns
-        ((all-the-icons-ivy-rich-file-icon)
-         (all-the-icons-ivy-rich-project-name))
-        :delimiter "\t")))
-    ;; push-list したあとで有効化
-    (all-the-icons-ivy-rich-mode +1))
-  (leaf all-the-icons-ibuffer :ensure t :hook ibuffer-mode-hook)
-  :defer-config
-  (unless (seq-every-p
-           (lambda (font) (file-exists-p (concat "~/.local/share/fonts/" font)))
-           all-the-icons-font-names)
-    (all-the-icons-install-fonts t)))
+  (treemacs-load-theme "nerd-icons"))
+
+(leaf nerd-icons-ibuffer :ensure t :hook ibuffer-mode-hook)
+
+(leaf nerd-icons-ivy-rich :ensure t :require t
+  :config
+  ;; XDG User Dir は D から始まるディレクトリが多くて識別しづらいので
+  ;; アイコンを表示してわかりやすくする。
+  (push-list
+   'nerd-icons-ivy-rich-display-transformers-list
+   '(ivy-find-xdg-user-dirs
+     (:columns
+      ((nerd-icons-ivy-rich-file-icon)
+       (nerd-icons-ivy-rich-project-name))
+      :delimiter "\t")))
+  ;; push-list したあとで有効化
+  (nerd-icons-ivy-rich-mode +1))
 
 (prog1 "フォント"
   (defcustom default-face-family "HackGen Console NF"
@@ -1382,6 +1381,7 @@ _/_: undo      _d_: down        ^ ^
   :custom
   (centaur-tabs-set-icons . t)
   (centaur-tabs-set-modified-marker . t)
+  (centaur-tabs-icon-type . 'nerd-icons)
   :defer-config (centaur-tabs-headline-match))
 
 (leaf whitespace :hook (conf-mode-hook . whitespace-mode))
