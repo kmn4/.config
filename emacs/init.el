@@ -34,7 +34,27 @@
   (interactive)
   (native-compile-async (concat user-emacs-directory "elpa") 'recursively))
 
-;;;; load-path と leaf.
+;;;; package/configuration management
+
+(defvar bootstrap-version)
+(let ((bootstrap-file
+       (expand-file-name
+        "straight/repos/straight.el/bootstrap.el"
+        (or (bound-and-true-p straight-base-dir)
+            user-emacs-directory)))
+      (bootstrap-version 7))
+  (unless (file-exists-p bootstrap-file)
+    (with-current-buffer
+        (url-retrieve-synchronously
+         "https://raw.githubusercontent.com/radian-software/straight.el/develop/install.el"
+         'silent 'inhibit-cookies)
+      (goto-char (point-max))
+      (eval-print-last-sexp)))
+  (load bootstrap-file nil 'nomessage))
+
+(straight-use-package 'leaf)
+(straight-use-package 'leaf-keywords)
+(leaf-keywords-init)
 
 (prog1 "site-lisp/ 以下をロードパスに追加"
   (let ((default-directory (concat user-emacs-directory "site-lisp/")))
@@ -43,16 +63,8 @@
     (add-to-list 'load-path default-directory)
     (normal-top-level-add-subdirs-to-load-path)))
 
-;; leaf
-(eval-and-compile
-  (require 'package)
-  (add-to-list 'package-archives '("melpa" . "https://melpa.org/packages/"))
-  (unless (package-installed-p 'leaf)
-    (package-refresh-contents)
-    (package-install 'leaf))
-  (leaf leaf-keywords :ensure t diminish hydra :config (leaf-keywords-init)))
-
-(leaf el-get :ensure t :custom (el-get-notify-type . 'message))
+(leaf diminish :straight t)
+(leaf hydra :straight t)
 
 ;;;; キーマップ。
 ;; init.el に問題があってすべてを読み込めないときでも
@@ -125,12 +137,9 @@ BINDINGS should be of the form [KEY DEF]..."
    ;; mizc
    "M-w" #'win-clip))
 
-(leaf dash :ensure t)
-(leaf s :ensure t)
-(leaf f :ensure t)
-(require 'dash)
-(require 's)
-(require 'f)
+(leaf dash :straight t :require t)
+(leaf s :straight t :require t)
+(leaf f :straight t :require t)
 
 ;;;; Emacs や基本的なライブラリにしか依存しない関数など
 
@@ -260,7 +269,8 @@ BINDINGS should be of the form [KEY DEF]..."
   "BUF のメジャーモードを返す。"
   (with-current-buffer buf major-mode))
 
-(leaf duplicate-line :el-get manateelazycat/duplicate-line
+(leaf duplicate-line
+  :straight (duplicate-line :host github :repo "manateelazycat/duplicate-line")
   :require t
   :defun
   duplicate-line-or-region-above
@@ -395,7 +405,7 @@ DOCSTRING は必須。これがないと意図通りに展開されない。"
              (eq (buffer-major-mode (window-buffer win)) mode))
            windows)))
 
-(leaf imenu-list :ensure t
+(leaf imenu-list :straight t
   :bind (leader-map :package init ("ti" . imenu-list-toggle))
   :init
   (defun imenu-list-toggle ()
@@ -412,7 +422,7 @@ DOCSTRING は必須。これがないと意図通りに展開されない。"
                   ("B" . button-describe)))
 
 (leaf elisp-mode :bind (emacs-lisp-mode-map ("C-c x" . emacs-lisp-macroexpand)))
-(leaf macrostep :ensure t
+(leaf macrostep :straight t
   :bind (emacs-lisp-mode-map :package init ("C-c e" . macrostep-expand)))
 (leaf simple :custom (eval-expression-print-length . nil))
 
@@ -475,7 +485,7 @@ DOCSTRING は必須。これがないと意図通りに展開されない。"
 ;; 以下は "NOT part of Emacs" なパッケージも使う
 
 (leaf exec-path-from-shell :when *unix?
-  :ensure t
+  :straight t
   :custom (exec-path-from-shell-variables . '("PATH" "MANPATH" "INFOPATH" "LANG"))
   :config (exec-path-from-shell-initialize))
 
@@ -490,7 +500,7 @@ DOCSTRING は必須。これがないと意図通りに展開されない。"
   :custom
   (confirm-kill-emacs . #'yes-or-no-p))
 
-(leaf restart-emacs :ensure t)
+(leaf restart-emacs :straight t)
 
 (defmacro with-logging-messages (file &rest form)
   "FORM を評価し、その間のメッセージを FILE に書き込む。"
@@ -530,9 +540,9 @@ DOCSTRING は必須。これがないと意図通りに展開されない。"
         (concat package-upgrade-log-directory start-time-string "_messages.log")
       (package-upgrade-packages))))
 
-(leaf google-translate :ensure t popup)
+(leaf google-translate :straight t popup)
 
-(leaf move-text :ensure t
+(leaf move-text :straight t
   :config (move-text-default-bindings))
 
 (leaf display-line-numbers :hook prog-mode-hook text-mode-hook)
@@ -650,7 +660,7 @@ ELTS の要素の順序は保たれる。"
   :bind (project-prefix-map ("C-s" . project-counsel-rg)))
 
 (leaf projectile
-  :ensure t
+  :straight t
   :custom
   (projectile-globally-ignored-directories . nil) ; quick fix for bbatsov/projectile#1777
   (projectile-use-git-grep . t)
@@ -658,7 +668,7 @@ ELTS の要素の順序は保たれる。"
   ;; If :bind-keymap is used, then FlyC complains that
   ;; "Symbol's value as variable is void: projectile-command-map"
   :config (global-set-key (kbd "C-c p") 'projectile-command-map)
-  (leaf counsel-projectile :ensure t
+  (leaf counsel-projectile :straight t
     :bind
     (projectile-command-map :package projectile
      ("C-s" . counsel-projectile-rg))))
@@ -680,11 +690,11 @@ ELTS の要素の順序は保たれる。"
   (mouse-wheel-progressive-speed . nil) ; 目で追いやすくするために、マウススクロールを遅く保つ
   )
 
-(leaf minimap :ensure t :require t
+(leaf minimap :straight t :require t
   :custom (minimap-window-location . 'right)
   :bind (leader-map :package init ("tM" . minimap-mode)))
 
-(leaf undo-tree :ensure t :global-minor-mode global-undo-tree-mode
+(leaf undo-tree :straight t :global-minor-mode global-undo-tree-mode
   :diminish undo-tree-mode
   :custom
   (undo-tree-auto-save-history . nil)
@@ -701,21 +711,21 @@ ELTS の要素の順序は保たれる。"
 ;; auto-revert-mode is enabled on all Git-managed files due to magit-auto-revert-mode
 (leaf autorevert :diminish auto-revert-mode)
 
-(leaf hl-todo :ensure t
+(leaf hl-todo :straight t
   :hook prog-mode-hook org-mode-hook LaTeX-mode-hook
   :defvar hl-todo-keyword-faces
   :config
   (add-to-list 'hl-todo-keyword-faces '("WARN" . "#ff0000")))
 
 (leaf ivy
-  :ensure t counsel ivy-hydra ivy-rich
+  :straight t counsel ivy-hydra ivy-rich
   :global-minor-mode t counsel-mode ivy-rich-mode
   :bind
   ("C-x b" . counsel-switch-buffer)
   :diminish ivy-mode counsel-mode)
 
 (leaf swiper
-  :ensure t
+  :straight t
   :bind
   ("C-s" . swiper)
   (swiper-map ("C-s" . *swiper-C-s))
@@ -726,7 +736,7 @@ ELTS の要素の順序は保たれる。"
      (lambda (_) (call-interactively #'swiper-thing-at-point)))))
 
 (leaf winum
-  :ensure t
+  :straight t
   :global-minor-mode t
   :config
   (dolist (digit (number-sequence 0 9))
@@ -765,11 +775,11 @@ _h_ --^ ^-- _l_    _H_ --^ ^-- _L_    _b_alance
    ("o" other-window)
    ("z" delete-other-windows)))
 
-(leaf which-key :ensure t :global-minor-mode t :diminish which-key-mode)
+(leaf which-key :straight t :global-minor-mode t :diminish which-key-mode)
 
 (leaf *git
   :init
-  (leaf magit :ensure t :require t
+  (leaf magit :straight t :require t
     :config
     ;; `magit-status' を新しいフレームで開く
     (cl-flet*
@@ -778,12 +788,12 @@ _h_ --^ ^-- _l_    _H_ --^ ^-- _L_    _b_alance
              (apply orig-fun args)
              (delete-other-windows))))
       (advice-add 'magit-status :around #'advice)))
-  (leaf git-gutter :ensure t :global-minor-mode global-git-gutter-mode
+  (leaf git-gutter :straight t :global-minor-mode global-git-gutter-mode
     :diminish git-gutter-mode
     :defvar git-gutter-mode
     :advice (:before hydra-git/body git-gutter:update-all-windows))
-  (leaf git-modes :ensure t)
-  (leaf git-link :ensure t)
+  (leaf git-modes :straight t)
+  (leaf git-link :straight t)
   :bind (leader-map :package init ("g" . hydra-git/body))
   :hydra (hydra-git
           (:hint nil)
@@ -806,41 +816,43 @@ _s_: show^^           _U_: unstage all    _c_: commit
           ("R" git-gutter:update-all-windows "refresh gutter in all buffers" :exit t)
           ))
 
-(leaf rg :ensure t)
-(leaf visual-regexp :ensure t :bind ("C-M-%" . vr/query-replace))
-(leaf color-rg :el-get manateelazycat/color-rg :require t
+(leaf rg :straight t)
+(leaf visual-regexp :straight t :bind ("C-M-%" . vr/query-replace))
+(leaf color-rg
+  :straight (color-rg :host github :repo "manateelazycat/color-rg")
+  :require t
   :custom (color-rg-search-no-ignore-file . nil)
   :bind
   ("C-c '." . color-rg-search-symbol-in-project)
   ("C-c ''" . color-rg-search-input-in-project))
 
-(leaf dockerfile-mode :ensure t)
-(leaf docker :ensure t :when (executable-find "docker")
+(leaf dockerfile-mode :straight t)
+(leaf docker :straight t :when (executable-find "docker")
   :bind (leader-map :package init ("d" . docker))
   :custom
   (docker-run-async-with-buffer-function . 'docker-run-async-with-buffer-vterm)
   (docker-compose-command . "docker compose")
   )
-(leaf counsel-tramp :ensure t) ; Docker コンテナを簡単に選択
+(leaf counsel-tramp :straight t) ; Docker コンテナを簡単に選択
 
-(leaf yaml-mode :ensure t)
+(leaf yaml-mode :straight t)
 
-(leaf ansible :ensure t)
+(leaf ansible :straight t)
 
-(leaf systemd :when (executable-find "systemctl") :ensure t)
+(leaf systemd :when (executable-find "systemctl") :straight t)
 
 ;; counsel-bookmark を名前順で表示したい。
 (advice-add 'bookmark-all-names :filter-return (lambda (names) (sort names #'string<)))
 
 (setq ring-bell-function 'ignore)
 
-(leaf yasnippet :ensure t yasnippet-snippets
+(leaf yasnippet :straight t yasnippet-snippets
   :global-minor-mode yas-global-mode
   :diminish yas-minor-mode)
 
 ;; `completion-at-point' を直接利用する場合と比べて、補完中にドキュメントを読めることが company の利点。
 ;; 独自 UI よりも `counsel-company' ほうが候補の絞り込みに便利だが、後者ではドキュメント表示ができないので我慢。
-(leaf company :ensure t :global-minor-mode global-company-mode
+(leaf company :straight t :global-minor-mode global-company-mode
   :diminish company-mode
   :defvar company-backends
   :custom
@@ -854,24 +866,24 @@ _s_: show^^           _U_: unstage all    _c_: commit
                       ("M-<" . #'company-select-first)
                       ("M->" . #'company-select-last))
   :config
-  (leaf company-posframe :ensure t :global-minor-mode t
+  (leaf company-posframe :straight t :global-minor-mode t
     ;; *Help* が汚染されるのでドキュメントは手動 (<f1>キー) で開く
     :custom (company-posframe-quickhelp-delay . nil)
     :diminish company-posframe-mode))
 
-(leaf dumb-jump :ensure t
+(leaf dumb-jump :straight t
   :config
   (add-hook 'xref-backend-functions #'dumb-jump-xref-activate)
   )
 
-(leaf emojify :ensure t :global-minor-mode 'global-emojify-mode
+(leaf emojify :straight t :global-minor-mode 'global-emojify-mode
   :bind (leader-map :package init ("ie" . emojify-insert-emoji))
   :custom
   (emojify-display-style . 'image)
   (emojify-download-emojis-p . t)
   (emojify-emoji-styles . '(unicode)))
 
-(leaf smartparens :ensure t
+(leaf smartparens :straight t
   :require t smartparens-config
   :hook prog-mode-hook TeX-mode-hook
   :diminish smartparens-mode
@@ -904,7 +916,7 @@ _/_: undo      _d_: down        ^ ^
          ("pu" . sp-unwrap-sexp)
          ("pp" . hydra-parens/body)))
 
-(leaf multiple-cursors :ensure t
+(leaf multiple-cursors :straight t
   :bind
   ("C-M-<down>" . mc/mark-next-lines)
   ("C-M-<up>" . mc/mark-previous-lines)
@@ -914,14 +926,14 @@ _/_: undo      _d_: down        ^ ^
   ("M-<mouse-1>" . mc/add-cursor-on-click)
   )
 
-(leaf grugru :ensure t
+(leaf grugru :straight t
   :bind ("C-;" . grugru)
   :defun grugru-default-setup
   :config
   (grugru-define-on-major-mode 'emacs-lisp-mode 'symbol '("add-to-list" "delete-from-list"))
   (grugru-default-setup))
 
-(leaf expand-region :ensure t
+(leaf expand-region :straight t
   :bind (leader-map :package init ("x" . er/expand-region))
   :custom
   (expand-region-contract-fast-key . "c")
@@ -949,7 +961,7 @@ _/_: undo      _d_: down        ^ ^
 ;; vterm (https://github.com/akermu/emacs-libvterm)
 ;; Ubuntu では `libtool', `libtool-bin', `cmake', `libvterm-dev' が必要。
 ;; シェル側の設定も必要なので注意 (https://github.com/akermu/emacs-libvterm#shell-side-configuration)
-(leaf vterm :ensure t
+(leaf vterm :straight t
   :bind
   ("C-z" . vterm-or-suspend)
   `(vterm-mode-map
@@ -996,11 +1008,11 @@ _/_: undo      _d_: down        ^ ^
 ;; 無効にして、普通に `completion-at-point' を呼び出す。
 (leaf sh-mode :hook (sh-mode-hook . (lambda () (company-mode -1))))
 
-(leaf fish-mode :when *unix? :ensure t)
+(leaf fish-mode :when *unix? :straight t)
 
 ;; 言語設定とMigemo
 
-(leaf untitled-new-buffer :ensure t
+(leaf untitled-new-buffer :straight t
   :bind (leader-map
          :package init
          ("fn" . *untitled-new-buffer))
@@ -1014,7 +1026,7 @@ _/_: undo      _d_: down        ^ ^
 (prog1 "言語、文字コード、入力メソッド"
   (set-language-environment "Japanese")
   (prefer-coding-system 'utf-8)
-  (leaf mozc :when *wsl? :ensure t
+  (leaf mozc :when *wsl? :straight t
     :defvar mozc-mode-map
     :custom (mozc-candidate-style . 'echo-area)
     :config
@@ -1024,13 +1036,13 @@ _/_: undo      _d_: down        ^ ^
       (global-set-key (kbd "<muhenkan>") #'im-off)
       (define-key mozc-mode-map (kbd "<muhenkan>") #'im-off))))
 
-(leaf migemo :when (executable-find "cmigemo") :ensure t
+(leaf migemo :when (executable-find "cmigemo") :straight t
   ;; Ubuntu  -- apt install cmigemo
   ;; Windows -- https://www.kaoriya.net/software/cmigemo/
   :custom (migemo-options . '("--quiet" "--nonewline" "--emacs"))
   :config
   (leaf swiper-migemo
-    :el-get tam17aki/swiper-migemo
+    :straight (swiper-migemo :host github :repo "tam17aki/swiper-migemo")
     :require t
     :defvar swiper-migemo-enable-command
     :defun global-swiper-migemo-mode
@@ -1050,7 +1062,7 @@ _/_: undo      _d_: down        ^ ^
     (add-hook hook function)))
 
 ;; https://github.com/politza/pdf-tools#server-prerequisites
-(leaf pdf-tools :when *unix? :ensure t
+(leaf pdf-tools :when *unix? :straight t
   :bind (pdf-view-mode-map ("C-s" . pdf-occur))
   :init (add-init-hook #'pdf-tools-install)
   :hook (pdf-view-mode-hook . auto-revert-mode))
@@ -1063,28 +1075,28 @@ _/_: undo      _d_: down        ^ ^
   (org-export-with-broken-link . t)
   :hook (org-mode-hook . org-indent-mode))
 
-(leaf markdown-mode :when *unix? :ensure t
+(leaf markdown-mode :when *unix? :straight t
   :custom
   (markdown-command . "marked")
   (markdown-fontify-code-blocks-natively . t)
   :custom-face (markdown-code-face . '((t (:inherit 'default))))
   :mode ("\\.md$" . gfm-mode))
 
-(leaf easy-hugo :when (executable-find "hugo") :ensure t
+(leaf easy-hugo :when (executable-find "hugo") :straight t
   :custom
   (easy-hugo-default-picture-directory . "~/Pictures")
   (easy-hugo-server-flags . "-D")
   (easy-hugo-url . ""))
 
-(leaf writeroom-mode :ensure t)
+(leaf writeroom-mode :straight t)
 
-(leaf csv-mode :ensure t)
+(leaf csv-mode :straight t)
 
 ;;;; プログラミング
 
 (leaf indent :custom (indent-tabs-mode . nil))
 
-(leaf flycheck :ensure t :hook prog-mode-hook LaTeX-mode-hook
+(leaf flycheck :straight t :hook prog-mode-hook LaTeX-mode-hook
   :defun flycheck-list-errors
   :bind (leader-map :package init ("e" . hydra-flycheck/body))
   :custom
@@ -1108,10 +1120,10 @@ _/_: undo      _d_: down        ^ ^
           ("l" flycheck-toggle-error-list "list")
           ("?" flycheck-describe-checker "help" :exit t)))
 
-(leaf quickrun :ensure t :bind (prog-mode-map ("C-c RET" . quickrun)))
+(leaf quickrun :straight t :bind (prog-mode-map ("C-c RET" . quickrun)))
 
 (leaf lsp
-  :ensure lsp-mode lsp-ui
+  :straight lsp-mode lsp-ui
   :defun
   lsp-format-buffer ; defined in lsp-mode
   ;; defined within this block
@@ -1160,14 +1172,14 @@ _/_: undo      _d_: down        ^ ^
                    (lsp)))))
   :config
   (leaf lsp-lens :diminish lsp-lens-mode)
-  (leaf lsp-ivy :ensure t
+  (leaf lsp-ivy :straight t
     :bind
     (lsp-command-map
      ("s" . lsp-ivy-workspace-symbol))))
 
 (leaf scala-mode :when (executable-find "scala")
   :config
-  (leaf lsp-metals :ensure t
+  (leaf lsp-metals :straight t
     :config (lsp-hook-activation-in-activated-workspace 'scala-mode-hook 'metals))
   (leaf bloop :require t :after scala-mode
     :doc "Scalaプロジェクトを素早くコンパイル/実行/テストする"
@@ -1181,19 +1193,21 @@ _/_: undo      _d_: down        ^ ^
   (leaf bloop-metals :after bloop lsp-metals
     :commands bloop-metals-query-analyze-stacktrace
     :bind (comint-mode-map ("C-c a" . bloop-metals-query-analyze-stacktrace)))
-  (leaf sbt-mode :ensure t :require t
+  (leaf sbt-mode :straight t :require t
     :custom (sbt:program-name . "sbtn")))
 
 (leaf java-mode :when (executable-find "mvn")
   :config
-  (leaf lsp-java :ensure t
+  (leaf lsp-java :straight t
     :config (lsp-hook-activation-in-activated-workspace 'java-mode-hook 'jdtls)))
 
-(leaf smtlib-mode :el-get kmn4/smtlib-mode :require t)
+(leaf smtlib-mode
+  :straight (smtlib-mode :host github :repo "kmn4/smtlib-mode")
+  :require t)
 
 (leaf *cuda :mode ("\\.cu$" . c-mode))
 
-(leaf rust-mode :when (executable-find "rustup") :ensure t
+(leaf rust-mode :when (executable-find "rustup") :straight t
   :mode ("\\.rs$" . rust-mode)
   :config
   (leaf lsp-rust
@@ -1205,17 +1219,17 @@ _/_: undo      _d_: down        ^ ^
 
 (leaf racket-mode :when (executable-find "raco")
   :mode ("\\.rkt$" . racket-mode)
-  :ensure t
+  :straight t
   :config
   (leaf racket-xp
     :require t
     :hook (racket-mode-hook . racket-xp-mode)))
 
 (leaf haskell-mode :when (executable-find "ghc")
-  :ensure t
-  :config (leaf lsp-haskell :ensure t))
+  :straight t
+  :config (leaf lsp-haskell :straight t))
 
-(leaf web-mode :ensure t :mode ("\\.vue\\'")
+(leaf web-mode :straight t :mode ("\\.vue\\'")
   :custom
   (web-mode-markup-indent-offset . 2)
   (web-mode-css-indent-offset . 2)
@@ -1224,7 +1238,7 @@ _/_: undo      _d_: down        ^ ^
 (leaf css-mode :custom (css-indent-offset . 2))
 
 (leaf latex :when (executable-find "tex")
-  :ensure auctex
+  :straight auctex
   :defvar TeX-command-list TeX-command-default
   :custom
   (TeX-default-mode . 'japanese-latex-mode)
@@ -1254,7 +1268,7 @@ _/_: undo      _d_: down        ^ ^
          ("remark"      ?r  "remk:" "~\\ref{%s}" t (regexp ".*注意") -3)
          ))
     :config
-    (leaf company-reftex :ensure t
+    (leaf company-reftex :straight t
       :config
       (add-to-list 'company-backends 'company-reftex-labels)
       (add-to-list 'company-backends 'company-reftex-citations))
@@ -1264,7 +1278,8 @@ _/_: undo      _d_: down        ^ ^
   ) ; end of latex block
 
 (leaf satysfi :when (executable-find "satysfi")
-  :el-get gfngfn/satysfi.el :require t
+  :straight (satysfi :host github :repo "gfngfn/satysfi.el")
+  :require t
   :mode (("\\.saty$" "\\.satyh$" "\\.satyg$") . satysfi-mode)
   :defun satysfi-find-pdf-other-window ; defined within this block
   :hook
@@ -1278,7 +1293,7 @@ _/_: undo      _d_: down        ^ ^
       (find-file-other-window pdf-name)))
   (defalias 'satysfi-mode/open-pdf #'satysfi-find-pdf-other-window))
 
-(leaf go-mode :when (executable-find "go") :ensure t)
+(leaf go-mode :when (executable-find "go") :straight t)
 
 (leaf cperl-mode :when *unix?
   :defvar cperl-mode-map
@@ -1296,7 +1311,7 @@ _/_: undo      _d_: down        ^ ^
 
 ;;;; 見た目
 
-(leaf treemacs :ensure t
+(leaf treemacs :straight t
   :custom
   (treemacs-hide-gitignored-files-mode . t)
   :bind
@@ -1306,23 +1321,23 @@ _/_: undo      _d_: down        ^ ^
    ("j" . #'treemacs-next-line))
   (leader-map :package init ("0" . treemacs)))
 
-(leaf nerd-icons :ensure t :require t
+(leaf nerd-icons :straight t :require t
   :defer-config
   (unless (seq-every-p
            (lambda (font) (file-exists-p (concat "~/.local/share/fonts/" font)))
            nerd-icons-font-names)
     (nerd-icons-install-fonts t)))
 
-(leaf nerd-icons-dired :ensure t :hook dired-mode-hook)
+(leaf nerd-icons-dired :straight t :hook dired-mode-hook)
 
-(leaf treemacs-nerd-icons :ensure t
+(leaf treemacs-nerd-icons :straight t
   :after treemacs
   :config
   (treemacs-load-theme "nerd-icons"))
 
-(leaf nerd-icons-ibuffer :ensure t :hook ibuffer-mode-hook)
+(leaf nerd-icons-ibuffer :straight t :hook ibuffer-mode-hook)
 
-(leaf nerd-icons-ivy-rich :ensure t :require t
+(leaf nerd-icons-ivy-rich :straight t :require t
   :config
   ;; XDG User Dir は D から始まるディレクトリが多くて識別しづらいので
   ;; アイコンを表示してわかりやすくする。
@@ -1373,7 +1388,7 @@ _/_: undo      _d_: down        ^ ^
   (tool-bar-mode . nil)
   :bind (leader-map :package init ("tm" . menu-bar-mode)))
 
-(leaf centaur-tabs :ensure t :global-minor-mode centaur-tabs-mode
+(leaf centaur-tabs :straight t :global-minor-mode centaur-tabs-mode
   :defun centaur-tabs-headline-match
   :bind
   (centaur-tabs-mode-map
@@ -1389,8 +1404,8 @@ _/_: undo      _d_: down        ^ ^
   :defer-config (centaur-tabs-headline-match))
 
 (leaf whitespace :hook (conf-mode-hook . whitespace-mode))
-(leaf rainbow-delimiters :ensure t :hook prog-mode-hook TeX-mode-hook)
-(leaf highlight-thing :ensure t :hook ((prog-mode-hook text-mode-hook) . highlight-thing-mode)
+(leaf rainbow-delimiters :straight t :hook prog-mode-hook TeX-mode-hook)
+(leaf highlight-thing :straight t :hook ((prog-mode-hook text-mode-hook) . highlight-thing-mode)
   :diminish highlight-thing-mode
   :custom (highlight-thing-delay-seconds . 0.2)
   :custom-face (highlight-thing . '((t (:inherit 'highlight))))
@@ -1399,13 +1414,13 @@ _/_: undo      _d_: down        ^ ^
   :config
   ;; LSP モードでは無効化する
   (leaf lsp :hook (lsp-mode-hook . toggle-hlt)))
-(leaf volatile-highlights :ensure t :global-minor-mode volatile-highlights-mode
+(leaf volatile-highlights :straight t :global-minor-mode volatile-highlights-mode
   :diminish volatile-highlights-mode)
 (leaf hi-lock :diminish hi-lock-mode)
-(leaf page-break-lines :ensure t :global-minor-mode global-page-break-lines-mode)
+(leaf page-break-lines :straight t :global-minor-mode global-page-break-lines-mode)
 
 (leaf *theme
-  :ensure vscode-dark-plus-theme spacemacs-theme doom-themes shades-of-purple-theme
+  :straight vscode-dark-plus-theme spacemacs-theme doom-themes shades-of-purple-theme
   :defvar
   ;; defined in ensured packages
   doom-themes-enable-bold doom-themes-enable-italic
@@ -1451,14 +1466,14 @@ _/_: undo      _d_: down        ^ ^
   (mode-line-compact . nil)
   ;; TODO `swiper-migemo-mode' がオンならそのことを表示する
   :config
-  (leaf doom-modeline :ensure t :global-minor-mode doom-modeline-mode
+  (leaf doom-modeline :straight t :global-minor-mode doom-modeline-mode
     :custom
     (doom-modeline-buffer-name              . nil) ; Centaur Tabs があるので必要ない
     (doom-modeline-buffer-modification-icon . nil) ; 同上
     (doom-modeline-major-mode-icon          . nil) ; 同上
     ))
 
-(leaf dashboard :ensure t :require t
+(leaf dashboard :straight t :require t
   :config
   (dashboard-setup-startup-hook)
   :bind
