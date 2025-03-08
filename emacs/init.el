@@ -1391,7 +1391,7 @@ _/_: undo      _d_: down        ^ ^
 
 (leaf whitespace :hook (conf-mode-hook . whitespace-mode))
 (leaf rainbow-delimiters :ensure t :hook prog-mode-hook TeX-mode-hook)
-(leaf highlight-thing :ensure t :hook (prog-mode-hook . highlight-thing-mode)
+(leaf highlight-thing :ensure t :hook ((prog-mode-hook text-mode-hook) . highlight-thing-mode)
   :diminish highlight-thing-mode
   :custom (highlight-thing-delay-seconds . 0.2)
   :custom-face (highlight-thing . '((t (:inherit 'highlight))))
