@@ -705,7 +705,7 @@ ELTS の要素の順序は保たれる。"
 
 (leaf ivy
   :ensure t counsel ivy-hydra ivy-rich
-  :global-minor-mode t counsel-mode ; ivy-rich-mode ; ivy-rich slow on NTFS on WSL
+  :global-minor-mode t counsel-mode ivy-rich-mode
   :bind
   ("C-x b" . counsel-switch-buffer)
   :diminish ivy-mode counsel-mode)
