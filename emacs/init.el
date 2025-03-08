@@ -27,7 +27,6 @@
              "grep -c ^processor /proc/cpuinfo")))
       0))
 (require 'comp)
-(setq package-native-compile t)
 (setq native-comp-async-jobs-number (/ (number-of-cpu-cores) 2))
 (defun native-comp-async-elpa ()
   "/elpa 以下のファイルをネイティブコンパイルする。"
@@ -515,30 +514,6 @@ DOCSTRING は必須。これがないと意図通りに展開されない。"
          (write-file ,file)
          (switch-to-buffer (messages-buffer))
          (buffer-swap-text tmp-buf)))))
-
-(defcustom package-upgrade-log-directory (concat user-emacs-directory "package-logs/")
-  "`package-upgrade-packages-with-logging' のログの保存先"
-  :type 'string :group 'init)
-
-(defun package-upgrade-packages ()
-  (interactive)
-  (save-window-excursion
-    (package-refresh-contents)
-    (list-packages 'no-fetch)
-    (package-menu-mark-upgrades)
-    (package-menu-execute t)))
-
-(defun package-upgrade-packages-with-logging ()
-  "`package-upgrade-packages' を呼び出し、その間のメッセージをログファイルに書き込む。
-
-ログファイルは `package-upgrade-log-directory' の下に呼び出し時の時刻を含む名前で保存される。"
-  (interactive)
-  (unless (file-exists-p package-upgrade-log-directory)
-    (make-directory package-upgrade-log-directory t))
-  (let ((start-time-string (format-time-string "%Y%m%dT%H%M%S")))
-    (with-logging-messages
-        (concat package-upgrade-log-directory start-time-string "_messages.log")
-      (package-upgrade-packages))))
 
 (leaf google-translate :straight t popup)
 

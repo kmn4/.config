@@ -159,7 +159,6 @@ eww(){ emacs -q -nw --eval "(eww \"$1\")";}
 
 alias update_apt='command -v apt &> /dev/null && sudo apt update && sudo apt upgrade && sudo apt autoremove'
 alias update_winget='command -v powershell.exe &> /dev/null && powershell.exe -Command "winget upgrade"'
-alias update_emacs_packages='command -v emacs &> /dev/null && emacsclient -e "(package-upgrade-packages-with-logging)"'
 alias update_cs='command -v cs &> /dev/null && cs update'
 alias update_brew='command -v brew &> /dev/null && brew update && brew upgrade && brew autoremove'
 alias update_npm='command -v npm &> /dev/null && sudo npm update -g'
@@ -170,7 +169,6 @@ alias update_stack='command -v stack &> /dev/null && stack update && stack upgra
 update_all() {
     update_apt
     update_cs
-    update_emacs_packages
     update_brew
     update_npm
     update_rustup
