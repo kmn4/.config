@@ -752,6 +752,10 @@ _h_ --^ ^-- _l_    _H_ --^ ^-- _L_    _b_alance
 
 (leaf which-key :straight t :global-minor-mode t :diminish which-key-mode)
 
+(leaf vc-hooks
+  :custom
+  (vc-follow-symlinks . t))
+
 (leaf *git
   :init
   (leaf magit :straight t :require t
