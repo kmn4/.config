@@ -791,7 +791,9 @@ _s_: show^^           _U_: unstage all    _c_: commit
           ("R" git-gutter:update-all-windows "refresh gutter in all buffers" :exit t)
           ))
 
-(leaf rg :straight t)
+(leaf rg :straight t
+  :custom
+  (rg-command-line-flags . '("-L")))
 (leaf visual-regexp :straight t :bind ("C-M-%" . vr/query-replace))
 (leaf color-rg
   :straight (color-rg :host github :repo "manateelazycat/color-rg")
