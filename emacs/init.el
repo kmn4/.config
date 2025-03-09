@@ -958,6 +958,7 @@ _/_: undo      _d_: down        ^ ^
   :custom
   (vterm-exit-functions . '((lambda (_ _) (previous-buffer))))
   (vterm-tramp-shells . '(("ssh" "/bin/bash") ("sudo" "/bin/bash")))
+  (vterm-always-compile-module . t)
   :init
   (defun vterm-or-suspend (arg)
     "GUI フレームでは `vterm-select' を、ターミナルでは `suspend-frame' を呼ぶ。"
@@ -1041,8 +1042,10 @@ _/_: undo      _d_: down        ^ ^
 ;; https://github.com/politza/pdf-tools#server-prerequisites
 (leaf pdf-tools :when *unix? :straight t
   :bind (pdf-view-mode-map ("C-s" . pdf-occur))
-  :init (add-init-hook #'pdf-tools-install)
-  :hook (pdf-view-mode-hook . auto-revert-mode))
+  :hook
+  (pdf-view-mode-hook . auto-revert-mode)
+  ;; headless installation
+  (after-init-hook . (lambda () (pdf-tools-install t t))))
 
 (leaf org
   :custom
