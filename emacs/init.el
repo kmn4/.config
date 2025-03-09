@@ -1039,6 +1039,20 @@ _/_: undo      _d_: down        ^ ^
          (*macos?  "/usr/local/share/migemo/utf-8/migemo-dict")
          (t        ""))))
 
+(leaf indent
+  :custom
+  (standard-indent . 2))
+
+(leaf copilot :when (executable-find "copilot-language-server") :straight t
+  :hook prog-mode-hook
+  :custom
+  (copilot-indent-offset-warning-disable . t)
+  (copilot-server-executable . "copilot-language-server")
+  :bind
+  (copilot-completion-map
+   ("<tab>" . 'copilot-accept-completion)
+   ("TAB" . 'copilot-accept-completion)))
+
 (defun add-init-hook (function)
   (let ((hook (if (daemonp) 'server-after-make-frame-hook 'after-init-hook)))
     (add-hook hook function)))
