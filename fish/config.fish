@@ -8,10 +8,6 @@ set -gx LANG ja_JP.UTF-8
 not status is-login || set -gx GPG_TTY (tty)
 status is-login && which hugo > /dev/null && eval (hugo completion fish)
 
-if not set -q WIN_HOME && is-wsl2
-    set -U WIN_HOME (wslpath (wslvar USERPROFILE))
-end
-
 alias ssh="ssh.exe"
 alias ssh-add="ssh-add.exe"
 
