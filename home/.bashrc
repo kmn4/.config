@@ -182,4 +182,6 @@ if [[ "$INSIDE_EMACS" = 'vterm' ]] \
     source "${EMACS_VTERM_PATH}/etc/emacs-vterm-bash.sh"
     alias e='vterm_cmd find-file'
     PROMPT_COMMAND+=("PS1+='\[\$(vterm_prompt_end)\]'")
+else
+    :
 fi
