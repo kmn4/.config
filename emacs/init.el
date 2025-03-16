@@ -1048,6 +1048,7 @@ _/_: undo      _d_: down        ^ ^
   :custom
   (copilot-indent-offset-warning-disable . t)
   (copilot-server-executable . "copilot-language-server")
+  (copilot-max-char-warning-disable . t)
   :bind
   (copilot-completion-map
    ("<tab>" . 'copilot-accept-completion)
