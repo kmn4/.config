@@ -760,6 +760,9 @@ _h_ --^ ^-- _l_    _H_ --^ ^-- _L_    _b_alance
   :init
   (leaf magit :straight t :require t
     :config
+    (let ((key (string-trim (shell-command-to-string "git config --get user.signingkey"))))
+      (when (not (string-empty-p key))
+        (setopt magit-openpgp-default-signing-key key)))
     ;; `magit-status' を新しいフレームで開く
     (cl-flet*
         ((advice (orig-fun &rest args)
