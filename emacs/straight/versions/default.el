@@ -47,6 +47,7 @@
  ("go-mode.el" . "602d73e22646b1b98b2eb97927fd426c0d1d2f92")
  ("google-translate" . "e84599df7c70870b33dd6c902b527d7f78310815")
  ("grugru" . "3f1bc431f4dc919a7b04e519f1c8add9fb2949f3")
+ ("highlight-indent-guides" . "981d5bf904eb444784e0fa3f9b8f256409df5ed8")
  ("highlight-thing.el" . "ad788d7a7ee9eb287a8cca3adb21510b89270dca")
  ("hl-todo" . "0ce21c329b686802121df45bf4ae15ae201137bf")
  ("ht.el" . "1c49aad1c820c86f7ee35bf9fff8429502f60fef")

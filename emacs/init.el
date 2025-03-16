@@ -611,6 +611,27 @@ ELTS の要素の順序は保たれる。"
 (leaf info :config (nconc Info-directory-list Info-default-directory-list))
 
 (leaf show-paren-mode :hook prog-mode-hook)
+
+(leaf highlight-indent-guides :straight t
+  :custom
+  (highlight-indent-guides-method . 'bitmap)
+  (highlight-indent-guides-bitmap-function . #'highlight-indent-guides--bitmap-line)
+  (highlight-indent-guides-responsive . 'stack)
+  (highlight-indent-guides-delay . 0)
+  ;; for `bitmap' and `character' methods
+  (highlight-indent-guides-auto-character-face-perc . 32)
+  (highlight-indent-guides-auto-stack-character-face-perc . 64)
+  (highlight-indent-guides-auto-top-character-face-perc . 128)
+  ;; for `fill' method (not used at startup)
+  (highlight-indent-guides-auto-odd-face-perc . 32)
+  (highlight-indent-guides-auto-even-face-perc . 64)
+  (highlight-indent-guides-auto-top-odd-face-perc . 128)
+  (highlight-indent-guides-auto-top-even-face-perc . 128)
+  :hook
+  ((prog-mode-hook text-mode) . highlight-indent-guides-mode)
+  (after-init-hook . highlight-indent-guides-auto-set-faces)
+  )
+
 (leaf hideshow :hook (prog-mode-hook . hs-minor-mode) :diminish hs-minor-mode
   :defun hs-toggle-hiding
   :init
