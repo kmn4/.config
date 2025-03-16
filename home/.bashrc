@@ -151,6 +151,7 @@ export GPG_TTY="$(tty)"
 alias emacsclient='emacsclient >> "$XDG_STATE_HOME/emacs/emacs.log" 2>&1'
 alias egui="emacsclient -cn -a ''"
 alias ecui="emacsclient -nw -a ''"
+alias ekill="emacsclient -e '(kill-emacs)'"
 alias firefox.exe="'/mnt/c/Program Files/Mozilla Firefox/firefox.exe'"
 command -v firefox &> /dev/null || alias firefox="firefox.exe"
 # apt install libterm-readline-perl-perl
