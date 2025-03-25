@@ -131,8 +131,6 @@ BINDINGS should be of the form [KEY DEF]..."
    "l" #'lsp
    ;; [o]rg mode
    "oa" #'org-agenda
-   ;; [w]indow
-   "wt" #'toggle-window-split
    ;; mizc
    "M-w" #'win-clip))
 
@@ -742,15 +740,15 @@ ELTS の要素の順序は保たれる。"
 (leaf winner :config (winner-mode +1))
 
 (leaf *window :after winum winner
-  :bind (leader-map :package init ("ww" . hydra-window/body))
+  :bind (leader-map :package init ("w" . hydra-window/body))
   :hydra
   (hydra-window
    (:hint nil)
    "
 ^ ^Mov^e^ to^ ^    ^ ^ Si^z^e  ^ ^    ^A^ction
-^ ^   _k_   ^ ^    ^ ^   _K_   ^ ^    _v_ertical split    _z_oom
-^ ^   ^|^   ^ ^    ^ ^   ^|^   ^ ^    _s_tack split
-_h_ --^ ^-- _l_    _H_ --^ ^-- _L_    _b_alance
+^ ^   _k_   ^ ^    ^ ^   _K_   ^ ^    _v_ertical split    _d_elete
+^ ^   ^|^   ^ ^    ^ ^   ^|^   ^ ^    _s_tack split       _z_oom
+_h_ --^ ^-- _l_    _H_ --^ ^-- _L_    _b_alance           _t_oggle split
 ^ ^   ^|^   ^ ^    ^ ^   ^|^   ^ ^    _u_ndo layout
 ^ ^   _j_   ^ ^    ^ ^   _J_   ^ ^    _r_edo layout
 ^ ^   ^ ^   ^ ^    ^ ^   ^ ^   ^ ^    _o_ther window
@@ -769,7 +767,9 @@ _h_ --^ ^-- _l_    _H_ --^ ^-- _L_    _b_alance
    ("u" winner-undo)
    ("v" split-window-horizontally)
    ("o" other-window)
-   ("z" delete-other-windows)))
+   ("d" delete-window)
+   ("z" delete-other-windows)
+   ("t" toggle-window-split)))
 
 (leaf which-key :straight t :global-minor-mode t :diminish which-key-mode)
 
