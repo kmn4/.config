@@ -1434,7 +1434,10 @@ _/_: undo      _d_: down        ^ ^
   (centaur-tabs-set-icons . t)
   (centaur-tabs-set-modified-marker . t)
   (centaur-tabs-icon-type . 'nerd-icons)
-  :defer-config (centaur-tabs-headline-match))
+  :defer-config
+  (centaur-tabs-headline-match)
+  (centaur-tabs-group-by-projectile-project)
+  )
 
 (leaf whitespace :hook (conf-mode-hook . whitespace-mode))
 (leaf rainbow-delimiters :straight t :hook prog-mode-hook TeX-mode-hook)
