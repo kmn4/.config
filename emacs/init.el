@@ -1078,7 +1078,7 @@ _/_: undo      _d_: down        ^ ^
   (standard-indent . 2))
 
 (leaf copilot :when (executable-find "copilot-language-server") :straight t
-  :hook prog-mode-hook
+  :hook prog-mode-hook yaml-mode-hook
   :custom
   (copilot-indent-offset-warning-disable . t)
   (copilot-server-executable . "copilot-language-server")
