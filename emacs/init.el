@@ -298,6 +298,16 @@ BINDINGS should be of the form [KEY DEF]..."
 
 (defun version> (v1 v2) (version< v2 v1))
 
+(defun kill-ring-save-timestamp (&optional format)
+  "現在の時刻をキルリングに保存する。"
+  (interactive)
+  (kill-new (format-time-string (or format "%Y%m%dT%H%M%S"))))
+
+(defun kill-ring-save-unix-timestamp ()
+  "現在の時刻を Unix タイムスタンプとしてキルリングに保存する。"
+  (interactive)
+  (kill-ring-save-timestamp "%s"))
+
 ;; シェルとターミナル
 
 (defun start-shell-command (command)
@@ -1025,6 +1035,7 @@ _/_: undo      _d_: down        ^ ^
   :init
   (defun *untitled-new-buffer (arg)
     (interactive "P")
+    (kill-ring-save-unix-timestamp)
     (if arg
         (call-interactively #'untitled-new-buffer-with-select-major-mode)
       (untitled-new-buffer))))
