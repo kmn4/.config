@@ -981,6 +981,8 @@ _/_: undo      _d_: down        ^ ^
   `(vterm-mode-map
     ,@(mapcar (lambda (c) (cons (concat "C-c C-" (string c)) 'vterm--self-insert))
               (seq-difference "abcdefghijklmnopqrstuvwxyz" "t"))
+    ,@(mapcar (lambda (c) (cons (concat "M-" (string c)) nil))
+              (seq-difference "0123456789:" ""))
     (,leader-key . nil)
     ("<f1>" . nil)
     ("C-c RET" . vterm-send-next-key)
