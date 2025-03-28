@@ -1030,9 +1030,6 @@ _/_: undo      _d_: down        ^ ^
 ;; 言語設定とMigemo
 
 (leaf untitled-new-buffer :straight t
-  :bind (leader-map
-         :package init
-         ("fn" . *untitled-new-buffer))
   :init
   (defun *untitled-new-buffer (arg)
     (interactive "P")
@@ -1040,6 +1037,18 @@ _/_: undo      _d_: down        ^ ^
     (if arg
         (call-interactively #'untitled-new-buffer-with-select-major-mode)
       (untitled-new-buffer))))
+
+(defun *new-note ()
+  (interactive)
+  (let* ((default-directory (substitute-env-vars
+                             "$XDG_STATE_HOME/emacs/note"
+                             (expand-file-name "~/.local/state")))
+         (new-note-name (format-time-string "%s.md"))
+         (buf (generate-new-buffer new-note-name)))
+    (with-current-buffer buf
+      (funcall 'markdown-mode))
+    (switch-to-buffer buf)))
+(set-leader-map "fn" #'*new-note)
 
 (prog1 "言語、文字コード、入力メソッド"
   (set-language-environment "Japanese")
