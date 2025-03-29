@@ -974,10 +974,8 @@ _/_: undo      _d_: down        ^ ^
 
 ;; プロジェクトの vterm をポップアップするために使う
 (leaf popper :straight t :global-minor-mode t
-  :bind
-  (leader-map :package init ("C-@" . popper-toggle))
   :custom
-  (popper-reference-buffers . '("^\\*vterm.*\\*$" vterm-mode))
+  (popper-reference-buffers . '("^\\(\\*vterm.*\\*\\)\\(?:<[0-9]+>\\)?$" vterm-mode))
   (popper-group-function . #'popper-group-by-projectile))
 
 ;; vterm (https://github.com/akermu/emacs-libvterm)
@@ -985,7 +983,7 @@ _/_: undo      _d_: down        ^ ^
 ;; シェル側の設定も必要なので注意 (https://github.com/akermu/emacs-libvterm#shell-side-configuration)
 (leaf vterm :straight t
   :bind
-  ("C-z" . vterm-or-suspend)
+  (leader-map :package init ("C-@" . *vterm-new-or-toggle-popper))
   `(vterm-mode-map
     ,@(mapcar (lambda (c) (cons (concat "C-c C-" (string c)) 'vterm--self-insert))
               (seq-difference "abcdefghijklmnopqrstuvwxyz" "t"))
@@ -996,8 +994,7 @@ _/_: undo      _d_: down        ^ ^
     ("C-c RET" . vterm-send-next-key)
     ("C-h" . vterm--self-insert)
     ("C-v" . scroll-up-command)
-    ("M-v" . scroll-down-command)
-    ("C-z" . previous-buffer))
+    ("M-v" . scroll-down-command))
   :defvar vterm-eval-cmds
   :push
   ((vterm-eval-cmds . '("dired" dired))
@@ -1027,6 +1024,16 @@ _/_: undo      _d_: down        ^ ^
              (ivy-read "open: " names
                        :require-match t)))))
       ))
+  (defun *vterm-new-or-toggle-popper (arg)
+    "プロジェクトのvtermバッファがあればポップアップ、なければ新規作成。C-uで強制的に新規作成。"
+    (interactive "P")
+    (let ((project-root (projectile-project-root))
+          (vterm-buffers (buffer-list-major-mode 'vterm-mode)))
+      (if (and (null arg) (seq-find
+                           (lambda (buf) (equal (with-current-buffer buf (projectile-project-root)) project-root))
+                           vterm-buffers))
+          (popper-toggle)
+        (funcall (if project-root #'projectile-run-vterm #'vterm) arg))))
   )
 
 ;; company が有効だとなぜか `sh-completion-at-point' が異常に遅い。
