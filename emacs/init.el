@@ -974,9 +974,12 @@ _/_: undo      _d_: down        ^ ^
 
 ;; プロジェクトの vterm をポップアップするために使う
 (leaf popper :straight t :global-minor-mode t
+  :preface
+  (defun *popper-window-height () (/ (frame-height) 2))
   :custom
   (popper-reference-buffers . '("^\\(\\*vterm.*\\*\\)\\(?:<[0-9]+>\\)?$" vterm-mode))
-  (popper-group-function . #'popper-group-by-projectile))
+  (popper-group-function . #'popper-group-by-projectile)
+  (popper-window-height . #'*popper-window-height))
 
 ;; vterm (https://github.com/akermu/emacs-libvterm)
 ;; Ubuntu では `libtool', `libtool-bin', `cmake', `libvterm-dev' が必要。
