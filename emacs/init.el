@@ -972,6 +972,14 @@ _/_: undo      _d_: down        ^ ^
   (term-color-blue . '((t :inherit color-royal-blue)))
   (term-color-bright-blue . '((t :inherit color-dodger-blue))))
 
+;; プロジェクトの vterm をポップアップするために使う
+(leaf popper :straight t :global-minor-mode t
+  :bind
+  (leader-map :package init ("C-@" . popper-toggle))
+  :custom
+  (popper-reference-buffers . '("^\\*vterm.*\\*$" vterm-mode))
+  (popper-group-function . #'popper-group-by-projectile))
+
 ;; vterm (https://github.com/akermu/emacs-libvterm)
 ;; Ubuntu では `libtool', `libtool-bin', `cmake', `libvterm-dev' が必要。
 ;; シェル側の設定も必要なので注意 (https://github.com/akermu/emacs-libvterm#shell-side-configuration)
@@ -1434,6 +1442,13 @@ _/_: undo      _d_: down        ^ ^
 
 (leaf centaur-tabs :straight t :global-minor-mode centaur-tabs-mode
   :defun centaur-tabs-headline-match
+  :preface
+  (defun *centaur-tabs-buffer-groups ()
+    (cond
+     ((derived-mode-p 'vterm-mode)
+      (list (concat "vterm@" (projectile-project-root))))
+     (t (centaur-tabs-buffer-groups))
+     ))
   :bind
   (centaur-tabs-mode-map
    ("C-<next>" . centaur-tabs-forward)
@@ -1447,7 +1462,8 @@ _/_: undo      _d_: down        ^ ^
   (centaur-tabs-icon-type . 'nerd-icons)
   :defer-config
   (centaur-tabs-headline-match)
-  (centaur-tabs-group-by-projectile-project)
+  (setq centaur-tabs-buffer-groups-function #'*centaur-tabs-buffer-groups)
+  (centaur-tabs-display-update)
   )
 
 (leaf whitespace :hook (conf-mode-hook . whitespace-mode))
