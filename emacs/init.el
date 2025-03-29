@@ -1464,7 +1464,10 @@ _/_: undo      _d_: down        ^ ^
   (centaur-tabs-mode-map
    ("C-<next>" . centaur-tabs-forward)
    ("C-<prior>" . centaur-tabs-backward))
-  (leader-map :package init ("tt" . centaur-tabs-mode))
+  (leader-map
+   :package init
+   ("tt" . centaur-tabs-mode)
+   ("tg" . centaur-tabs-toggle-groups))
   :hook
   ((imenu-list-major-mode-hook) . centaur-tabs-local-mode)
   :custom
