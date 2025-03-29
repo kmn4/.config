@@ -1140,7 +1140,11 @@ _/_: undo      _d_: down        ^ ^
   (easy-hugo-server-flags . "-D")
   (easy-hugo-url . ""))
 
-(leaf writeroom-mode :straight t)
+(leaf writeroom-mode :straight t
+  :bind
+  (leader-map :package init ("C-k z" . writeroom-mode)) ;; VSCode Zen mode
+  :custom
+  (writeroom-width . 120))
 
 (leaf csv-mode :straight t)
 
