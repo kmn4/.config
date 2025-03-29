@@ -1374,8 +1374,8 @@ _/_: undo      _d_: down        ^ ^
 
 (leaf nerd-icons-dired :straight t :hook dired-mode-hook)
 
-(leaf treemacs-nerd-icons :straight t
-  :after treemacs
+(leaf treemacs-nerd-icons :straight t :require t
+  :after treemacs nerd-icons
   :config
   (treemacs-load-theme "nerd-icons"))
 
