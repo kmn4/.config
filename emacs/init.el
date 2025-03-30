@@ -1003,7 +1003,9 @@ _/_: undo      _d_: down        ^ ^
     ("C-c RET" . vterm-send-next-key)
     ("C-h" . vterm--self-insert)
     ("C-v" . scroll-up-command)
-    ("M-v" . scroll-down-command))
+    ("M-v" . scroll-down-command)
+    ("C-+" . maximize-window)
+    )
   :defvar vterm-eval-cmds
   :push
   ((vterm-eval-cmds . '("dired" dired))
