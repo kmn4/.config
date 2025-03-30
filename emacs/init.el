@@ -405,6 +405,10 @@ DOCSTRING は必須。これがないと意図通りに展開されない。"
   "DIR でシェルを開く。"
   (start-shell-command (s-concat terminal-emulator " " dir)))
 
+(leaf window
+  :custom
+  (window-sides-vertical . t))
+
 (defun major-mode-window (mode &optional frame)
   "メジャーモードが MODE であるようなウィンドウが FRAME に存在するならそれを返す。"
   (let ((windows (window-list frame)))
