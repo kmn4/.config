@@ -1378,6 +1378,7 @@ _/_: undo      _d_: down        ^ ^
 ;;;; 見た目
 
 (leaf treemacs :straight t
+  :global-minor-mode treemacs-project-follow-mode
   :custom
   (treemacs-hide-gitignored-files-mode . t)
   :bind
