@@ -1379,14 +1379,23 @@ _/_: undo      _d_: down        ^ ^
 
 (leaf treemacs :straight t
   :global-minor-mode treemacs-project-follow-mode
+  :preface
+  (defun *treemacs-toggle-visibility ()
+    (interactive)
+    (pcase (treemacs-current-visibility)
+      ('visible (treemacs)) ; 見えていたら消す
+      ((or 'exists 'none)   ; 一旦treemacsウィンドウへ移動してから戻る
+       (treemacs)
+       (let ((treemacs-select-when-already-in-treemacs 'move-back))
+         (treemacs-select-window)))))
   :custom
   (treemacs-hide-gitignored-files-mode . t)
+  (treemacs-select-when-already-in-treemacs . 'stay)
   :bind
-  ("M-0" . #'treemacs)
-  (treemacs-mode-map
-   ("k" . #'treemacs-previous-line)
-   ("j" . #'treemacs-next-line))
-  (leader-map :package init ("0" . treemacs)))
+  ("M-0" . #'treemacs-select-window)
+  (leader-map
+   :package init
+   ("t0" . #'*treemacs-toggle-visibility)))
 
 (leaf nerd-icons :straight t :require t
   :defer-config
