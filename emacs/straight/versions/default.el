@@ -84,6 +84,7 @@
  ("page-break-lines" . "982571749c8fe2b5e2997dd043003a1b9fe87b38")
  ("pdf-tools" . "30b50544e55b8dbf683c2d932d5c33ac73323a16")
  ("pfuture" . "19b53aebbc0f2da31de6326c495038901bffb73c")
+ ("popper" . "49f4904480cf4ca5c6db83fcfa9e6ea8d4567d96")
  ("popup-el" . "47ce4bca22b66bd3f49e40af8a359e8cc28146de")
  ("posframe" . "12f540c9ad5da09673b2bca1132b41f94c134e82")
  ("powerline" . "c35c35bdf5ce2d992882c1f06f0f078058870d4a")
