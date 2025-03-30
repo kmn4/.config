@@ -979,7 +979,9 @@ _/_: undo      _d_: down        ^ ^
 ;; プロジェクトの vterm をポップアップするために使う
 (leaf popper :straight t :global-minor-mode t
   :preface
-  (defun *popper-window-height () (/ (frame-height) 2))
+  (defun *popper-window-height (win)
+    (let ((height (floor (frame-height) 3)))
+      (fit-window-to-buffer win height height)))
   :custom
   (popper-reference-buffers . '("^\\(\\*vterm.*\\*\\)\\(?:<[0-9]+>\\)?$" vterm-mode))
   (popper-group-function . #'popper-group-by-projectile)
