@@ -672,6 +672,10 @@ ELTS の要素の順序は保たれる。"
   (projectile-globally-ignored-directories . nil) ; quick fix for bbatsov/projectile#1777
   (projectile-use-git-grep . t)
   :global-minor-mode t
+  :bind
+  (leader-map
+   :package init
+   ("p" . projectile-command-map))
   ;; If :bind-keymap is used, then FlyC complains that
   ;; "Symbol's value as variable is void: projectile-command-map"
   :config (global-set-key (kbd "C-c p") 'projectile-command-map)
