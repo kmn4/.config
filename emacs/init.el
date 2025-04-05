@@ -914,12 +914,14 @@ _s_: show^^           _U_: unstage all    _c_: commit
 _s_: slurp     _f_: forward     _k_: kill
 _|_: split     _b_: backward    _y_: yank
 _/_: undo      _d_: down        ^ ^
-^ ^            _u_: up          ^ ^
-^ ^            ^ ^              ^ ^
+_r_: rewrap    _u_: up          ^ ^
+_U_: unwrap    ^ ^              ^ ^
 "
           ("s" sp-slurp-hybrid-sexp)
           ("|" sp-split-sexp)
           ("/" undo)
+          ("r" sp-rewrap-sexp)
+          ("U" sp-unwrap-sexp)
 
           ("f" forward-sexp)
           ("b" backward-sexp)
@@ -930,9 +932,7 @@ _/_: undo      _d_: down        ^ ^
           ("y" yank))
   :bind (leader-map
          :package init
-         ("pr" . sp-rewrap-sexp)
-         ("pu" . sp-unwrap-sexp)
-         ("pp" . hydra-parens/body)))
+         ("[" . hydra-parens/body)))
 
 (leaf multiple-cursors :straight t
   :bind
