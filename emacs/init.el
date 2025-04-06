@@ -1471,7 +1471,9 @@ _U_: unwrap    ^ ^              ^ ^
 
 (leaf frame
   :custom
-  (default-frame-alist . '((fullscreen . maximized)))
+  (default-frame-alist . '((fullscreen . maximized)
+                           (width . 120)
+                           (height . 60)))
   `(menu-bar-mode . ,(if (eq system-type 'darwin) t nil))
   (tool-bar-mode . nil)
   :bind (leader-map :package init ("tm" . menu-bar-mode)))
