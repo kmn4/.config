@@ -1155,6 +1155,52 @@ _U_: unwrap    ^ ^              ^ ^
    ("<tab>" . 'copilot-accept-completion)
    ("TAB" . 'copilot-accept-completion)))
 
+(defcustom *openai-key nil
+  "OpenAIのAPIキー。"
+  :type '(choice string (const nil))
+  :group 'init)
+
+(defvar *llm-openai-provider nil)
+
+(leaf llm :straight t
+  :require llm-openai
+  :custom
+  (llm-warn-on-nonfree . nil)
+  :config
+  (when *openai-key
+    (setq *llm-openai-provider (make-llm-openai :key *openai-key))))
+
+(leaf ellama :straight t
+  :require
+  ellama-transient
+  ellama-community-prompts
+  org
+  :bind
+  (leader-map :package init ("C-SPC" . ellama-transient-main-menu))
+  :hook
+  (org-ctrl-c-ctrl-c-final-hook . ellama-chat-send-last-message)
+  :custom
+  (ellama-language . "Japanese")
+  :preface
+  (defcustom *ellama-chat-custom-prompt ""
+    "Ellama Chat のカスタムプロンプト。"
+    :type 'string
+    :group 'init)
+  (defun *override-system-prompt (args)
+    (let ((orig-system (plist-get args :system)))
+      (if orig-system args (plist-put args :system *ellama-chat-custom-prompt))))
+  (defun *ellama-chat-override-system-prompt
+      (orig-fun prompt &optional create-session &rest args)
+    (apply orig-fun prompt create-session (*override-system-prompt args)))
+  :advice
+  (:around ellama-chat *ellama-chat-override-system-prompt)
+  :config
+  (ellama-community-prompts-ensure)
+  (when *llm-openai-provider
+    (setf (alist-get "openai" ellama-providers) *llm-openai-provider)
+    (setopt ellama-provider *llm-openai-provider))
+  )
+
 (defun add-init-hook (function)
   (let ((hook (if (daemonp) 'server-after-make-frame-hook 'after-init-hook)))
     (add-hook hook function)))
