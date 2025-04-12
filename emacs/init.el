@@ -500,6 +500,8 @@ DOCSTRING は必須。これがないと意図通りに展開されない。"
        (bash "https://github.com/tree-sitter/tree-sitter-bash" "v0.23.3" nil nil nil)
        (typescript "https://github.com/tree-sitter/tree-sitter-typescript" "v0.23.2"
                    "typescript/src" nil nil)
+       (tsx "https://github.com/tree-sitter/tree-sitter-typescript" "v0.23.2"
+            "tsx/src" nil nil)
        (elisp "https://github.com/Wilfred/tree-sitter-elisp.git" "1.5.0" nil nil nil)
        ))
   :hook
