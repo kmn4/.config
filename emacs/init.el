@@ -155,6 +155,11 @@ BINDINGS should be of the form [KEY DEF]..."
   (interactive "suser@host: ")
   (find-file (format "/ssh:%s:~" userhost)))
 
+(defun ssh-root (userhost)
+  "USERHOST として与えられる user@host に SSH 接続してから sudo で root になる．"
+  (interactive "suser@host: ")
+  (find-file (format "/ssh:%s|sudo::/root" userhost)))
+
 (defcustom ssh-hosts '() "SSH hosts and users."
   :type '(repeat string))
 
