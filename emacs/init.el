@@ -722,6 +722,10 @@ ELTS の要素の順序は保たれる。"
 ;; auto-revert-mode is enabled on all Git-managed files due to magit-auto-revert-mode
 (leaf autorevert :diminish auto-revert-mode)
 
+(leaf tempbuf
+  :require t
+  :hook (dired-mode-hook . turn-on-tempbuf-mode))
+
 (leaf hl-todo :straight t
   :hook prog-mode-hook org-mode-hook LaTeX-mode-hook
   :defvar hl-todo-keyword-faces
