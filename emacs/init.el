@@ -1313,7 +1313,13 @@ _U_: unwrap    ^ ^              ^ ^
   :straight t
   :config (leaf lsp-haskell :straight t))
 
-(leaf web-mode :straight t :mode ("\\.vue\\'")
+(leaf web-mode :straight t
+  :mode
+  "\\.html?$"
+  "\\.[jt]sx$"
+  "\\.vue$"
+  "\\.j2"
+  "\\.tmpl$"
   :custom
   (web-mode-markup-indent-offset . 2)
   (web-mode-css-indent-offset . 2)
