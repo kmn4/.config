@@ -21,5 +21,6 @@
 /recentf
 /session.*
 /tramp
+/tree-sitter/
 /url/
 /workspace/

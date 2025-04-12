@@ -488,6 +488,26 @@ DOCSTRING は必須。これがないと意図通りに展開されない。"
   ("C-<down-mouse-1>" . nil)
   ("C-<mouse-1>" . mouse-browse-or-menu))
 
+(leaf treesit
+  :custom
+  (treesit-language-source-alist
+   . '((json "https://github.com/tree-sitter/tree-sitter-json" "v0.24.8" nil nil nil)
+       (bash "https://github.com/tree-sitter/tree-sitter-bash" "v0.23.3" nil nil nil)
+       (typescript "https://github.com/tree-sitter/tree-sitter-typescript" "v0.23.2"
+                   "typescript/src" nil nil)
+       (elisp "https://github.com/Wilfred/tree-sitter-elisp.git" "1.5.0" nil nil nil)
+       ))
+  :hook
+  (emacs-lisp-mode-hook . (lambda () (treesit-parser-create 'elisp)))
+  :config
+  (dolist (elt treesit-language-source-alist)
+    (unless (treesit-language-available-p (car elt))
+      (treesit-install-language-grammar (car elt)))))
+
+(leaf json-ts-mode :mode ("\\.json$"))
+(leaf bash-ts-mode :mode ("\\.bash$" "\\.sh$"))
+(leaf typescript-ts-mode :mode ("\\.ts$"))
+
 (defun ivy-ghq ()
   (interactive)
   (ivy-read "open: " (string-split (shell-command-to-string "ghq list -p") "\n")
