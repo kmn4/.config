@@ -25,6 +25,7 @@
         kill-region
         kill-sexp
         mark-sexp
+        markdown-beginning-of-line
         markdown-outdent-or-delete
         org-beginning-of-line
         org-delete-char
@@ -39,6 +40,7 @@
         sp-rewrap-sexp
         sp-unwrap-sexp
         yaml-electric-backspace
+        yaml-electric-bar-and-angle
         yaml-electric-dash-and-dot
         ))
 
