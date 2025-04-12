@@ -1089,7 +1089,9 @@ _U_: unwrap    ^ ^              ^ ^
   (prefer-coding-system 'utf-8)
   (leaf mozc :when *wsl? :straight t
     :defvar mozc-mode-map
-    :custom (mozc-candidate-style . 'echo-area)
+    :custom
+    (mozc-candidate-style . 'echo-area)
+    (mozc-leim-title . "あ")
     :config
     (cl-flet* ((im-mozc-on () (interactive) (set-input-method "japanese-mozc"))
                (im-off () (interactive) (set-input-method nil)))
