@@ -775,7 +775,11 @@ ELTS の要素の順序は保たれる。"
   (defun *swiper-C-s ()
     (interactive)
     (ivy-exit-with-action
-     (lambda (_) (call-interactively #'swiper-thing-at-point)))))
+     (lambda (_)
+       (let ((thing (ivy-thing-at-point)))
+         (message thing)
+         (kill-new thing))
+       (call-interactively #'swiper-thing-at-point)))))
 
 (leaf winum
   :straight t
