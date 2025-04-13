@@ -1045,6 +1045,8 @@ _U_: unwrap    ^ ^              ^ ^
     ("M-v" . scroll-down-command)
     ("C-+" . maximize-window)
     )
+  `(vterm-copy-mode-map
+    ("C-x C-f" . find-file-at-point))
   :defvar vterm-eval-cmds
   :push
   ((vterm-eval-cmds . '("dired" dired))
