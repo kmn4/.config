@@ -20,6 +20,7 @@
 	autocrlf = input
 	safecrlf = true
 	sshCommand = ssh.exe
+	quotePath = false
 [init]
 	defaultBranch = main
 [credential]
