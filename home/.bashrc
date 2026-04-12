@@ -114,7 +114,7 @@ parse_git_branch() {
     worktree+="$(parse_git_staged)"
     worktree+="$(parse_git_untracked)"
     local -a sections=($remote $operation $worktree)
-    IFS=: local icons="${sections[*]}"
+    local icons="$(IFS=":"; echo -n "${sections[*]}")"
     # ":" will not appear in Git branch name
     [ -z "${icons}" ] || icons=":${icons}"
     git branch --no-color 2> /dev/null | sed -e '/^[^*]/d' -e "s/* \(.*\)/ (\1${icons})/"
