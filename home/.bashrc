@@ -56,11 +56,68 @@ if [ -n "$force_color_prompt" ]; then
 fi
 
 # https://gist.github.com/snaka/3837457
+parse_git_ahead() {
+    if grep -q "Your branch is ahead" <<< "$status"; then
+        echo -n 'A'
+    fi
+}
+parse_git_behind() {
+    if grep -q "Your branch is behind" <<< "$status"; then
+        echo -n 'B'
+    fi
+}
 parse_git_dirty() {
-    [ "$(git status 2> /dev/null | tail -n1)" != "nothing to commit, working tree clean" ] && echo '*'
+    if ! grep -q "nothing to commit, working tree clean" <<< "$status"; then
+        echo -n '*'
+    fi
+}
+parse_git_modified() {
+    if grep -q "Changes not staged for commit" <<< "$status"; then
+        echo -n 'M'
+    fi
+}
+parse_git_staged() {
+    if grep -q "Changes to be committed" <<< "$status"; then
+        echo -n 'S'
+    fi
+}
+parse_git_untracked() {
+    if grep -q "Untracked files" <<< "$status"; then
+        echo -n 'U'
+    fi
+}
+parse_git_rebase() {
+    if [ -d "$gitdir/rebase-merge" ] || [ -d "$gitdir/rebase-apply" ] ; then
+        echo -n 'rebase'
+    fi
+}
+parse_git_merge() {
+    if [ -f "$gitdir/MERGE_HEAD" ]; then
+        echo -n 'merge'
+    fi
 }
 parse_git_branch() {
-    git branch --no-color 2> /dev/null | sed -e '/^[^*]/d' -e "s/* \(.*\)/ (\1$(parse_git_dirty))/"
+    git rev-parse 2>/dev/null || return
+    local gitdir
+    gitdir="$(env LANG=C git rev-parse --git-dir 2>/dev/null)"
+    local status
+    status="$(env LANG=C git status 2>/dev/null)"
+    local remote
+    local operation
+    local worktree
+    remote+="$(parse_git_ahead)"
+    remote+="$(parse_git_behind)"
+    operation+="$(parse_git_rebase)"
+    operation+="$(parse_git_merge)"
+    worktree+="$(parse_git_dirty)"
+    worktree+="$(parse_git_modified)"
+    worktree+="$(parse_git_staged)"
+    worktree+="$(parse_git_untracked)"
+    local -a sections=($remote $operation $worktree)
+    IFS=: local icons="${sections[*]}"
+    # ":" will not appear in Git branch name
+    [ -z "${icons}" ] || icons=":${icons}"
+    git branch --no-color 2> /dev/null | sed -e '/^[^*]/d' -e "s/* \(.*\)/ (\1${icons})/"
 }
 __prompt_command() {
     local pipestatus="${PIPESTATUS[*]}"
