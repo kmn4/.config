@@ -5,7 +5,7 @@
 [push]
 	default = simple
 [log]
-	date = relative
+	date = iso-local
 [alias]
 	oneline = log --graph --format=\"%C(auto)%h%d %G? %C(cyan)[%ad] %C(auto)%s\"
 	stat = status --short
