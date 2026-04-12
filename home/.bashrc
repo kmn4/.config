@@ -214,6 +214,14 @@ command -v firefox &> /dev/null || alias firefox="firefox.exe"
 # apt install libterm-readline-perl-perl
 command -v perlsh &> /dev/null || alias perlsh="rlwrap perl -Mstrict -Mwarnings -Mutf8 -MData::Dumper -d -e1"
 eww(){ emacs -q -nw --eval "(eww \"$1\")";}
+dpkg-installed-pkgs-built-from() {
+    local srcpkg=$1
+    local binpkgs
+    binpkgs="$(set -o pipefail && apt-cache showsrc $1 | sed -n 's/^Binary: //p' | tr -d , | tr ' ' '\n' | sort -u)"
+    [ $? -eq 0 ] || return 1
+    # intentional word splitting
+    dpkg-query -W $binpkgs 2>/dev/null
+}
 
 alias update_apt='command -v apt &> /dev/null && sudo apt update && sudo apt upgrade && sudo apt autoremove'
 alias update_winget='command -v powershell.exe &> /dev/null && powershell.exe -Command "winget upgrade"'
