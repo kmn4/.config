@@ -66,11 +66,6 @@ parse_git_behind() {
         echo -n 'B'
     fi
 }
-parse_git_dirty() {
-    if ! grep -q "nothing to commit, working tree clean" <<< "$status"; then
-        echo -n '*'
-    fi
-}
 parse_git_modified() {
     if grep -q "Changes not staged for commit" <<< "$status"; then
         echo -n 'M'
@@ -109,7 +104,6 @@ parse_git_branch() {
     remote+="$(parse_git_behind)"
     operation+="$(parse_git_rebase)"
     operation+="$(parse_git_merge)"
-    worktree+="$(parse_git_dirty)"
     worktree+="$(parse_git_modified)"
     worktree+="$(parse_git_staged)"
     worktree+="$(parse_git_untracked)"
