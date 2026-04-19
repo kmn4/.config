@@ -190,6 +190,11 @@ if ! shopt -oq posix; then
   fi
 fi
 
+decode_imap_utf7() {
+    perl -MMIME::Base64=decode_base64 -MEncode=decode -CS -pe \
+      's{&([^-]*)-}{$1 eq "" ? "&" : decode("UTF-16BE", decode_base64((do { my $s = $1; $s =~ tr/,/\//; $s . "=" x ((4 - length($s) % 4) % 4) })))}ge'
+}
+
 [ -e "$HOME/.cargo/env" ] && . "$HOME/.cargo/env"
 
 [ -x /usr/bin/terraform ] && complete -C /usr/bin/terraform terraform
